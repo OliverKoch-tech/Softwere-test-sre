@@ -58,6 +58,11 @@
 
         input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; }
         .flex-row { display: flex; gap: 10px; }
+        
+        /* NEW NETWORK TABLE */
+        table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; color: #999; }
+        table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -67,7 +72,7 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v7.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v8.0</div>
     </div>
 
     <div id="login-screen">
@@ -89,6 +94,25 @@
             <span>COMMAND TARGET:</span>
             <select id="target-screen"><option value="ALL">ALL ACTIVE SCREENS</option></select>
             <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID TAGS</button>
+        </div>
+
+        <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
+        <div class="grid" style="grid-template-columns: 1fr;">
+            <div class="card" style="border: 2px solid #1f6feb;">
+                <h2>CONNECTED SCREENS</h2>
+                <table class="net-table">
+                    <thead>
+                        <tr>
+                            <th>SCREEN ID</th>
+                            <th>STATUS</th>
+                            <th>SERVER PING</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="network-tbody">
+                        </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="section-title">NUCLEAR CONTROL CENTER</div>
@@ -139,7 +163,7 @@
             </div>
         </div>
 
-        <div class="section-title">GLOBAL DSB CONTROLS</div>
+        <div class="section-title">GLOBAL SRE CONTROLS</div>
         <div class="grid">
             <div class="card">
                 <h2>TICKER & BROADCAST</h2>
@@ -225,13 +249,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Intro Logic
         let introIdx = 0;
         const statusEl = document.getElementById('load-status');
         const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
 
-        // Authentication
         let usersDB = { admin: "1234" };
         onValue(ref(db, 'remote/users'), (snap) => { if(snap.val()) usersDB = snap.val(); });
 
@@ -252,12 +274,13 @@
             } 
         };
 
-        // Commands Logic
-        window.sendCommand = (event, val = "") => {
+        // Command Sender - Updated to allow specific targeting for the "Kick" button
+        window.sendCommand = (event, val = "", overrideTarget = null) => {
+            const target = overrideTarget || document.getElementById('target-screen').value;
             update(ref(db, 'remote/commands'), { 
                 event: event, 
                 value: val, 
-                target: document.getElementById('target-screen').value, 
+                target: target, 
                 ts: Date.now() 
             });
         };
@@ -282,22 +305,58 @@
             window.sendCommand('ticker', ""); 
         };
 
-        // Screen Syncing
+        // NEW: LIVE NETWORK MONITORING
+        let lastKnownScreens = {};
+        
         onValue(ref(db, 'remote/screens'), (snapshot) => {
-            const screens = snapshot.val();
-            const select = document.getElementById('target-screen');
-            const current = select.value;
-            select.innerHTML = '<option value="ALL">ALL SCREENS</option>';
-            if (screens) {
-                Object.keys(screens).forEach(id => {
-                    if (Date.now() - screens[id].heartbeat < 10000) {
-                        const opt = document.createElement('option');
-                        opt.value = id; opt.innerText = id; select.appendChild(opt);
-                    }
-                });
-            }
-            select.value = current;
+            lastKnownScreens = snapshot.val() || {};
         });
+
+        function updateNetworkUI() {
+            const select = document.getElementById('target-screen');
+            const tbody = document.getElementById('network-tbody');
+            const current = select.value;
+            
+            select.innerHTML = '<option value="ALL">ALL ACTIVE SCREENS</option>';
+            tbody.innerHTML = '';
+            
+            const now = Date.now();
+            let hasActiveScreens = false;
+
+            Object.keys(lastKnownScreens).forEach(id => {
+                const ping = now - lastKnownScreens[id].heartbeat;
+                const isOnline = ping < 10000;
+                
+                // Populate Dropdown only with Online screens
+                if (isOnline) {
+                    hasActiveScreens = true;
+                    const opt = document.createElement('option');
+                    opt.value = id; opt.innerText = id; select.appendChild(opt);
+                }
+
+                // Populate Table with ALL screens (Online and Offline history)
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${id}</strong></td>
+                    <td style="color: ${isOnline ? '#2ecc71' : '#E3000F'}; font-weight: 900;">${isOnline ? 'ONLINE' : 'OFFLINE'}</td>
+                    <td>${isOnline ? ping + ' ms' : 'N/A'}</td>
+                    <td>
+                        <button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK FROM NETWORK</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            if (!hasActiveScreens) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED ON NETWORK</td></tr>';
+            }
+
+            if (Array.from(select.options).some(o => o.value === current)) { select.value = current; }
+        }
+
+        // Refreshes the ping logic visually every 1 second
+        setInterval(updateNetworkUI, 1000);
+
     </script>
 </body>
 </html>
