@@ -6,12 +6,22 @@
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* --- INTRO SCREEN --- */
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; }
-        #intro-screen img { max-width: 250px; animation: pulse 2s infinite; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(227,0,15,0.5)); }
-        #intro-screen h1 { color: #E3000F; font-size: 40px; letter-spacing: 8px; margin: 0; }
-        #intro-screen h3 { color: #888; font-size: 20px; letter-spacing: 4px; margin-top: 10px; font-weight: normal; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        /* --- CLEAN WHITE INTRO --- */
+        #intro-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #ffffff; z-index: 9999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 1s ease-in-out; color: #000;
+        }
+        #intro-screen img { max-width: 280px; margin-bottom: 30px; }
+        #intro-screen h1 { font-size: 24px; letter-spacing: 5px; margin: 0; font-weight: 900; }
+        #intro-loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #E3000F;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 20px 0;
+        }
+        #load-status { font-family: monospace; font-size: 14px; color: #666; text-transform: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS --- */
         .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
@@ -27,19 +37,18 @@
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
         .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
         .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
-        .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
+        
+        /* --- TICKER (REAL NEWS) --- */
+        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000; border-top: 2px solid #E3000F;}
+        .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 60s linear infinite; }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* --- NEW: DVD SCREENSAVER --- */
-        #dvd-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 99999; display: none; overflow: hidden; }
-        #dvd-logo { position: absolute; height: 150px; filter: invert(30%) sepia(100%) saturate(5000%) hue-rotate(0deg); transition: filter 0.1s; }
-
-        /* --- NEW: SENTIENT AI TERMINAL --- */
-        #terminal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 99998; display: none; padding: 60px; box-sizing: border-box; }
-        #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
-        .cursor { animation: blink 1s step-end infinite; }
-
-        /* --- EXISTING OVERLAYS & ALERTS --- */
+        /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        #terminal-overlay { background: rgba(0,0,0,0.95); z-index: 99998; padding: 60px; box-sizing: border-box; }
+        #terminal-text { color: #0f0; font-family: monospace; font-size: 40px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
+        #dvd-logo { position: absolute; height: 150px; }
         #blackout { background: black; z-index: 9996; } 
         #hacker-matrix { background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 28px; padding: 60px; z-index: 9997; text-transform: none; }
         #jumpscare { z-index: 9998; background-size: contain; background-repeat: no-repeat; background-position: center; }
@@ -47,36 +56,32 @@
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
-        
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; }
-        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000;}
-        .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
     </style>
 </head>
 <body id="main-body">
 
     <div id="intro-screen">
-        <img src="logo.png" alt="DSB Logo" onerror="this.style.display='none'">
+        <img src="logo.png" alt="DSB Logo">
         <h1>SYSTEM INITIALIZING</h1>
-        <h3>MADE BY OLIVER</h3>
+        <div id="intro-loader"></div>
+        <div id="load-status">Connecting to terminal...</div>
+        <div style="margin-top: 20px; font-size: 12px; letter-spacing: 2px;">MADE BY OLIVER</div>
     </div>
 
-    <div id="dvd-overlay"><img id="dvd-logo" src="logo.png"></div>
-    <div id="terminal-overlay"><div id="terminal-text"></div></div>
-
-    <div id="screen-id-tag">STARTER...</div>
-    
-    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; text-transform:none; color:white;"></div></div>
+    <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
+    <div id="terminal-overlay" class="overlay"><div id="terminal-text"></div></div>
+    <div id="screen-id-tag">ID: --</div>
+    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white;"></div></div>
     <div id="blackout" class="overlay"></div><div id="jumpscare" class="overlay"></div>
     <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...</div>
     <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem...</p></div>
-    <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer<br>15% fuldført<br>Sluk ikke computeren.</div></div>
+    <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.</div></div>
 
     <div class="header">
-        <div style="font-size: 50px; font-weight: 900; letter-spacing: 2px;">AFGANGE / DEPARTURES</div>
+        <div style="font-size: 50px; font-weight: 900;">AFGANGE / DEPARTURES</div>
         <div style="text-align: right;">
             <div class="time clock-text">00:00:00</div>
-            <div class="date-text" style="font-size: 20px; font-weight: bold; margin-top: 5px;">HENTER DATO...</div>
             <div class="weather-text" style="color: #aaa; font-size: 18px;">--°C</div>
         </div>
     </div>
@@ -85,36 +90,49 @@
         <tbody id="train-table">
             <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
             <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:30</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
             <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
-            <tr><td class="yellow">13:00</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
         </tbody>
     </table>
     
-    <img src="logo.png" class="footer-logo">
-    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">SYNCER MED HUB...</div></div>
+    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">HENTER NYHEDER...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- INTRO LOGIC ---
+        // --- INTRO SCRIPT ---
+        const messages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Establishing Secure Link...", "Ready."];
+        let msgIdx = 0;
+        const statusEl = document.getElementById('load-status');
+        const msgInterval = setInterval(() => {
+            statusEl.innerText = messages[msgIdx];
+            msgIdx++;
+            if(msgIdx >= messages.length) clearInterval(msgInterval);
+        }, 800);
         setTimeout(() => {
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
             setTimeout(() => intro.style.display = 'none', 1000); 
-        }, 3500); 
+        }, 4500);
 
-        // --- DVD ANIMATION LOGIC ---
-        let dvdInterval;
-        let dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
+        // --- REAL NEWS FETCH ---
+        async function fetchNews() {
+            try {
+                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
+                const d = await res.json();
+                const hl = d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ");
+                document.getElementById('ticker-msg').innerText = "+++ SENESTE NYT: " + hl + " +++";
+            } catch(e) { document.getElementById('ticker-msg').innerText = "NYHEDSFEED UTILGÆNGELIG..."; }
+        }
+        fetchNews(); setInterval(fetchNews, 600000);
+
+        // --- DVD LOGIC ---
+        let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             const overlay = document.getElementById('dvd-overlay');
             const logo = document.getElementById('dvd-logo');
             overlay.style.display = 'block';
             clearInterval(dvdInterval);
-            
             dvdInterval = setInterval(() => {
                 const rect = logo.getBoundingClientRect();
                 if (dvdX + rect.width >= window.innerWidth || dvdX <= 0) { dvdDx = -dvdDx; changeHue(); }
@@ -125,174 +143,67 @@
         }
         function changeHue() {
             dvdHue = (dvdHue + 75) % 360;
-            // The massive saturate/sepia forces color onto white/grey images
             document.getElementById('dvd-logo').style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`;
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
-        // --- TERMINAL TYPING LOGIC ---
+        // --- TERMINAL LOGIC ---
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
             const el = document.getElementById('terminal-text');
-            el.innerHTML = '';
-            clearTimeout(typeTimeout);
-            
-            let i = 0;
-            // Decode newlines
-            text = text.replace(/\\n/g, '<br>');
-            
+            el.innerHTML = ''; clearTimeout(typeTimeout);
+            let i = 0; text = text.replace(/\\n/g, '<br>');
             function typeChar() {
                 if (i < text.length) {
-                    // Check if it's an HTML tag (like <br>) and skip parsing it letter by letter
                     if (text.charAt(i) === '<') {
-                        let tag = "";
-                        while (text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
-                        tag += '>';
-                        el.innerHTML = el.innerHTML.replace('<span class="cursor">█</span>', '') + tag + '<span class="cursor">█</span>';
-                    } else {
-                        el.innerHTML = el.innerHTML.replace('<span class="cursor">█</span>', '') + text.charAt(i) + '<span class="cursor">█</span>';
-                    }
-                    i++;
-                    // Random human-like typing speed
-                    typeTimeout = setTimeout(typeChar, Math.random() * 50 + 20);
+                        let tag = ""; while (text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
+                        tag += '>'; el.innerHTML = el.innerHTML.replace('█', '') + tag + '█';
+                    } else { el.innerHTML = el.innerHTML.replace('█', '') + text.charAt(i) + '█'; }
+                    i++; typeTimeout = setTimeout(typeChar, 40);
                 }
             }
             typeChar();
         }
 
+        // --- FIREBASE SETUP ---
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
-        let bootTime = Date.now(); window.scrambleTimer = null;
+        let bootTime = Date.now();
 
-        setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
-
-        // --- COMMAND LISTENER ---
         onValue(ref(db, 'remote/commands'), (snapshot) => {
             const cmd = snapshot.val();
-            if (!cmd) return;
-            if (cmd.ts <= bootTime) return; 
+            if (!cmd || cmd.ts <= bootTime) return;
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
             bootTime = cmd.ts;
 
             const body = document.getElementById('main-body');
-
-            if (cmd.event === "reset") location.reload(); 
-            else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
-            else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
-            else if (cmd.event === "weather") document.querySelectorAll('.weather-text').forEach(el => el.innerText = cmd.value);
-            else if (cmd.event === "msg_board") {
-                document.getElementById('msg-board-title').innerText = "VIGTIG MEDDELELSE";
-                document.getElementById('msg-board-title').style.color = "#FFD700";
-                document.getElementById('msg-board-overlay').style.borderColor = "#E3000F";
-                document.getElementById('msg-board-text').innerHTML = cmd.value;
-                document.getElementById('msg-board-overlay').style.display = 'flex';
-            }
-            
-            // NEW FEATURES TRIGGER
-            else if (cmd.event === "dvd") startDvd();
+            if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
-
-            else if (cmd.event === "add_train") {
-                try {
-                    const t = JSON.parse(cmd.value);
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td class="yellow">${t.time}</td><td><span class="ic-box">${t.type}</span></td><td class="white">${t.dest}</td><td class="yellow">${t.track}</td><td class="white status-msg">TIL TIDEN</td>`;
-                    document.getElementById('train-table').appendChild(tr);
-                } catch(e){}
-            }
-            else if (cmd.event === "delay") {
-                let text = cmd.value ? `FORSINKET ${cmd.value} MIN` : "FORSINKET 99 MIN";
-                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = text; el.className = "red blinking status-msg"; });
-            }
-            else if (cmd.event === "cancel_all") document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "AFLYST"; el.className = "red blinking status-msg"; });
-            else if (cmd.event === "boarding") document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; });
-            else if (cmd.event === "scramble") {
-                if(!window.scrambleTimer) {
-                    const tds = document.querySelectorAll('td');
-                    tds.forEach(td => { if(!td.dataset.orig) td.dataset.orig = td.innerHTML; });
-                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X!?";
-                    window.scrambleTimer = setInterval(() => {
-                        tds.forEach(td => {
-                            if(td.querySelector('span')) return;
-                            td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? chars[Math.floor(Math.random()*chars.length)] : c).join('');
-                        });
-                    }, 80);
-                }
-            }
-            else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
-            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
-            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
-            else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
+            else if (cmd.event === "dvd") startDvd();
+            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); }
+            else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
             else if (cmd.event === "invert") body.classList.toggle('upside-down');
             else if (cmd.event === "panic") body.classList.add('glitch-red');
-            else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
             else if (cmd.event === "disco") body.classList.toggle('disco');
             else if (cmd.event === "shake") body.classList.toggle('shake');
-            else if (cmd.event === "clear_fx") {
-                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'deep-fried', 'disco', 'shake');
-                if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); }
+            else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
+            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
+            else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
+            else if (cmd.event === "msg_board") {
+                document.getElementById('msg-board-text').innerHTML = cmd.value;
+                document.getElementById('msg-board-overlay').style.display = 'flex';
             }
-            else if (cmd.event === "clear_media") {
-                document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none');
-                stopDvd(); // Stops the DVD screensaver safely
-                document.getElementById('terminal-overlay').style.display = 'none'; // Clears terminal
-            }
-            else if (cmd.event === "reset_trains") document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; });
         });
 
-        function updateTime() {
+        setInterval(() => {
             const now = new Date();
-            document.querySelectorAll('.clock-text').forEach(el => el.innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'}) + (el.classList.contains('time') ? ':'+now.getSeconds().toString().padStart(2,'0') : ''));
-            document.querySelectorAll('.date-text').forEach(el => el.innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'long'}).toUpperCase());
-            
-            // NIGHTLY ROUTINE (9:30 PM)
-            if (now.getHours() === 21 && now.getMinutes() === 30 && now.getSeconds() === 0) {
-                const overlay = document.getElementById('msg-board-overlay');
-                const title = document.getElementById('msg-board-title');
-                title.innerText = "GODNAT!";
-                title.style.color = "#3498db"; 
-                overlay.style.borderColor = "#3498db";
-                document.getElementById('msg-board-text').innerHTML = "Tak for i dag!<br>Husk at børste tænder og sove godt.<br>Vi ses i morgen!";
-                overlay.style.display = 'flex';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    title.innerText = "VIGTIG MEDDELELSE"; 
-                    title.style.color = "#FFD700"; 
-                    overlay.style.borderColor = "#E3000F"; 
-                }, 60000);
-            }
-        }
-        setInterval(updateTime, 1000); updateTime();
-
-        // Real Weather
-        async function fetchWeather() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
-                const d = await res.json();
-                document.querySelectorAll('.weather-text').forEach(el => el.innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`);
-            } catch(e) {}
-        }
-        fetchWeather();
-
-        // DR News Feed
-        async function fetchNews() {
-            try {
-                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
-                const d = await res.json();
-                const hl = d.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
-                document.getElementById('ticker-msg').innerText = "+++ NYHEDER: " + hl + " +++ ";
-            } catch(e) {}
-        }
-        fetchNews(); setInterval(fetchNews, 600000);
+            document.querySelector('.clock-text').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        }, 1000);
     </script>
 </body>
 </html>

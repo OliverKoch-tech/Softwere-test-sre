@@ -6,19 +6,19 @@
     <style>
         body { background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
         
-        /* --- LOGIN SCREEN OVERLAY --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { background: #161b22; border: 2px solid #da3633; border-radius: 12px; padding: 40px; width: 350px; text-align: center; box-shadow: 0 0 30px rgba(218, 54, 51, 0.3); }
         .login-box h1 { margin-top: 0; color: #da3633; }
         .login-box input { width: 100%; padding: 15px; margin-bottom: 15px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
         .login-btn { width: 100%; padding: 15px; background: #da3633; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
         
-        /* --- ADMIN PANEL STYLES --- */
+        /* --- LAYOUT --- */
         .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
         .target-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
         select { background: #0d1117; color: #2ecc71; font-size: 16px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
         h2 { font-size: 12px; color: #8b949e; margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
 
@@ -27,9 +27,8 @@
         
         .red { background: #da3633; } .green { background: #238636; } .blue { background: #1f6feb; } .yellow { background: #d29922; color: black; } .black { background: #21262d; border: 1px solid #30363d; color: white;} .purple { background: #8957e5; }
         
-        input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; font-family: sans-serif; }
-        .flex-row { display: flex; gap: 5px; margin-bottom: 8px; }
-        .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; }
+        input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; }
+        .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -40,7 +39,6 @@
             <input type="text" id="logUser" placeholder="USERNAME">
             <input type="password" id="logPass" placeholder="PASSWORD">
             <button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button>
-            <div style="font-size: 10px; color: #555; margin-top: 15px;">UNAUTHORIZED ACCESS PROHIBITED</div>
         </div>
     </div>
 
@@ -49,180 +47,128 @@
     </div>
 
     <div class="target-box">
-        SELECT SCREEN: <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
-        <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE SCREEN ID</button>
-        <button class="btn blue" style="width:auto; margin:0;" onclick="sendCommand('msg_board', prompt('Enter Full Screen Emergency Message:'))">🚨 FULL SCREEN ALERT</button>
+        TARGET: <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
+        <button class="btn blue" style="width:auto; margin:0;" onclick="sendCommand('msg_board', prompt('Enter Emergency Message:'))">🚨 FULL SCREEN ALERT</button>
     </div>
 
-    <div class="section-title">DSB TRAIN BOARD CONTROLS</div>
-
+    <div class="section-title">DSB BOARD CONTROLS</div>
     <div class="grid">
         <div class="card">
             <h2>SCENE MANAGEMENT</h2>
             <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">START PREMIERE</button>
-            <button class="btn yellow" onclick="sendCommand('status', 'I GANG')">SET TO LIVE</button>
             <button class="btn black" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
-            <h2 style="margin-top:20px;">TICKER OVERRIDE</h2>
-            <input type="text" id="tInput" placeholder="Bottom news ticker text...">
-            <button class="btn blue" onclick="sendCommand('ticker', document.getElementById('tInput').value)">UPDATE TICKER</button>
-        </div>
-        <div class="card">
-            <h2>TRAIN CONTROL</h2>
-            <div class="flex-row">
-                <input type="number" id="dInput" placeholder="Min" style="width:80px;">
-                <button class="btn red" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
-            </div>
-            <button class="btn red" style="background:#8b0000" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
-            <button class="btn green" onclick="sendCommand('boarding')">BOARDING (BLINK GREEN)</button>
-            
-            <h2 style="margin-top:20px;">ADD FAKE TRAIN</h2>
-            <div class="flex-row"><input type="text" id="trTime" placeholder="Time (14:00)"><input type="text" id="trType" placeholder="Type (IC)"></div>
-            <div class="flex-row"><input type="text" id="trDest" placeholder="Dest (HOGWARTS)"><input type="text" id="trTrack" placeholder="Track"></div>
-            <button class="btn yellow" onclick="sendTrain()">INJECT TO BOARD</button>
+            <h2 style="margin-top:15px;">TICKER OVERRIDE</h2>
+            <input type="text" id="tInput" placeholder="Force text to news bar...">
+            <button class="btn blue" onclick="sendCommand('ticker', document.getElementById('tInput').value)">OVERRIDE NEWS</button>
         </div>
         
         <div class="card">
-            <h2>USER MANAGEMENT</h2>
+            <h2>TRAIN STATUS</h2>
+            <button class="btn red" onclick="sendCommand('delay', '99')">DELAY ALL TRAINS</button>
+            <button class="btn green" onclick="sendCommand('boarding', 'BOARDING')">BOARDING (BLINK GREEN)</button>
+            <button class="btn black" onclick="sendCommand('reset_trains')">RESET TO "TIL TIDEN"</button>
+        </div>
+
+        <div class="card">
+            <h2>ADMIN USERS</h2>
             <input type="text" id="newU" placeholder="New Username">
             <input type="password" id="newP" placeholder="New Password">
-            <button class="btn blue" onclick="addUser()">CREATE ADMIN USER</button>
-            <div style="font-size:10px; color:#8b949e; margin-top:5px; text-transform:none;">Add a new user to access this control panel. Default is admin/1234.</div>
+            <button class="btn blue" onclick="addUser()">CREATE USER</button>
         </div>
     </div>
 
-    <div class="section-title">THE "MESS AROUND" TROLLS & RESETS</div>
-
+    <div class="section-title">THE "MESS AROUND" TROLLS</div>
     <div class="grid">
-        
         <div class="card">
-            <h2>AI HACKER TERMINAL</h2>
-            <textarea id="termInput" rows="4" placeholder="Type message for the Sentient AI to type out... Use \n for new lines."></textarea>
+            <h2>SENTIENT AI TERMINAL</h2>
+            <textarea id="termInput" rows="3" placeholder="Type message for the AI to type out..."></textarea>
             <button class="btn green" style="background:#0f0; color:black;" onclick="sendTerminal()">TYPE TO SCREEN</button>
-            
-            <h2 style="margin-top:20px;">DVD LOGO BOUNCE</h2>
+            <h2 style="margin-top:15px;">DVD BOUNCE</h2>
             <button class="btn purple" onclick="sendCommand('dvd')">START DVD SCREENSAVER</button>
         </div>
 
         <div class="card">
-            <h2>VISUAL FX & HACKS</h2>
-            <button class="btn yellow" onclick="sendCommand('mirror')">MIRROR MODE</button>
+            <h2>VISUAL CHAOS</h2>
+            <button class="btn yellow" onclick="sendCommand('mirror')">MIRROR SCREEN</button>
             <button class="btn yellow" onclick="sendCommand('invert')">UPSIDE DOWN</button>
-            <button class="btn red" onclick="sendCommand('panic')">PANIC BLINK</button>
             <button class="btn purple" onclick="sendCommand('disco')">DISCO MODE</button>
-            <button class="btn purple" onclick="sendCommand('shake')">EARTHQUAKE SHAKE</button>
-            <button class="btn green" style="background:#0f0; color:black; margin-top:10px;" onclick="sendCommand('scramble')">START MATRIX SCRAMBLE</button>
+            <button class="btn purple" onclick="sendCommand('shake')">EARTHQUAKE</button>
         </div>
 
         <div class="card">
-            <h2>OVERLAYS & JUMPSCARES</h2>
-            <button class="btn green" onclick="sendCommand('roblox')">ROBLOX FACE (3S)</button>
-            <button class="btn green" onclick="sendCommand('meme')">MEME JUMP (3S)</button>
+            <h2>SYSTEM OVERLAYS</h2>
             <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
-            <button class="btn blue" onclick="sendCommand('bluescreen')">BLUE SCREEN CRASH</button>
-            <button class="btn blue" style="background:#006dae;" onclick="sendCommand('winupdate')">WINDOWS UPDATE TROLL</button>
-            
-            <h2 style="margin-top:10px;">WEATHER HACKER</h2>
-            <div class="flex-row">
-                <input type="text" id="wInput" placeholder="LAVA RAIN 999°C">
-                <button class="btn blue" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET WEATHER</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 style="color:#2ecc71;">SOFT RESETS (FIXES)</h2>
-            <button class="btn green" onclick="sendCommand('clear_media')">CLOSE ALL OVERLAYS (Terminal, DVD, Alerts)</button>
-            <button class="btn green" onclick="sendCommand('clear_fx')">CLEAR VISUAL FX / STOP SCRAMBLE</button>
-            <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS (TIL TIDEN)</button>
-            
-            <h2 style="color:#da3633; margin-top:30px;">EMERGENCY (HARD)</h2>
-            <button class="btn black" style="border:1px solid #da3633;" onclick="sendCommand('reset')">HARD RESTART SCREEN</button>
+            <button class="btn blue" onclick="sendCommand('bluescreen')">BLUE SCREEN (BSOD)</button>
+            <button class="btn blue" style="background:#006dae;" onclick="sendCommand('winupdate')">WINDOWS UPDATE</button>
+            <h2 style="margin-top:15px;">RESETS</h2>
+            <button class="btn green" onclick="sendCommand('clear_media')">CLEAR ALL TROLLS</button>
+            <button class="btn red" onclick="sendCommand('reset')">HARD RESTART SCREEN</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- AUTHENTICATION SYSTEM ---
+        // --- AUTH ---
         let usersDB = {};
         onValue(ref(db, 'remote/users'), (snap) => {
-            usersDB = snap.val();
-            if (!usersDB) {
-                usersDB = { admin: "1234" };
-                update(ref(db), { 'remote/users/admin': "1234" });
-            }
+            usersDB = snap.val() || { admin: "1234" };
         });
 
         window.checkLogin = () => {
             const u = document.getElementById('logUser').value;
             const p = document.getElementById('logPass').value;
-            if (usersDB && usersDB[u] === p) {
-                document.getElementById('login-screen').style.display = 'none';
-            } else {
-                alert("ACCESS DENIED: Invalid username or password.");
-            }
+            if (usersDB[u] === p) document.getElementById('login-screen').style.display = 'none';
+            else alert("DENIED");
         };
 
         window.addUser = () => {
             const u = document.getElementById('newU').value;
             const p = document.getElementById('newP').value;
             if (u && p) {
-                const updates = {};
-                updates['remote/users/' + u] = p;
-                update(ref(db), updates);
-                alert("USER ADDED: " + u);
-                document.getElementById('newU').value = "";
-                document.getElementById('newP').value = "";
-            } else {
-                alert("Please enter both username and password.");
+                update(ref(db, 'remote/users'), { [u]: p });
+                alert("USER " + u + " CREATED");
             }
+        };
+
+        // --- COMMANDS ---
+        window.sendCommand = (event, val = "") => {
+            const target = document.getElementById('target-screen').value;
+            update(ref(db, 'remote/commands'), {
+                event: event,
+                value: val,
+                target: target,
+                ts: Date.now()
+            });
+        };
+
+        window.sendTerminal = () => {
+            const txt = document.getElementById('termInput').value;
+            window.sendCommand('terminal', txt || "> SYSTEM OVERRIDE...");
+            document.getElementById('termInput').value = "";
         };
 
         // --- SCREEN DETECTION ---
         onValue(ref(db, 'remote/screens'), (snapshot) => {
             const screens = snapshot.val();
             const select = document.getElementById('target-screen');
-            const currentSelection = select.value;
+            const current = select.value;
             select.innerHTML = '<option value="ALL">ALL SCREENS</option>';
             if (screens) {
-                const now = Date.now();
                 Object.keys(screens).forEach(id => {
-                    if (now - screens[id].heartbeat < 10000) {
+                    if (Date.now() - screens[id].heartbeat < 10000) {
                         const opt = document.createElement('option');
                         opt.value = id; opt.innerText = id; select.appendChild(opt);
                     }
                 });
             }
-            if (Array.from(select.options).some(o => o.value === currentSelection)) { select.value = currentSelection; }
+            select.value = current;
         });
-
-        // --- COMMAND SENDER ---
-        window.sendCommand = (event, val = "") => {
-            const target = document.getElementById('target-screen').value;
-            const u = {}; u['remote/commands'] = { event: event, value: val, target: target, ts: Date.now() };
-            update(ref(db), u);
-        };
-
-        window.sendTerminal = () => {
-            let text = document.getElementById('termInput').value;
-            if (!text) text = "> SYSTEM OVERRIDE SUCCESSFUL.\\n> AWAITING COMMANDS...";
-            window.sendCommand('terminal', text);
-            document.getElementById('termInput').value = ""; // Clear box after send
-        };
-
-        window.sendTrain = () => {
-            const payload = JSON.stringify({ 
-                time: document.getElementById('trTime').value || "??:??", 
-                type: document.getElementById('trType').value || "IC", 
-                dest: document.getElementById('trDest').value || "UNKNOWN", 
-                track: document.getElementById('trTrack').value || "?" 
-            });
-            window.sendCommand('add_train', payload);
-        };
     </script>
 </body>
 </html>
