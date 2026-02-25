@@ -27,7 +27,7 @@
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; }
         .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; text-transform: none; }
         .login-btn { width: 100%; padding: 12px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
 
         /* --- HEADER & LOGO --- */
@@ -43,8 +43,8 @@
         .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .card:hover { border-color: #000; }
+        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; }
+        .card:hover { border-color: #000; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
 
         .btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; }
@@ -52,9 +52,11 @@
         .btn.black { background: #000; color: #fff; }
         .btn.red { border-color: #E3000F; color: #E3000F; }
         .btn.red:hover { background: #E3000F; color: #fff; }
+        .btn.green { border-color: #2ecc71; color: #2ecc71; }
+        .btn.green:hover { background: #2ecc71; color: #fff; }
 
         input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; }
-        input:focus { border-color: #000; }
+        input:focus, textarea:focus { border-color: #000; }
         
         .flex-row { display: flex; gap: 10px; }
     </style>
@@ -66,7 +68,7 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v4.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v4.5</div>
     </div>
 
     <div id="login-screen">
@@ -91,39 +93,43 @@
             <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID TAGS</button>
         </div>
 
-        <div class="section-title">DSB TRAIN BOARD</div>
+        <div class="section-title">DSB BOARD CONTROLS</div>
         <div class="grid">
             <div class="card">
-                <h2>CORE BROADCAST</h2>
-                <input type="text" id="tInput" placeholder="Force Headline to News Ticker...">
-                <button class="btn" onclick="sendCommand('ticker', document.getElementById('tInput').value)">UPDATE TICKER</button>
-                <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
+                <h2>TICKER MANAGEMENT</h2>
+                <input type="text" id="tInput" placeholder="Force text to news bar...">
+                <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tInput').value)">SEND CUSTOM MESSAGE</button>
+                <button class="btn green" onclick="clearTicker()">REVERT TO DR NEWS</button>
+                <button class="btn red" style="margin-top:10px" onclick="sendCommand('status', 'PREMIERE NU')">LIVE PREMIERE STATUS</button>
             </div>
             
             <div class="card">
                 <h2>TRAIN STATUS</h2>
                 <div class="flex-row">
                     <input type="number" id="dInput" placeholder="Min" style="flex:1">
-                    <button class="btn" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+                    <button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
                 </div>
-                <button class="btn" onclick="sendCommand('boarding')">SET TO BOARDING</button>
+                <button class="btn green" onclick="sendCommand('boarding')">SET TO BOARDING</button>
                 <button class="btn" onclick="sendCommand('reset_trains')">RESET TO "TIL TIDEN"</button>
+                <button class="btn red" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
             </div>
 
             <div class="card">
-                <h2>EMERGENCY ALERTS</h2>
+                <h2>EMERGENCY ANNOUNCEMENTS</h2>
                 <textarea id="mInput" rows="2" placeholder="Full screen alert text..."></textarea>
                 <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND FULL SCREEN ALERT</button>
+                <button class="btn" onclick="sendCommand('clear_media')">REMOVE ALERT</button>
             </div>
         </div>
 
         <div class="section-title">THE MESS AROUND HACKS</div>
         <div class="grid">
             <div class="card">
-                <h2>AI TERMINAL</h2>
+                <h2>AI TERMINAL & DVD</h2>
                 <textarea id="termInput" rows="3" placeholder="Type AI message..."></textarea>
                 <button class="btn black" onclick="sendTerminal()">INJECT TERMINAL DATA</button>
-                <button class="btn" style="margin-top:10px" onclick="sendCommand('dvd')">ACTIVATE DVD BOUNCE</button>
+                <button class="btn purple" onclick="sendCommand('dvd')">ACTIVATE DVD BOUNCE</button>
+                <button class="btn" onclick="sendCommand('hacker')">HACKER MATRIX OVERLAY</button>
             </div>
 
             <div class="card">
@@ -136,16 +142,19 @@
                     <button class="btn" onclick="sendCommand('shake')">SHAKE</button>
                     <button class="btn" onclick="sendCommand('disco')">DISCO</button>
                 </div>
-                <button class="btn" onclick="sendCommand('scramble')">MATRIX SCRAMBLE</button>
+                <button class="btn black" onclick="sendCommand('scramble')">START MATRIX SCRAMBLE</button>
                 <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
             </div>
 
             <div class="card">
-                <h2>SYSTEM FAILURES</h2>
+                <h2>JUMPSCARES & FAILS</h2>
+                <div class="flex-row">
+                    <button class="btn red" onclick="sendCommand('roblox')">ROBLOX</button>
+                    <button class="btn red" onclick="sendCommand('meme')">MEME</button>
+                </div>
                 <button class="btn red" onclick="sendCommand('bluescreen')">BSOD (BLUE SCREEN)</button>
                 <button class="btn red" onclick="sendCommand('winupdate')">FORCE WIN UPDATE</button>
                 <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
-                <button class="btn red" style="margin-top:15px;" onclick="sendCommand('reset')">HARD SYSTEM RESTART</button>
             </div>
         </div>
 
@@ -155,17 +164,18 @@
                 <h2>USER MANAGEMENT</h2>
                 <input type="text" id="newU" placeholder="New Username">
                 <input type="password" id="newP" placeholder="New Password">
-                <button class="btn" onclick="addUser()">CREATE ADMIN</button>
+                <button class="btn black" onclick="addUser()">CREATE ADMIN</button>
             </div>
             <div class="card">
-                <h2>GLOBAL RESET</h2>
-                <button class="btn black" onclick="sendCommand('clear_media')">CLEAR ALL OVERLAYS</button>
-                <button class="btn black" onclick="sendCommand('clear_fx')">CLEAR ALL VISUAL FX</button>
+                <h2>GLOBAL RESETS</h2>
+                <button class="btn green" onclick="sendCommand('clear_media')">CLEAR ALL OVERLAYS</button>
+                <button class="btn green" onclick="sendCommand('clear_fx')">CLEAR ALL VISUAL FX</button>
+                <button class="btn red" style="margin-top:15px;" onclick="sendCommand('reset')">HARD SYSTEM RESTART</button>
             </div>
             <div class="card">
                 <h2>WEATHER OVERRIDE</h2>
                 <input type="text" id="wInput" placeholder="e.g. 999°C FIRE STORM">
-                <button class="btn" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+                <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
             </div>
         </div>
     </div>
@@ -175,21 +185,19 @@
         import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // --- INTRO LOGIC ---
-        const introMessages = ["Authenticating Oliver-Tech Admin...", "Connecting to Projector Hub...", "Syncing Database...", "Opening Encrypted Link...", "Welcome."];
+        const introMessages = ["Authenticating Oliver-Tech Admin...", "Connecting to Projector Hub...", "Syncing Database...", "Welcome."];
         let introIdx = 0;
         const statusEl = document.getElementById('load-status');
         const introInterval = setInterval(() => {
-            if(introIdx < introMessages.length) {
-                statusEl.innerText = introMessages[introIdx];
-                introIdx++;
-            } else { clearInterval(introInterval); }
-        }, 700);
+            if(introIdx < introMessages.length) { statusEl.innerText = introMessages[introIdx]; introIdx++; }
+            else { clearInterval(introInterval); }
+        }, 800);
 
         setTimeout(() => {
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
             setTimeout(() => intro.style.display = 'none', 1000); 
-        }, 4000);
+        }, 3500);
 
         // --- FIREBASE CORE ---
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
@@ -215,6 +223,8 @@
             if (u && p) {
                 update(ref(db, 'remote/users'), { [u]: p });
                 alert("USER " + u + " ADDED");
+                document.getElementById('newU').value = "";
+                document.getElementById('newP').value = "";
             }
         };
 
@@ -233,6 +243,11 @@
             const txt = document.getElementById('termInput').value;
             window.sendCommand('terminal', txt || "> SYSTEM OVERRIDE...");
             document.getElementById('termInput').value = "";
+        };
+
+        window.clearTicker = () => {
+            document.getElementById('tInput').value = "";
+            window.sendCommand('ticker', ""); // Sending empty string tells index.html to revert to DR News
         };
 
         // --- SCREEN DETECTION ---

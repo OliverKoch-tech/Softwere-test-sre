@@ -14,7 +14,7 @@
         #load-status { font-family: monospace; font-size: 14px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- TROLL EFFECTS --- */
+        /* --- TROLL EFFECTS (CSS) --- */
         .mirror { transform: scaleX(-1); } 
         .upside-down { transform: rotate(180deg); } 
         .glitch-red { animation: panic 0.1s infinite; }
@@ -36,7 +36,7 @@
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         table { width: 100%; border-collapse: collapse; } 
-        td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
+        td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; transition: color 0.2s; }
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
         .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } 
         .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
@@ -55,11 +55,12 @@
         #dvd-logo { position: absolute; height: 150px; }
         #blackout { background: black; z-index: 9996; } 
         #hacker-matrix { background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 28px; padding: 60px; z-index: 9997; text-transform: none; }
-        #jumpscare { z-index: 9998; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        #jumpscare { z-index: 99998; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: black; }
         #bsod { background: #0000aa; color: white; z-index: 10000; padding: 50px; font-family: monospace; text-transform: none; }
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
+        
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
@@ -113,7 +114,19 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- INTRO LOGIC ---
+        const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- GLOBAL STATE ---
+        let customTickerActive = false;
+        let lastDrNews = "HENTER SENESTE NYT FRA DR...";
+        const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
+        document.getElementById('screen-id-tag').innerText = "ID: " + myId;
+        let bootTime = Date.now();
+        window.scrambleTimer = null;
+
+        // --- INTRO ---
         const introMessages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
         let introMsgIdx = 0;
         const statusEl = document.getElementById('load-status');
@@ -127,7 +140,7 @@
             setTimeout(() => intro.style.display = 'none', 1000); 
         }, 4500);
 
-        // --- REAL WEATHER (ØSTER KIPPINGE) ---
+        // --- WEATHER & NEWS ---
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -137,18 +150,19 @@
         }
         fetchWeather(); setInterval(fetchWeather, 900000);
 
-        // --- REAL NEWS FETCH (DR) ---
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
-                const hl = d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ");
-                document.getElementById('ticker-msg').innerText = "+++ SENESTE NYT: " + hl + " +++";
+                lastDrNews = "+++ SENESTE NYT: " + d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ") + " +++";
+                if (!customTickerActive) {
+                    document.getElementById('ticker-msg').innerText = lastDrNews;
+                }
             } catch(e) {}
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
-        // --- DVD BOUNCE LOGIC ---
+        // --- DVD ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -163,7 +177,7 @@
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
-        // --- TERMINAL TYPING LOGIC ---
+        // --- TERMINAL ---
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
@@ -182,14 +196,7 @@
             typeChar();
         }
 
-        // --- FIREBASE CORE ---
-        const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
-        document.getElementById('screen-id-tag').innerText = "ID: " + myId;
-        let bootTime = Date.now(); window.scrambleTimer = null;
-
+        // --- FIREBASE COMMANDS ---
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
@@ -203,7 +210,15 @@
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
-            else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
+            else if (cmd.event === "ticker") {
+                if (cmd.value === "" || cmd.value === null) {
+                    customTickerActive = false;
+                    document.getElementById('ticker-msg').innerText = lastDrNews;
+                } else {
+                    customTickerActive = true;
+                    document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
+                }
+            }
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
             else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
@@ -213,11 +228,17 @@
             else if (cmd.event === "shake") body.classList.toggle('shake');
             else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
             else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
+            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
             else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
             else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
-            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "roblox") { 
+                const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; 
+                setTimeout(()=>el.style.display='none',3000); 
+            }
+            else if (cmd.event === "meme") { 
+                const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; 
+                setTimeout(()=>el.style.display='none',3000); 
+            }
             else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
             else if (cmd.event === "msg_board") { document.getElementById('msg-board-text').innerHTML = cmd.value; document.getElementById('msg-board-overlay').style.display = 'flex'; }
             else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
