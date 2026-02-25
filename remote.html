@@ -53,7 +53,7 @@
         <div class="target-box">
             <span>TARGET:</span>
             <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
-            <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE IDs</button>
+            <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID</button>
         </div>
 
         <div class="section-title">NUCLEAR CONTROL CENTER</div>
@@ -67,14 +67,14 @@
             </div>
             <div class="card" style="border: 2px solid #000;">
                 <h2>ID TAG CONTROL</h2>
-                <button class="btn black" onclick="sendCommand('show_id')">SHOW ALL ID TAGS</button>
-                <button class="btn black" onclick="sendCommand('hide_id')">HIDE ALL ID TAGS</button>
+                <button class="btn black" onclick="sendCommand('show_id')">SHOW ALL IDs</button>
+                <button class="btn black" onclick="sendCommand('hide_id')">HIDE ALL IDs</button>
             </div>
             <div class="card" style="border: 2px solid #E3000F;">
-                <h2>EMERGENCY STOP</h2>
-                <button class="btn red" onclick="sendCommand('blackout')">FORCE BLACKOUT</button>
-                <button class="btn red" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
-                <button class="btn black" onclick="sendCommand('msg_board', '')">CLOSE ALERT SCREEN</button>
+                <h2>SYSTEM STOP</h2>
+                <button class="btn red" onclick="sendCommand('blackout')">BLACKOUT</button>
+                <button class="btn red" onclick="sendCommand('reset')">REBOOT HUB</button>
+                <button class="btn black" onclick="sendCommand('msg_board', '')">CLOSE ALERT</button>
             </div>
         </div>
 
@@ -96,27 +96,27 @@
         <div class="grid">
             <div class="card">
                 <h2>TICKER & NEWS</h2>
-                <input type="text" id="tInput" placeholder="Override news feed...">
+                <input type="text" id="tInput" placeholder="Headline...">
                 <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tInput').value)">SEND HEADLINE</button>
                 <button class="btn red" style="margin-top:10px" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
             </div>
             <div class="card">
                 <h2>TRAIN STATUS</h2>
                 <div class="flex-row"><input type="number" id="dInput" placeholder="Min" style="flex:1"><button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button></div>
-                <button class="btn green" onclick="sendCommand('boarding')">SET ALL TO BOARDING</button>
-                <button class="btn red" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
+                <button class="btn green" onclick="sendCommand('boarding')">SET BOARDING</button>
+                <button class="btn red" onclick="sendCommand('cancel_all')">CANCEL ALL</button>
             </div>
             <div class="card">
-                <h2>BIG ALERT BOX</h2>
-                <textarea id="mInput" rows="2" placeholder="Overlay text (Big Screen Alert)..."></textarea>
-                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND BIG ALERT</button>
+                <h2>ALERT BOX</h2>
+                <textarea id="mInput" rows="2" placeholder="Emergency message..."></textarea>
+                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT</button>
             </div>
         </div>
 
-        <div class="section-title">MESS AROUND HACKS</div>
+        <div class="section-title">TROLLS & HACKS</div>
         <div class="grid">
-            <div class="card"><h2>AI TERMINAL & DVD</h2><textarea id="termInput" rows="3" placeholder="AI text..."></textarea><button class="btn black" onclick="sendTerminal()">INJECT TERMINAL</button><button class="btn blue" onclick="sendCommand('dvd')">ACTIVATE DVD BOUNCE</button><button class="btn black" onclick="sendCommand('hacker')">HACKER MATRIX</button></div>
-            <div class="card"><h2>VISUAL CHAOS</h2><div class="flex-row"><button class="btn" onclick="sendCommand('mirror')">MIRROR</button><button class="btn" onclick="sendCommand('invert')">INVERT</button><button class="btn" onclick="sendCommand('shake')">SHAKE</button></div><button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE BOARD</button><button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED</button><button class="btn purple" onclick="sendCommand('disco')">DISCO</button></div>
+            <div class="card"><h2>AI TERMINAL</h2><textarea id="termInput" rows="3" placeholder="AI text..."></textarea><button class="btn black" onclick="sendTerminal()">INJECT</button><button class="btn blue" onclick="sendCommand('dvd')">DVD BOUNCE</button></div>
+            <div class="card"><h2>CHAOS</h2><div class="flex-row"><button class="btn" onclick="sendCommand('mirror')">MIRROR</button><button class="btn" onclick="sendCommand('invert')">INVERT</button><button class="btn" onclick="sendCommand('shake')">SHAKE</button></div><button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE</button><button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED</button></div>
             <div class="card"><h2>JUMPSCARES</h2><div class="flex-row"><button class="btn red" onclick="sendCommand('roblox')">ROBLOX</button><button class="btn red" onclick="sendCommand('meme')">MEME</button></div><button class="btn red" onclick="sendCommand('bluescreen')">BSOD</button><button class="btn red" onclick="sendCommand('winupdate')">WIN UPDATE</button></div>
         </div>
     </div>
