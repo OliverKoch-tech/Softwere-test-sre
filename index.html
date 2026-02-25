@@ -1,68 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="da">
 <head>
-    <title>My Dynamic Webpage</title>
+    <meta charset="UTF-8">
+    <title>DSB Afgange - Skoleteater</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 100px;
-            background-color: #f0f8ff;
-            transition: background-color 0.5s ease;
+            background-color: #050505; /* Pitch black */
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-transform: uppercase;
+            overflow: hidden; /* Stops the page from scrolling */
         }
-        #dynamicText {
-            font-size: 30px;
-            font-weight: bold;
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 5px solid #E3000F; /* Real DSB Red */
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        #clock {
-            font-size: 24px;
-            color: #555;
-            margin-bottom: 30px;
+        
+        .title {
+            font-size: 40px;
+            font-weight: 900;
+            letter-spacing: 2px;
         }
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #333;
+        
+        .time {
+            color: #FFD700; /* Bright LED Yellow */
+            font-size: 45px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            color: #aaaaaa;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+            font-size: 22px;
+            font-weight: normal;
+        }
+        
+        td {
+            padding: 15px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .yellow { color: #FFD700; }
+        .red { color: #ff3333; }
+        .white { color: #ffffff; }
+        
+        /* Specific Train Type Colors */
+        .ic { background-color: #E3000F; color: white; padding: 2px 8px; border-radius: 3px; }
+        .stog { background-color: #C60C30; color: white; padding: 2px 8px; border-radius: 3px; }
+        .re { background-color: #002855; color: white; padding: 2px 8px; border-radius: 3px; }
+
+        .blinking {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* The Scrolling Announcement Bar */
+        .ticker-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #002855; /* DSB Blue */
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 15px 0;
+            font-size: 28px;
+            font-weight: bold;
+            white-space: nowrap;
         }
-        button:hover {
-            background-color: #555;
+        
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 20s linear infinite;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
         }
     </style>
 </head>
 <body>
-    <div id="dynamicText">Hello! Welcome to my interactive page.</div>
-    <div id="clock">Loading time...</div>
-    <button onclick="changeThingsUp()">Click Me for Magic!</button>
+
+    <div class="header">
+        <div class="title">AFGANGE / DEPARTURES</div>
+        <div class="time" id="clock">00:00:00</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tid</th>
+                <th>Tog</th>
+                <th>Destination</th>
+                <th>Spor</th>
+                <th>Bemærkning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="yellow">19:15</td>
+                <td><span class="ic">IC 142</span></td>
+                <td class="white">København H</td>
+                <td class="yellow">4</td>
+                <td class="white">Aflyst</td>
+            </tr>
+            <tr>
+                <td class="yellow">19:30</td>
+                <td><span class="stog">A</span></td>
+                <td class="white">Hillerød</td>
+                <td class="yellow">2</td>
+                <td class="white">Til tiden</td>
+            </tr>
+            <tr>
+                <td class="yellow blinking">20:00</td>
+                <td><span class="re">SKUESPIL</span></td>
+                <td class="yellow">[INDSÆT DET MÆRKELIGE NAVN HER]</td>
+                <td class="yellow">1</td>
+                <td class="red blinking">Gå til scenen</td>
+            </tr>
+            <tr>
+                <td class="yellow">20:15</td>
+                <td><span class="ic">ICL 55</span></td>
+                <td class="white">Aarhus H</td>
+                <td class="yellow">3</td>
+                <td class="white">Forsinket 10 min</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="ticker-container">
+        <div class="ticker-text">
+            *** VELKOMMEN TIL ÅRETS SKOLETEATER *** HUSK AT SLUKKE MOBILTELEFONEN UNDER FORESTILLINGEN *** BILLETTER KAN KØBES I BAREN ***
+        </div>
+    </div>
 
     <script>
         function updateTime() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
         }
         setInterval(updateTime, 1000);
-
-        const phrases = [
-            "Wow, you are actually coding!",
-            "Look at those colors change!",
-            "JavaScript is pretty cool.",
-            "Click it again!"
-        ];
-        let phraseCount = 0;
-
-        function changeThingsUp() {
-            document.getElementById('dynamicText').innerText = phrases[phraseCount];
-            phraseCount++; 
-            if (phraseCount >= phrases.length) {
-                phraseCount = 0;
-            }
-            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-            document.body.style.backgroundColor = randomColor;
-        }
+        updateTime();
     </script>
 </body>
 </html>
