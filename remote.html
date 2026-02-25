@@ -18,7 +18,7 @@
         select { background: #0d1117; color: #2ecc71; font-size: 16px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
         /* GRID LAYOUT */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
         h2 { font-size: 12px; color: #8b949e; margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
 
@@ -32,6 +32,9 @@
         input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; font-family: sans-serif; }
         .flex-row { display: flex; gap: 5px; margin-bottom: 8px; }
         .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; }
+        
+        /* TOGGLE SWITCH */
+        .toggle-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #c9d1d9; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -85,22 +88,47 @@
 
     <div id="panel-info" class="grid" style="display:none;">
         <div class="card">
-            <h2>SCHOOL MESSAGE BOX</h2>
+            <h2>SCHOOL MESSAGE BOX (LEFT SIDE)</h2>
             <textarea id="sMsg" rows="3" placeholder="Write a general message for the info board..."></textarea>
             <button class="btn blue" onclick="updateInfo('school_msg', document.getElementById('sMsg').value)">UPDATE MESSAGE</button>
             <div style="font-size:10px; color:#8b949e; margin-top:5px; text-transform:none;">Use &lt;br&gt; for line breaks.</div>
             
-            <h2 style="margin-top:15px;">QR CODE GENERATOR</h2>
-            <input type="text" id="qrLink" placeholder="https://example.com">
-            <input type="text" id="qrText" placeholder="SCAN THE CODE">
-            <button class="btn purple" onclick="saveQR()">UPDATE QR CODE</button>
+            <h2 style="margin-top:15px;">DAY PLAN (ROTATOR)</h2>
+            <textarea id="dPlan" rows="3" placeholder="08:00 - Math..."></textarea>
+            <button class="btn yellow" onclick="updateInfo('day_plan', document.getElementById('dPlan').value)">UPDATE DAY PLAN</button>
         </div>
+
         <div class="card">
-            <h2>WEEKLY FOOD MENU</h2>
-            <div class="flex-row"><input type="text" id="fMon" placeholder="Monday..."><input type="text" id="fTue" placeholder="Tuesday..."></div>
-            <div class="flex-row"><input type="text" id="fWed" placeholder="Wednesday..."><input type="text" id="fThu" placeholder="Thursday..."></div>
-            <input type="text" id="fFri" placeholder="Friday...">
+            <h2>CUSTOM SECTION (ROTATOR)</h2>
+            <input type="text" id="cTitle" placeholder="Custom Title (e.g., BIRTHDAYS)">
+            <textarea id="cText" rows="3" placeholder="Custom Text..."></textarea>
+            <button class="btn purple" onclick="saveCustom()">UPDATE CUSTOM SECTION</button>
+            
+            <h2 style="margin-top:15px;">WEEKLY FOOD MENU</h2>
+            <div class="flex-row"><input type="text" id="fMon" placeholder="Mon"><input type="text" id="fTue" placeholder="Tue"></div>
+            <div class="flex-row"><input type="text" id="fWed" placeholder="Wed"><input type="text" id="fThu" placeholder="Thu"></div>
+            <input type="text" id="fFri" placeholder="Fri">
             <button class="btn green" onclick="saveFood()">UPDATE MENU</button>
+        </div>
+
+        <div class="card">
+            <h2>QR CODE SETTINGS</h2>
+            <input type="text" id="qrLink" placeholder="URL (https://youtube.com)">
+            <input type="text" id="qrText" placeholder="QR Subtext">
+            <div class="toggle-label">
+                <span>SHOW QR IN ROTATION:</span>
+                <select id="qrToggle" style="width:80px; padding:5px; margin-bottom:0;" onchange="updateInfoRaw('show_qr', this.value === 'true')">
+                    <option value="true">ON</option>
+                    <option value="false">OFF</option>
+                </select>
+            </div>
+            <button class="btn blue" onclick="saveQR()">UPDATE QR DATA</button>
+            
+            <h2 style="margin-top:15px;">ROTATOR TIMING</h2>
+            <div class="flex-row">
+                <input type="number" id="rotTime" placeholder="Seconds" style="width:80px;" value="20">
+                <button class="btn yellow" onclick="updateInfoRaw('rotation_time', document.getElementById('rotTime').value)">SET SPEED (SEC)</button>
+            </div>
         </div>
     </div>
 
@@ -130,7 +158,7 @@
             <h2 style="margin-top:10px;">WEATHER HACKER</h2>
             <div class="flex-row">
                 <input type="text" id="wInput" placeholder="LAVA RAIN 999°C">
-                <button class="btn blue" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET</button>
+                <button class="btn blue" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET WEATHER</button>
             </div>
         </div>
 
@@ -185,6 +213,12 @@
                 if(state.qr_link) document.getElementById('qrLink').value = state.qr_link;
                 if(state.qr_text) document.getElementById('qrText').value = state.qr_text;
                 if(state.school_msg) document.getElementById('sMsg').value = state.school_msg.replace(/<br>/g, '\n');
+                if(state.day_plan) document.getElementById('dPlan').value = state.day_plan.replace(/<br>/g, '\n');
+                if(state.custom_title) document.getElementById('cTitle').value = state.custom_title;
+                if(state.custom_text) document.getElementById('cText').value = state.custom_text.replace(/<br>/g, '\n');
+                
+                if(state.rotation_time !== undefined) document.getElementById('rotTime').value = state.rotation_time;
+                if(state.show_qr !== undefined) document.getElementById('qrToggle').value = state.show_qr ? "true" : "false";
             }
         });
 
@@ -200,9 +234,14 @@
         };
 
         // Info State Updates
-        window.updateInfo = (path, val) => {
-            if (path === 'school_msg') val = val.replace(/\n/g, '<br>'); // Convert linebreaks to HTML
+        window.updateInfoRaw = (path, val) => {
             const u = {}; u['remote/state/' + path] = val; update(ref(db), u);
+        };
+        
+        window.updateInfo = (path, val) => {
+            // Convert newlines to <br> for HTML display
+            if (val) val = val.replace(/\n/g, '<br>'); 
+            window.updateInfoRaw(path, val);
         };
         
         window.saveFood = () => {
@@ -211,12 +250,17 @@
                 wed: document.getElementById('fWed').value, thu: document.getElementById('fThu').value,
                 fri: document.getElementById('fFri').value
             };
-            updateInfo('food', food);
+            window.updateInfoRaw('food', food);
         };
 
         window.saveQR = () => {
-            updateInfo('qr_link', document.getElementById('qrLink').value);
-            updateInfo('qr_text', document.getElementById('qrText').value);
+            window.updateInfoRaw('qr_link', document.getElementById('qrLink').value);
+            window.updateInfoRaw('qr_text', document.getElementById('qrText').value);
+        };
+        
+        window.saveCustom = () => {
+            window.updateInfoRaw('custom_title', document.getElementById('cTitle').value);
+            window.updateInfo('custom_text', document.getElementById('cText').value);
         };
 
         // Trolls & Commands
