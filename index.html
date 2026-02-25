@@ -6,12 +6,21 @@
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* --- CLEAN WHITE INTRO --- */
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; color: #000; }
-        #intro-screen img { max-width: 280px; margin-bottom: 30px; }
-        #intro-screen h1 { font-size: 24px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #E3000F; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
-        #load-status { font-family: monospace; font-size: 14px; color: #666; text-transform: none; }
+        /* --- CLEAN WHITE INTRO (EXACT MATCH TO ADMIN) --- */
+        #intro-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #ffffff; z-index: 9999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 1s ease-in-out; color: #000;
+        }
+        #intro-screen img { max-width: 250px; margin-bottom: 30px; }
+        #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
+        #intro-loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #000;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 20px 0;
+        }
+        #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS (CSS) --- */
@@ -61,7 +70,8 @@
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
         
-        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; }
+        /* UPDATED: WHITE ID TAG */
+        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #333; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
 </head>
@@ -72,7 +82,7 @@
         <h1>SYSTEM INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to terminal...</div>
-        <div style="margin-top: 20px; font-size: 12px; letter-spacing: 2px;">MADE BY OLIVER</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">MADE BY OLIVER</div>
     </div>
 
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
@@ -127,7 +137,7 @@
         window.scrambleTimer = null;
 
         // --- INTRO ---
-        const introMessages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
+        const introMessages = ["Authenticating System...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
         let introMsgIdx = 0;
         const statusEl = document.getElementById('load-status');
         const introMsgInterval = setInterval(() => {
