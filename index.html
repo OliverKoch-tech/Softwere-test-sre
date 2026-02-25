@@ -2,82 +2,38 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="30">
-    <title>DSB Afgange - Sporløs Live</title>
+    <title>DSB Afgange - Sporløs LIVE</title>
     <style>
-        body {
-            background-color: #050505;
-            color: #ffffff;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-transform: uppercase;
-            overflow: hidden;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-bottom: 5px solid #E3000F;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
+        body { background-color: #050505; color: #ffffff; font-family: 'Arial', sans-serif; margin: 0; padding: 20px; text-transform: uppercase; overflow: hidden; height: 100vh; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .title { font-size: 40px; font-weight: 900; letter-spacing: 2px; }
         .time { color: #FFD700; font-size: 45px; font-weight: bold; }
-
-        table { width: 100%; border-collapse: collapse; margin-bottom: 50px; }
-        th { text-align: left; color: #aaaaaa; padding-bottom: 10px; border-bottom: 2px solid #333; font-size: 22px; font-weight: normal; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #aaaaaa; border-bottom: 2px solid #333; font-size: 22px; padding-bottom: 10px; }
         td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
-        
-        .yellow { color: #FFD700; }
-        .red { color: #ff3333; }
-        .white { color: #ffffff; }
+        .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; }
         .ic { background-color: #E3000F; color: white; padding: 2px 8px; border-radius: 3px; }
-        .re { background-color: #002855; color: white; padding: 2px 8px; border-radius: 3px; }
-
-        .section-divider {
-            background-color: #111; color: #aaaaaa; text-align: center;
-            font-size: 24px; letter-spacing: 4px; border-top: 3px solid #333;
-            border-bottom: 3px solid #333; padding: 10px 0;
-        }
-
         .blinking { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
-
-        /* LOGO IN BOTTOM LEFT CORNER */
-        .footer-corner-logo {
-            position: fixed;
-            bottom: 70px; 
-            left: 20px; 
-            z-index: 5;
+        
+        /* JUMPSCARE & CHAOS OVERLAYS */
+        #blackout { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9998; display: none; }
+        #jumpscare-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 9999; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; 
         }
 
-        .footer-ghost-logo {
-            height: 25px; 
-            opacity: 0.2; /* Increased slightly so the outline is visible */
-            /* Grayscale PLUS a tight white drop shadow to create an outline effect */
-            filter: grayscale(100%) drop-shadow(0px 0px 1px #ffffff); 
-        }
-
-        .ticker-container {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background-color: #002855; color: white; padding: 15px 0;
-            font-size: 24px; font-weight: bold; white-space: nowrap;
-            border-top: 2px solid #ffffff33;
-            z-index: 1000;
-        }
-
-        .ticker-text {
-            display: inline-block; padding-left: 100%;
-            animation: ticker 45s linear infinite;
-        }
-
+        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; }
+        .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        
+        .footer-corner-logo { position: fixed; bottom: 70px; left: 20px; z-index: 5; }
+        .footer-ghost-logo { height: 25px; opacity: 0.2; filter: grayscale(100%) drop-shadow(0px 0px 1px #ffffff); }
     </style>
 </head>
 <body>
+    <div id="blackout"></div>
+    <div id="jumpscare-overlay"></div>
 
     <div class="header">
         <div class="title" id="main-title">AFGANGE / DEPARTURES</div>
@@ -85,113 +41,71 @@
     </div>
 
     <table>
-        <thead>
-            <tr>
-                <th>Tid</th>
-                <th>Tog</th>
-                <th>Destination</th>
-                <th>Spor</th>
-                <th>Bemærkning</th>
+        <thead><tr><th>Tid</th><th>Tog</th><th>Destination</th><th>Spor</th><th>Bemærkning</th></tr></thead>
+        <tbody id="train-rows">
+            <tr><td class="yellow">09:30</td><td><span class="ic">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr style="background: rgba(227, 0, 15, 0.1);">
+                <td class="yellow blinking">11:00</td><td><span class="ic">SPIL</span></td>
+                <td class="yellow">SPORLØS (TRACKLESS)</td><td class="yellow">1</td>
+                <td class="red blinking" id="play-status">AFVENTER START</td>
             </tr>
-        </thead>
-        <tbody id="train-table">
-            <tr class="train-row">
-                <td class="yellow">09:30</td>
-                <td><span class="ic">IC 142</span></td>
-                <td class="white">København H</td>
-                <td class="yellow status-track">4</td>
-                <td class="white status-msg">Til tiden</td>
-            </tr>
-            <tr class="train-row">
-                <td class="yellow">10:00</td>
-                <td><span class="re">RE 12</span></td>
-                <td class="white">Lydfil via Slipkøbing</td>
-                <td class="yellow status-track">2</td>
-                <td class="white status-msg">Til tiden</td>
-            </tr>
-            <tr class="train-row">
-                <td class="yellow">10:30</td>
-                <td><span class="re">RE 88</span></td>
-                <td class="white">Tung Byrde via Modyby</td>
-                <td class="yellow status-track">3</td>
-                <td class="white status-msg">Til tiden</td>
-            </tr>
-            <tr>
-                <td class="yellow blinking">11:00</td>
-                <td><span class="ic">SPIL</span></td>
-                <td class="yellow">SPORLØS (TRACKLESS)</td>
-                <td class="yellow">1</td>
-                <td class="red blinking" id="play-status">FORBEREDER</td>
-            </tr>
-            <tr><td colspan="5" class="section-divider">--- HJEMREJSE (FRA KL. 13:00) ---</td></tr>
-            <tr class="train-row">
-                <td class="yellow">13:00</td>
-                <td><span class="re">RE 01</span></td>
-                <td class="white">Hjemby</td>
-                <td class="yellow status-track">1</td>
-                <td class="white status-msg">Klar til afgang</td>
-            </tr>
+            <tr><td class="yellow">13:00</td><td><span class="ic">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">KLAR</td></tr>
         </tbody>
     </table>
 
-    <div class="footer-corner-logo">
-         <img src="logo.png" class="footer-ghost-logo" alt="Oliver Logo">
-    </div>
+    <div class="footer-corner-logo"><img src="logo.png" class="footer-ghost-logo"></div>
+    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">FORBUNDET TIL OLIVER-NET...</div></div>
 
-    <div class="ticker-container">
-        <div class="ticker-text" id="ticker-msg">HENTER SENESTE NYHEDER FRA DR...</div>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    <script>
-        // 1. CLOCK
-        function updateDisplay() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
-            if(now.getDay() === 6) document.getElementById('main-title').innerText = "PREMIERE: SPORLØS";
-        }
-        setInterval(updateDisplay, 1000);
-        updateDisplay();
+        const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        // 2. NEWS & EASTER EGGS
-        let loopCounter = 0;
-        const oliverEggs = [
-            "*** MADE BY OLIVER - ENJOY THIS TOOK 9 HOURS... AND MORE LIKE 67 FAKTISK ***",
-            "*** VISUELT DESIGN AF OLIVER - STATUS: OPERATIONAL ***",
-            "*** FEJL 404: TOGFØRER ER SPORLØS... SES VI PÅ LØRDAG? ***"
-        ];
+        onValue(ref(db, 'remote/'), (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
 
-        async function updateTicker() {
-            const ticker = document.getElementById('ticker-msg');
-            loopCounter++;
+            // 1. Play Status & Ticker
+            if (data.status) document.getElementById('play-status').innerText = data.status;
+            if (data.ticker) document.getElementById('ticker-msg').innerText = "*** " + data.ticker.toUpperCase() + " ***";
 
-            if (loopCounter % 4 === 0) {
-                ticker.innerText = oliverEggs[Math.floor(Math.random() * oliverEggs.length)];
-            } else {
-                try {
-                    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
-                    const data = await response.json();
-                    const headlines = data.items.slice(0, 5).map(item => item.title.toUpperCase()).join(" +++ ");
-                    ticker.innerText = "NYHEDER: " + headlines + " +++ ";
-                } catch (e) {
-                    ticker.innerText = "SIGNAL AFVENTER... SYSTEMET ER KODET AF OLIVER.";
-                }
+            // 2. BLACKOUT EVENT (20 seconds)
+            if (data.event === "blackout") {
+                document.getElementById('blackout').style.display = 'block';
+                setTimeout(() => { document.getElementById('blackout').style.display = 'none'; }, 20000);
             }
+
+            // 3. JUMPSCARES
+            const jump = document.getElementById('jumpscare-overlay');
+            if (data.event === "roblox") {
+                jump.style.backgroundImage = "url('https://tr.rbxcdn.com/180f1350a80e159046ad3f622997193a/420/420/Image/Png')";
+                triggerJump();
+            }
+            if (data.event === "meme") {
+                jump.style.backgroundImage = "url('https://i.kym-cdn.com/photos/images/newsfeed/002/634/154/48a.jpg')"; // The "Job Application" Meme
+                triggerJump();
+            }
+
+            // 4. DELAY ALL
+            if (data.event === "delay") {
+                document.querySelectorAll('.status-msg').forEach(el => {
+                    el.innerText = "FORSINKET 99 MIN";
+                    el.className = "red blinking status-msg";
+                });
+            }
+        });
+
+        function triggerJump() {
+            const jump = document.getElementById('jumpscare-overlay');
+            jump.style.display = 'block';
+            setTimeout(() => { jump.style.display = 'none'; }, 3000);
         }
 
-        updateTicker();
-        document.querySelector('.ticker-text').addEventListener('animationiteration', updateTicker);
-
-        // 3. CHAOS ENGINE (Every 5 mins)
-        const realJargon = ["Til tiden", "Materielmangel", "Signalfejl", "Sporarbejde", "Vejrforhold", "Venter på signal", "Teknisk fejl"];
-        function makeChaos() {
-            const rows = document.querySelectorAll('.train-row');
-            const randomRow = rows[Math.floor(Math.random() * rows.length)];
-            const msgCell = randomRow.querySelector('.status-msg');
-            const newStatus = realJargon[Math.floor(Math.random() * realJargon.length)];
-            msgCell.innerText = newStatus;
-            msgCell.className = (newStatus !== "Til tiden" && newStatus !== "Klar til afgang") ? "red status-msg blinking" : "white status-msg";
-        }
-        setInterval(makeChaos, 300000);
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString('da-DK'); }
+        setInterval(updateClock, 1000);
     </script>
 </body>
 </html>
