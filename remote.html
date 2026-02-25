@@ -2,40 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MASTER ADMIN - DSB Hub</title>
+    <title>MASTER ADMIN - OLIVER TECH</title>
     <style>
-        body { background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
+        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; }
         
-        /* --- LOGIN SCREEN --- */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { background: #161b22; border: 2px solid #da3633; border-radius: 12px; padding: 40px; width: 350px; text-align: center; box-shadow: 0 0 30px rgba(218, 54, 51, 0.3); }
-        .login-box h1 { margin-top: 0; color: #da3633; }
-        .login-box input { width: 100%; padding: 15px; margin-bottom: 15px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
-        .login-btn { width: 100%; padding: 15px; background: #da3633; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        
-        /* --- LAYOUT --- */
-        .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
-        .target-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
-        select { background: #0d1117; color: #2ecc71; font-size: 16px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
-        h2 { font-size: 12px; color: #8b949e; margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+        /* --- CLEAN WHITE INTRO (MATCHES PROJECTOR) --- */
+        #intro-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #ffffff; z-index: 9999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 1s ease-in-out; color: #000;
+        }
+        #intro-screen img { max-width: 200px; margin-bottom: 30px; }
+        #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
+        #intro-loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #000;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 20px 0;
+        }
+        #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; border-bottom: 4px solid rgba(0,0,0,0.3); font-size: 11px; transition: 0.1s; }
-        .btn:active { transform: translateY(3px); border-bottom: 1px solid transparent; }
+        /* --- LOGIN SCREEN --- */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; }
+        .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; }
+        .login-btn { width: 100%; padding: 12px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+
+        /* --- HEADER & LOGO --- */
+        .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: #fff; }
+        .master-header img { height: 120px; margin-bottom: 10px; }
+        .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
+
+        /* --- MAIN UI --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 25px; }
+        .target-box { background: #fff; border: 1px solid #000; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+        select { padding: 10px; font-weight: bold; border: 1px solid #000; cursor: pointer; }
+
+        .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card:hover { border-color: #000; }
+        h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
+
+        .btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; }
+        .btn:hover { background: #000; color: #fff; }
+        .btn.black { background: #000; color: #fff; }
+        .btn.red { border-color: #E3000F; color: #E3000F; }
+        .btn.red:hover { background: #E3000F; color: #fff; }
+
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; }
+        input:focus { border-color: #000; }
         
-        .red { background: #da3633; } .green { background: #238636; } .blue { background: #1f6feb; } .yellow { background: #d29922; color: black; } .black { background: #21262d; border: 1px solid #30363d; color: white;} .purple { background: #8957e5; }
-        
-        input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; }
-        .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; box-sizing: border-box; }
+        .flex-row { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
+    <div id="intro-screen">
+        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h1>ADMIN INITIALIZING</h1>
+        <div id="intro-loader"></div>
+        <div id="load-status">Connecting to servers...</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v4.0</div>
+    </div>
+
     <div id="login-screen">
         <div class="login-box">
-            <h1>SYSTEM LOGIN</h1>
+            <img src="logo.png" style="height: 50px; margin-bottom: 20px;" onerror="this.style.display='none'">
+            <h1>SYSTEM ACCESS</h1>
             <input type="text" id="logUser" placeholder="USERNAME">
             <input type="password" id="logPass" placeholder="PASSWORD">
             <button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button>
@@ -43,66 +80,93 @@
     </div>
 
     <div class="master-header">
-        <h1 style="margin:0;">OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
+        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h1>OLIVER TECH</h1>
     </div>
 
-    <div class="target-box">
-        TARGET: <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
-        <button class="btn blue" style="width:auto; margin:0;" onclick="sendCommand('msg_board', prompt('Enter Emergency Message:'))">🚨 FULL SCREEN ALERT</button>
-    </div>
-
-    <div class="section-title">DSB BOARD CONTROLS</div>
-    <div class="grid">
-        <div class="card">
-            <h2>SCENE MANAGEMENT</h2>
-            <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">START PREMIERE</button>
-            <button class="btn black" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
-            <h2 style="margin-top:15px;">TICKER OVERRIDE</h2>
-            <input type="text" id="tInput" placeholder="Force text to news bar...">
-            <button class="btn blue" onclick="sendCommand('ticker', document.getElementById('tInput').value)">OVERRIDE NEWS</button>
-        </div>
-        
-        <div class="card">
-            <h2>TRAIN STATUS</h2>
-            <button class="btn red" onclick="sendCommand('delay', '99')">DELAY ALL TRAINS</button>
-            <button class="btn green" onclick="sendCommand('boarding', 'BOARDING')">BOARDING (BLINK GREEN)</button>
-            <button class="btn black" onclick="sendCommand('reset_trains')">RESET TO "TIL TIDEN"</button>
+    <div class="container">
+        <div class="target-box">
+            <span>COMMAND TARGET:</span>
+            <select id="target-screen"><option value="ALL">ALL ACTIVE SCREENS</option></select>
+            <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID TAGS</button>
         </div>
 
-        <div class="card">
-            <h2>ADMIN USERS</h2>
-            <input type="text" id="newU" placeholder="New Username">
-            <input type="password" id="newP" placeholder="New Password">
-            <button class="btn blue" onclick="addUser()">CREATE USER</button>
-        </div>
-    </div>
+        <div class="section-title">DSB TRAIN BOARD</div>
+        <div class="grid">
+            <div class="card">
+                <h2>CORE BROADCAST</h2>
+                <input type="text" id="tInput" placeholder="Force Headline to News Ticker...">
+                <button class="btn" onclick="sendCommand('ticker', document.getElementById('tInput').value)">UPDATE TICKER</button>
+                <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
+            </div>
+            
+            <div class="card">
+                <h2>TRAIN STATUS</h2>
+                <div class="flex-row">
+                    <input type="number" id="dInput" placeholder="Min" style="flex:1">
+                    <button class="btn" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+                </div>
+                <button class="btn" onclick="sendCommand('boarding')">SET TO BOARDING</button>
+                <button class="btn" onclick="sendCommand('reset_trains')">RESET TO "TIL TIDEN"</button>
+            </div>
 
-    <div class="section-title">THE "MESS AROUND" TROLLS</div>
-    <div class="grid">
-        <div class="card">
-            <h2>SENTIENT AI TERMINAL</h2>
-            <textarea id="termInput" rows="3" placeholder="Type message for the AI to type out..."></textarea>
-            <button class="btn green" style="background:#0f0; color:black;" onclick="sendTerminal()">TYPE TO SCREEN</button>
-            <h2 style="margin-top:15px;">DVD BOUNCE</h2>
-            <button class="btn purple" onclick="sendCommand('dvd')">START DVD SCREENSAVER</button>
+            <div class="card">
+                <h2>EMERGENCY ALERTS</h2>
+                <textarea id="mInput" rows="2" placeholder="Full screen alert text..."></textarea>
+                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND FULL SCREEN ALERT</button>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>VISUAL CHAOS</h2>
-            <button class="btn yellow" onclick="sendCommand('mirror')">MIRROR SCREEN</button>
-            <button class="btn yellow" onclick="sendCommand('invert')">UPSIDE DOWN</button>
-            <button class="btn purple" onclick="sendCommand('disco')">DISCO MODE</button>
-            <button class="btn purple" onclick="sendCommand('shake')">EARTHQUAKE</button>
+        <div class="section-title">THE MESS AROUND HACKS</div>
+        <div class="grid">
+            <div class="card">
+                <h2>AI TERMINAL</h2>
+                <textarea id="termInput" rows="3" placeholder="Type AI message..."></textarea>
+                <button class="btn black" onclick="sendTerminal()">INJECT TERMINAL DATA</button>
+                <button class="btn" style="margin-top:10px" onclick="sendCommand('dvd')">ACTIVATE DVD BOUNCE</button>
+            </div>
+
+            <div class="card">
+                <h2>VISUAL CHAOS</h2>
+                <div class="flex-row">
+                    <button class="btn" onclick="sendCommand('mirror')">MIRROR</button>
+                    <button class="btn" onclick="sendCommand('invert')">INVERT</button>
+                </div>
+                <div class="flex-row">
+                    <button class="btn" onclick="sendCommand('shake')">SHAKE</button>
+                    <button class="btn" onclick="sendCommand('disco')">DISCO</button>
+                </div>
+                <button class="btn" onclick="sendCommand('scramble')">MATRIX SCRAMBLE</button>
+                <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
+            </div>
+
+            <div class="card">
+                <h2>SYSTEM FAILURES</h2>
+                <button class="btn red" onclick="sendCommand('bluescreen')">BSOD (BLUE SCREEN)</button>
+                <button class="btn red" onclick="sendCommand('winupdate')">FORCE WIN UPDATE</button>
+                <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
+                <button class="btn red" style="margin-top:15px;" onclick="sendCommand('reset')">HARD SYSTEM RESTART</button>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>SYSTEM OVERLAYS</h2>
-            <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
-            <button class="btn blue" onclick="sendCommand('bluescreen')">BLUE SCREEN (BSOD)</button>
-            <button class="btn blue" style="background:#006dae;" onclick="sendCommand('winupdate')">WINDOWS UPDATE</button>
-            <h2 style="margin-top:15px;">RESETS</h2>
-            <button class="btn green" onclick="sendCommand('clear_media')">CLEAR ALL TROLLS</button>
-            <button class="btn red" onclick="sendCommand('reset')">HARD RESTART SCREEN</button>
+        <div class="section-title">SYSTEM ADMINISTRATION</div>
+        <div class="grid">
+            <div class="card">
+                <h2>USER MANAGEMENT</h2>
+                <input type="text" id="newU" placeholder="New Username">
+                <input type="password" id="newP" placeholder="New Password">
+                <button class="btn" onclick="addUser()">CREATE ADMIN</button>
+            </div>
+            <div class="card">
+                <h2>GLOBAL RESET</h2>
+                <button class="btn black" onclick="sendCommand('clear_media')">CLEAR ALL OVERLAYS</button>
+                <button class="btn black" onclick="sendCommand('clear_fx')">CLEAR ALL VISUAL FX</button>
+            </div>
+            <div class="card">
+                <h2>WEATHER OVERRIDE</h2>
+                <input type="text" id="wInput" placeholder="e.g. 999°C FIRE STORM">
+                <button class="btn" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+            </div>
         </div>
     </div>
 
@@ -110,21 +174,39 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // --- INTRO LOGIC ---
+        const introMessages = ["Authenticating Oliver-Tech Admin...", "Connecting to Projector Hub...", "Syncing Database...", "Opening Encrypted Link...", "Welcome."];
+        let introIdx = 0;
+        const statusEl = document.getElementById('load-status');
+        const introInterval = setInterval(() => {
+            if(introIdx < introMessages.length) {
+                statusEl.innerText = introMessages[introIdx];
+                introIdx++;
+            } else { clearInterval(introInterval); }
+        }, 700);
+
+        setTimeout(() => {
+            const intro = document.getElementById('intro-screen');
+            intro.style.opacity = '0';
+            setTimeout(() => intro.style.display = 'none', 1000); 
+        }, 4000);
+
+        // --- FIREBASE CORE ---
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         // --- AUTH ---
-        let usersDB = {};
+        let usersDB = { admin: "1234" };
         onValue(ref(db, 'remote/users'), (snap) => {
-            usersDB = snap.val() || { admin: "1234" };
+            if(snap.val()) usersDB = snap.val();
         });
 
         window.checkLogin = () => {
             const u = document.getElementById('logUser').value;
             const p = document.getElementById('logPass').value;
             if (usersDB[u] === p) document.getElementById('login-screen').style.display = 'none';
-            else alert("DENIED");
+            else alert("ACCESS DENIED");
         };
 
         window.addUser = () => {
@@ -132,7 +214,7 @@
             const p = document.getElementById('newP').value;
             if (u && p) {
                 update(ref(db, 'remote/users'), { [u]: p });
-                alert("USER " + u + " CREATED");
+                alert("USER " + u + " ADDED");
             }
         };
 
