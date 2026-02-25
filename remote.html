@@ -86,7 +86,7 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v10.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v11.0</div>
     </div>
 
     <div id="login-screen">
@@ -212,9 +212,22 @@
             
             <div class="card" style="border: 2px solid #E3000F;">
                 <h2>LIVE SURVEILLANCE (CCTV)</h2>
-                <video id="admin-preview" autoplay muted style="width:100%; border:1px solid #eee; margin-bottom:10px; display:none; background: #000;"></video>
+                <video id="admin-preview" autoplay muted playsinline style="width:100%; border:1px solid #eee; margin-bottom:10px; display:none; background: #000;"></video>
                 <button class="btn red" onclick="startCCTV()">ACTIVATE LIVE CAMERA HACK</button>
                 <button class="btn black" onclick="stopCCTV()">STOP STREAMING & HIDE</button>
+            </div>
+
+            <div class="card" style="border: 2px solid #600000;">
+                <h2>RANSOMWARE PROTOCOL</h2>
+                <div class="flex-row">
+                    <input type="number" id="ransom-mins" placeholder="Mins" value="5" style="flex:1">
+                    <button class="btn red" style="flex:2" onclick="sendCommand('ransom_start', document.getElementById('ransom-mins').value)">START COUNTDOWN</button>
+                </div>
+                <div class="flex-row">
+                    <button class="btn black" onclick="sendCommand('ransom_add')">+1 MINUTE</button>
+                    <button class="btn black" onclick="sendCommand('ransom_sub')">-1 MINUTE</button>
+                </div>
+                <button class="btn green" onclick="sendCommand('ransom_stop')">DEFUSE / HIDE RANSOMWARE</button>
             </div>
 
             <div class="card">
@@ -413,7 +426,7 @@
             window.sendCommand('ticker', ""); 
         };
 
-        // --- NEW: WEBRTC CCTV LOGIC ---
+        // --- NEW WEBRTC CCTV LOGIC ---
         let localStream = null;
         let peerConnections = {};
 
@@ -421,7 +434,6 @@
             const target = document.getElementById('target-screen').value;
             let targets = [];
             
-            // If ALL, push all currently online screens into the target array
             if (target === "ALL") {
                 Object.keys(lastKnownScreens).forEach(id => {
                     if (Date.now() - lastKnownScreens[id].heartbeat < 10000) targets.push(id);
@@ -433,14 +445,13 @@
             if (targets.length === 0) { alert("NO ACTIVE SCREENS TO STREAM TO!"); return; }
 
             try {
-                // Request camera access
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 const preview = document.getElementById('admin-preview');
                 preview.srcObject = localStream;
                 preview.style.display = 'block';
 
                 targets.forEach(async (id) => {
-                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] });
                     peerConnections[id] = pc;
 
                     localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
@@ -458,16 +469,13 @@
                         }
                     });
 
-                    // Clear old data for a fresh connection
-                    await set(ref(db, `webrtc/${id}`), null);
+                    await set(ref(db, `webrtc/${id}`), null); // Clear old connection data
 
                     const offer = await pc.createOffer();
                     await pc.setLocalDescription(offer);
                     
-                    // Send Offer to Projector
                     await set(ref(db, `webrtc/${id}/offer`), { type: offer.type, sdp: offer.sdp });
 
-                    // Listen for Answer from Projector
                     onValue(ref(db, `webrtc/${id}/answer`), (snap) => {
                         const answer = snap.val();
                         if (answer && !pc.currentRemoteDescription) {
@@ -476,7 +484,6 @@
                     });
                 });
 
-                // Trigger Projector Overlay
                 window.sendCommand('cctv_on', '', target);
 
             } catch (err) {
@@ -495,8 +502,7 @@
             });
             peerConnections = {};
             document.getElementById('admin-preview').style.display = 'none';
-            window.sendCommand('cctv_off'); // Hides overlay on target(s)
-            window.sendCommand('clear_media'); // Secondary Failsafe
+            window.sendCommand('cctv_off'); 
         };
 
         // --- LIVE NETWORK MONITORING ---

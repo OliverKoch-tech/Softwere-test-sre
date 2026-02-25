@@ -13,12 +13,12 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             transition: opacity 1s ease-in-out; color: #000;
         }
-        #kick-screen { display: none; z-index: 10000000; } /* KICK SCREEN OVERRIDES EVERYTHING */
+        #kick-screen { display: none; z-index: 10000000; }
         #intro-screen img, #kick-screen img { max-width: 250px; margin-bottom: 30px; }
         #intro-screen h1, #kick-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #kick-screen h1 { color: #E3000F; } /* Red text for disconnection */
+        #kick-screen h1 { color: #E3000F; } 
         .intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
-        #kick-screen .intro-loader { border-top: 4px solid #E3000F; } /* Red loader for kick */
+        #kick-screen .intro-loader { border-top: 4px solid #E3000F; } 
         .load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -40,7 +40,6 @@
         .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
         .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
         
-        /* LOGO SEKTION VED TIDEN */
         .header-right { text-align: right; display: flex; align-items: center; gap: 25px; }
         .sre-logo { height: 135px; object-fit: contain; }
 
@@ -65,14 +64,12 @@
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #444; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
 
-        /* --- CCTV CAMERA OVERLAY --- */
-        #cctv-overlay { background: #000; z-index: 99994; overflow: hidden; }
-        #cctv-video { width: 100vw; height: 100vh; object-fit: cover; filter: sepia(100%) hue-rotate(90deg) saturate(300%) contrast(150%); opacity: 0.8; }
-        .cctv-ui { position: absolute; font-family: monospace; font-weight: bold; color: #0f0; text-shadow: 0 0 5px #0f0; }
-        .cctv-rec { position: absolute; top: 40px; left: 50px; color: red; font-family: monospace; font-size: 50px; font-weight: bold; animation: blinker 1s linear infinite; text-shadow: 0 0 10px red; }
-        .cctv-time { position: absolute; top: 50px; right: 50px; font-size: 40px; }
-        .cctv-cam { position: absolute; bottom: 50px; left: 50px; font-size: 40px; }
-        .cctv-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 3px 100%; pointer-events: none; z-index: 2;}
+        /* --- RANSOMWARE OVERLAY --- */
+        #ransom-overlay { background: #600000; z-index: 99995; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: monospace; color: white; }
+        #ransom-skull { font-size: 20px; line-height: 1.1; color: #ff3333; margin-bottom: 30px; white-space: pre; text-shadow: 0 0 10px #ff0000; animation: blinker 2s infinite; }
+        #ransom-title { font-size: 60px; font-weight: bold; margin-bottom: 10px; letter-spacing: 5px; }
+        #ransom-sub { font-size: 30px; margin-bottom: 40px; color: #ffaaaa; }
+        #ransom-timer { font-size: 150px; font-weight: 900; color: #ffffff; text-shadow: 0 0 20px #ff0000; border: 10px solid #E3000F; padding: 20px 50px; background: rgba(0,0,0,0.5); }
     </style>
 </head>
 <body id="main-body">
@@ -92,12 +89,19 @@
         <div class="load-status" style="color: #E3000F;">Connection terminated by Network Administrator.</div>
     </div>
 
-    <div id="cctv-overlay" class="overlay">
-        <video id="cctv-video" autoplay playsinline muted></video>
-        <div class="cctv-rec">● REC</div>
-        <div class="cctv-ui cctv-time" id="cctv-time">00:00:00</div>
-        <div class="cctv-ui cctv-cam">CAM-01 : ADMIN TERMINAL</div>
-        <div class="cctv-scanlines"></div>
+    <div id="ransom-overlay" class="overlay">
+        <div id="ransom-skull">
+        _..._
+      .'     '.
+     /  _   _  \
+     | (o)_(o) |
+     |   ___   |
+     \  |   |  /
+      '._____.'
+        </div>
+        <div id="ransom-title">SYSTEM ENCRYPTED</div>
+        <div id="ransom-sub">ALL FILES LOCKED. DATA DELETION IN:</div>
+        <div id="ransom-timer">05:00</div>
     </div>
 
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
@@ -207,43 +211,21 @@
             typeChar();
         }
 
-        // --- WEBRTC CCTV LOGIC ---
-        let pc;
-        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        // --- NEW: RANSOMWARE LOGIC ---
+        let ransomInterval = null;
+        let ransomTimeRemaining = 0;
 
-        onValue(ref(db, `webrtc/${myId}/offer`), async (snapshot) => {
-            const offer = snapshot.val();
-            if (!offer) return;
-            
-            if (pc) pc.close();
-            pc = new RTCPeerConnection(rtcConfig);
-            
-            pc.ontrack = (event) => {
-                document.getElementById('cctv-video').srcObject = event.streams[0];
-            };
-            
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    push(ref(db, `webrtc/${myId}/ice_index`), event.candidate.toJSON());
-                }
-            };
-
-            onChildAdded(ref(db, `webrtc/${myId}/ice_admin`), (snap) => {
-                const candidate = snap.val();
-                if (candidate && pc.remoteDescription) {
-                    pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(e=>{});
-                }
-            });
-
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            
-            set(ref(db, `webrtc/${myId}/answer`), {
-                type: answer.type,
-                sdp: answer.sdp
-            });
-        });
+        function updateRansomUI() {
+            if (ransomTimeRemaining <= 0) {
+                document.getElementById('ransom-timer').innerText = "00:00";
+                document.getElementById('ransom-timer').style.color = "red";
+                clearInterval(ransomInterval);
+                return;
+            }
+            const m = Math.floor(ransomTimeRemaining / 60).toString().padStart(2, '0');
+            const s = (ransomTimeRemaining % 60).toString().padStart(2, '0');
+            document.getElementById('ransom-timer').innerText = `${m}:${s}`;
+        }
 
         const heartbeatInterval = setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
@@ -254,18 +236,30 @@
             bootTime = cmd.ts;
             const body = document.getElementById('main-body');
 
-            if (cmd.event === "reset") location.reload();
+            // --- RANSOMWARE COMMANDS ---
+            if (cmd.event === "ransom_start") {
+                const startMins = parseInt(cmd.value) || 5;
+                ransomTimeRemaining = startMins * 60;
+                document.getElementById('ransom-timer').style.color = "white";
+                document.getElementById('ransom-overlay').style.display = 'flex';
+                updateRansomUI();
+                clearInterval(ransomInterval);
+                ransomInterval = setInterval(() => {
+                    ransomTimeRemaining--;
+                    updateRansomUI();
+                }, 1000);
+            }
+            else if (cmd.event === "ransom_add") { ransomTimeRemaining += 60; updateRansomUI(); }
+            else if (cmd.event === "ransom_sub") { ransomTimeRemaining = Math.max(0, ransomTimeRemaining - 60); updateRansomUI(); }
+            else if (cmd.event === "ransom_stop") { 
+                clearInterval(ransomInterval); 
+                document.getElementById('ransom-overlay').style.display = 'none'; 
+            }
+
+            else if (cmd.event === "reset") location.reload();
             else if (cmd.event === "kick") {
-                clearInterval(heartbeatInterval);
+                clearInterval(heartbeatInterval); 
                 document.getElementById('kick-screen').style.display = 'flex';
-            }
-            else if (cmd.event === "cctv_on") {
-                document.getElementById('cctv-overlay').style.display = 'block';
-            }
-            else if (cmd.event === "cctv_off") {
-                document.getElementById('cctv-overlay').style.display = 'none';
-                if (pc) { pc.close(); pc = null; }
-                document.getElementById('cctv-video').srcObject = null;
             }
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
@@ -308,7 +302,7 @@
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
             else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
-            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); if(pc){pc.close(); pc=null; document.getElementById('cctv-video').srcObject=null;} }
+            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); clearInterval(ransomInterval); }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
@@ -320,11 +314,7 @@
             }
         });
 
-        setInterval(() => { 
-            const timeStr = new Date().toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-            document.getElementById('clock').innerText = timeStr; 
-            document.getElementById('cctv-time').innerText = timeStr; // Updates CCTV overlay clock too
-        }, 1000);
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
     </script>
 </body>
 </html>
