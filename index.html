@@ -6,7 +6,7 @@
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* --- CLEAN WHITE INTRO (EXACT MATCH TO ADMIN) --- */
+        /* --- CLEAN WHITE INTRO --- */
         #intro-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #ffffff; z-index: 9999999; 
@@ -15,17 +15,14 @@
         }
         #intro-screen img { max-width: 250px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #000;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px 0;
-        }
+        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
         #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- TROLL EFFECTS (CSS) --- */
+        /* --- TROLL EFFECTS --- */
         .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
-        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } .shake { animation: shake 0.4s infinite; }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } 
+        .shake { animation: shake 0.4s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
         @keyframes shake { 0% { transform: translate(3px, 2px) rotate(0deg); } 20% { transform: translate(-3px, -2px) rotate(-1deg); } 40% { transform: translate(-3px, 2px) rotate(1deg); } 60% { transform: translate(3px, -2px) rotate(0deg); } 80% { transform: translate(1px, 2px) rotate(-1deg); } 100% { transform: translate(-1px, -2px) rotate(1deg); } }
@@ -51,14 +48,18 @@
         #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
         #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
         #dvd-logo { position: absolute; height: 150px; }
-        #blackout { background: black; z-index: 9996; } 
+        #blackout { background: black; z-index: 99996; } 
         #hacker-matrix { background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 28px; padding: 60px; z-index: 9997; text-transform: none; }
         #jumpscare { z-index: 99998; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: black; }
         #bsod { background: #0000aa; color: white; z-index: 10000; padding: 50px; font-family: monospace; text-transform: none; }
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
-        #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
+        
+        /* THE BIG ALERT BOX */
+        #msg-board-overlay { background: rgba(0, 40, 85, 0.98); z-index: 99995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
-        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #333; }
+        
+        /* WHITE ID TAG */
+        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #444; display: block; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
 </head>
@@ -75,15 +76,12 @@
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
     <div id="terminal-overlay" class="overlay"><div id="terminal-text"></div></div>
     <div id="screen-id-tag">ID: --</div>
-    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white;"></div></div>
+    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white; text-transform: none;"></div></div>
     <div id="blackout" class="overlay"></div>
     <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...<br>> OVERRIDING DSB MAINFRAME...</div>
     <div id="jumpscare" class="overlay"></div>
-    <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem og skal genstarte. Vi indsamler fejloplysninger, og derefter genstarter vi for dig.</p></div>
-    <div id="win-update" class="overlay">
-        <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
-        <div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.<br>Sluk ikke computeren.</div>
-    </div>
+    <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem og skal genstarte...</p></div>
+    <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.</div></div>
 
     <div class="header">
         <div style="font-size: 50px; font-weight: 900;">AFGANGE / DEPARTURES</div>
@@ -122,19 +120,12 @@
         let bootTime = Date.now();
         window.scrambleTimer = null;
 
-        const introMessages = ["Authenticating System...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
-        let introMsgIdx = 0;
+        // Intro
+        const introMsgInterval = setInterval(() => { statusEl.innerText = "Syncing Hub..."; }, 800);
         const statusEl = document.getElementById('load-status');
-        const introMsgInterval = setInterval(() => {
-            if(introMsgIdx < introMessages.length) { statusEl.innerText = introMessages[introMsgIdx]; introMsgIdx++; }
-            else { clearInterval(introMsgInterval); }
-        }, 800);
-        setTimeout(() => {
-            const intro = document.getElementById('intro-screen');
-            intro.style.opacity = '0';
-            setTimeout(() => intro.style.display = 'none', 1000); 
-        }, 4500);
+        setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 4500);
 
+        // Weather & News
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -142,8 +133,7 @@
                 document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`;
             } catch(e) {}
         }
-        fetchWeather(); setInterval(fetchWeather, 900000);
-
+        fetchWeather();
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
@@ -154,6 +144,7 @@
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
+        // DVD
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -168,6 +159,7 @@
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
+        // Terminal
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
@@ -193,15 +185,19 @@
             if (!cmd || cmd.ts <= bootTime) return;
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
             bootTime = cmd.ts;
-
             const body = document.getElementById('main-body');
 
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
             else if (cmd.event === "ticker") {
-                if (cmd.value === "" || cmd.value === null) { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
+                if (!cmd.value) { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
                 else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
+            }
+            else if (cmd.event === "msg_board") {
+                const overlay = document.getElementById('msg-board-overlay');
+                if (!cmd.value || cmd.value === "") { overlay.style.display = 'none'; }
+                else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
             }
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
             else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
@@ -217,19 +213,24 @@
             else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
             else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
             else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "msg_board") { document.getElementById('msg-board-text').innerHTML = cmd.value; document.getElementById('msg-board-overlay').style.display = 'flex'; }
             
-            // INDIVIDUAL MANUAL CHANGE
+            // ID TOGGLE FIX
+            else if (cmd.event === "show_id") document.getElementById('screen-id-tag').style.display = 'block';
+            else if (cmd.event === "hide_id") document.getElementById('screen-id-tag').style.display = 'none';
+            else if (cmd.event === "toggle_id") { 
+                const tag = document.getElementById('screen-id-tag');
+                tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; 
+            }
+
             else if (cmd.event === "manual_train") {
                 const data = JSON.parse(cmd.value);
                 const row = document.getElementById('train-' + data.id);
                 if (row) {
-                    const statusCell = row.querySelector('.status-msg');
-                    statusCell.innerText = data.msg.toUpperCase();
-                    statusCell.className = "status-msg " + data.color + (data.blink ? " blinking" : "");
+                    const cell = row.querySelector('.status-msg');
+                    cell.innerText = data.msg.toUpperCase();
+                    cell.className = "status-msg " + data.color + (data.blink ? " blinking" : "");
                 }
             }
-            
             else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
@@ -239,15 +240,14 @@
                 if(!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
                     tds.forEach(td => { if(!td.dataset.orig) td.dataset.orig = td.innerHTML; });
-                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X!?";
                     window.scrambleTimer = setInterval(() => {
-                        tds.forEach(td => { if(td.querySelector('span')) return; td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? chars[Math.floor(Math.random()*chars.length)] : c).join(''); });
+                        tds.forEach(td => { if(td.querySelector('span')) return; td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? "X?#@&$"[Math.floor(Math.random()*6)] : c).join(''); });
                     }, 80);
                 }
             }
         });
 
-        setInterval(() => { const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
     </script>
 </body>
 </html>
