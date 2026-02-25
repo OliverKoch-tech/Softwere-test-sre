@@ -11,7 +11,7 @@
             margin: 0;
             padding: 20px;
             text-transform: uppercase;
-            overflow: hidden; /* Keeps it looking like a real terminal */
+            overflow: hidden;
         }
         
         .header {
@@ -94,7 +94,7 @@
 
         .footer-ghost-logo {
             height: 35px; 
-            opacity: 0.15; /* Even more subtle */
+            opacity: 0.15;
             filter: grayscale(100%); 
         }
 
@@ -144,7 +144,7 @@
                 <th>Bemærkning</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="train-table">
             <tr class="train-row">
                 <td class="yellow">09:30</td>
                 <td><span class="ic">IC 142</span></td>
@@ -172,7 +172,7 @@
                 <td><span class="ic">SPIL</span></td>
                 <td class="yellow">SPORLØS (TRACKLESS)</td>
                 <td class="yellow">1</td>
-                <td class="red blinking">FIND DIN PLADS</td>
+                <td class="red blinking" id="play-status">FORBEREDER</td>
             </tr>
 
             <tr>
@@ -201,29 +201,58 @@
     </div>
 
     <div class="ticker-container">
-        <div class="ticker-text" id="ticker-msg">
-            *** VELKOMMEN TIL ÅRETS SKOLETEATER: SPORLØS *** HUSK AT SLUKKE MOBILTELEFONEN *** GOD FORSTILLING! ***
-        </div>
+        <div class="ticker-text" id="ticker-msg">INDLÆSER DATA...</div>
     </div>
 
     <script>
-        function updateTime() {
+        // --- TICKER & COUNTDOWN LOGIC ---
+        function updateDisplay() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
             
-            const day = now.getDay(); 
+            const dayOfWeek = now.getDay(); 
+            const ticker = document.getElementById('ticker-msg');
             const title = document.getElementById('main-title');
+            const playStatus = document.getElementById('play-status');
 
-            if(day === 6) { // It's Saturday
+            // Countdown Logic to Saturday (6)
+            let daysUntil = 6 - dayOfWeek;
+
+            // Easter Egg rotation
+            const eggs = [
+                "*** MADE BY OLIVER - ENJOY THIS TOOK 9 HOURS *** ",
+                "*** ...AND MORE LIKE 67 HOURS FAKTISK *** ",
+                "*** FEJL 404: TOGFØREREN HAR GLEMT SIT MANUSKRIPT *** ",
+                "*** DETTE SYSTEM ER OPTIMERET TIL KAOS AF OLIVER *** ",
+                "*** HUSK AT SLUKKE MOBILEN (OGSÁ DIG PÅ BAGSTE RÆKKE) *** "
+            ];
+            
+            // Pick a message based on the day
+            let baseMsg = "";
+            if (daysUntil > 1) {
+                baseMsg = `*** KUN ${daysUntil} DAGE TIL PREMIERE PÅ SPORLØS! *** `;
+                playStatus.innerText = "AFVENTER";
+            } else if (daysUntil === 1) {
+                baseMsg = "*** I MORGEN SKER DET! PREMIERE PÅ SPORLØS KL. 11:00! *** ";
+                playStatus.innerText = "KLARGØRES";
+            } else if (daysUntil === 0) {
                 title.innerText = "PREMIERE: SPORLØS";
+                baseMsg = "*** DET ER LØRDAG! PREMIERE LIGE NU! FIND DIN PLADS! *** ";
+                playStatus.innerText = "FIND PLADS";
+            } else {
+                baseMsg = "*** TAK FOR I DAG! NÆSTE FORESTILLING ER... SPORLØS *** ";
+                playStatus.innerText = "AFSLUTTET";
             }
+
+            // Combine base message with Oliver's Easter Eggs
+            ticker.innerText = baseMsg + eggs.join(" ");
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
 
         // --- CHAOS ENGINE (Every 5 Minutes) ---
-        const statuses = ["Til tiden", "Aflyst", "Forsinket 10 min", "Sporændring", "Tekniske fejl", "Sporarbejde"];
-
+        const statuses = ["Til tiden", "Aflyst", "Forsinket 10 min", "Sporændring", "Tekniske fejl", "Venter på signal"];
         function makeChaos() {
             const rows = document.querySelectorAll('.train-row');
             const randomRow = rows[Math.floor(Math.random() * rows.length)];
@@ -242,22 +271,6 @@
             }
         }
         setInterval(makeChaos, 300000); // 5 mins
-
-        // --- EASTER EGG ENGINE ---
-        const ticker = document.getElementById('ticker-msg');
-        const easterEggs = [
-            "*** SYSTEM OPDATERET AF: [DIT NAVN] - THE MASTERMIND BAG SKÆRMEN ***",
-            "*** FEJL 404: TOGFØRER FUNDET I KANTINEN MED EN KANELSNEGL ***",
-            "*** VISUELT DESIGN AF EN FREMTIDIG KODER-GENI ***",
-            "*** HVIS DU LÆSER DETTE, ER DU FOR TÆT PÅ SKÆRMEN. GÅ TILBAGE TIL DIN PLADS ***",
-            "*** DETTE SYSTEM KØRER PÅ REN KOFFEIN OG TEATER-MAGI ***"
-        ];
-
-        // Change the easter egg every time the animation restarts (approx 35s)
-        setInterval(() => {
-            const randomEgg = easterEggs[Math.floor(Math.random() * easterEggs.length)];
-            ticker.innerText = randomEgg;
-        }, 35000);
     </script>
 </body>
 </html>
