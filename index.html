@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>DSB Master Hub</title>
+    <title>DSB Master Hub - OLIVER TECH</title>
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
@@ -24,8 +24,12 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS --- */
-        .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
-        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } .shake { animation: shake 0.4s infinite; }
+        .mirror { transform: scaleX(-1); } 
+        .upside-down { transform: rotate(180deg); } 
+        .glitch-red { animation: panic 0.1s infinite; }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } 
+        .disco { animation: disco 0.3s infinite; } 
+        .shake { animation: shake 0.4s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
         @keyframes shake { 0% { transform: translate(5px, 3px); } 50% { transform: translate(-5px, -3px); } 100% { transform: translate(0, 0); } }
@@ -33,10 +37,13 @@
         /* --- DSB MODE LAYOUT --- */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-        table { width: 100%; border-collapse: collapse; } td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; } 
+        td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
-        .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
-        .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
+        .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } 
+        .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
+        .blinking { animation: blinker 1s linear infinite; } 
+        @keyframes blinker { 50% { opacity: 0; } }
         
         /* --- TICKER (REAL NEWS) --- */
         .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000; border-top: 2px solid #E3000F;}
@@ -46,7 +53,7 @@
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         #terminal-overlay { background: rgba(0,0,0,0.95); z-index: 99998; padding: 60px; box-sizing: border-box; }
-        #terminal-text { color: #0f0; font-family: monospace; font-size: 40px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        #terminal-text { color: #0f0; font-family: monospace; font-size: 40px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
         #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
         #dvd-logo { position: absolute; height: 150px; }
         #blackout { background: black; z-index: 9996; } 
@@ -62,7 +69,7 @@
 <body id="main-body">
 
     <div id="intro-screen">
-        <img src="logo.png" alt="DSB Logo">
+        <img src="logo.png" alt="DSB Logo" onerror="this.style.display='none'">
         <h1>SYSTEM INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to terminal...</div>
@@ -73,7 +80,8 @@
     <div id="terminal-overlay" class="overlay"><div id="terminal-text"></div></div>
     <div id="screen-id-tag">ID: --</div>
     <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white;"></div></div>
-    <div id="blackout" class="overlay"></div><div id="jumpscare" class="overlay"></div>
+    <div id="blackout" class="overlay"></div>
+    <div id="jumpscare" class="overlay"></div>
     <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...</div>
     <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem...</p></div>
     <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.</div></div>
@@ -82,7 +90,7 @@
         <div style="font-size: 50px; font-weight: 900;">AFGANGE / DEPARTURES</div>
         <div style="text-align: right;">
             <div class="time clock-text">00:00:00</div>
-            <div class="weather-text" style="color: #aaa; font-size: 18px;">--°C</div>
+            <div class="weather-text" style="color: #FFD700; font-size: 20px; font-weight: bold;">HENTER VEJR...</div>
         </div>
     </div>
     
@@ -90,18 +98,20 @@
         <tbody id="train-table">
             <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
             <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:45</td><td><span class="ic-box">RE</span></td><td class="white">ODENSE ST.</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
             <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
+            <tr><td class="yellow">11:30</td><td><span class="re-box">RE</span></td><td class="white">NÆSTVED</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
         </tbody>
     </table>
     
-    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">HENTER NYHEDER...</div></div>
+    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">HENTER SENESTE NYT FRA DR...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- INTRO SCRIPT ---
-        const messages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Establishing Secure Link...", "Ready."];
+        // --- INTRO LOGIC ---
+        const messages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Ready."];
         let msgIdx = 0;
         const statusEl = document.getElementById('load-status');
         const msgInterval = setInterval(() => {
@@ -115,18 +125,29 @@
             setTimeout(() => intro.style.display = 'none', 1000); 
         }, 4500);
 
-        // --- REAL NEWS FETCH ---
+        // --- REAL WEATHER (ØSTER KIPPINGE) ---
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
+                const d = await res.json();
+                const temp = Math.round(d.current_weather.temperature);
+                document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${temp}°C`;
+            } catch(e) { document.querySelector('.weather-text').innerText = "VEJR: --°C"; }
+        }
+        fetchWeather(); setInterval(fetchWeather, 900000);
+
+        // --- REAL NEWS FETCH (DR) ---
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
                 const hl = d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ");
                 document.getElementById('ticker-msg').innerText = "+++ SENESTE NYT: " + hl + " +++";
-            } catch(e) { document.getElementById('ticker-msg').innerText = "NYHEDSFEED UTILGÆNGELIG..."; }
+            } catch(e) { document.getElementById('ticker-msg').innerText = "NYHEDSFEED MIDLERTIDIGT AFBRUDT..."; }
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
-        // --- DVD LOGIC ---
+        // --- DVD BOUNCE LOGIC ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             const overlay = document.getElementById('dvd-overlay');
@@ -147,7 +168,7 @@
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
-        // --- TERMINAL LOGIC ---
+        // --- TERMINAL TYPING LOGIC ---
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
@@ -166,13 +187,16 @@
             typeChar();
         }
 
-        // --- FIREBASE SETUP ---
+        // --- FIREBASE CORE ---
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
         let bootTime = Date.now();
+
+        // Heartbeat for Admin Panel
+        setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
             const cmd = snapshot.val();
@@ -181,14 +205,20 @@
             bootTime = cmd.ts;
 
             const body = document.getElementById('main-body');
+
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
-            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); }
+            else if (cmd.event === "clear_media") { 
+                document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
+                stopDvd(); 
+            }
             else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
+            else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
+            else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
             else if (cmd.event === "invert") body.classList.toggle('upside-down');
-            else if (cmd.event === "panic") body.classList.add('glitch-red');
+            else if (cmd.event === "panic") body.classList.toggle('glitch-red');
             else if (cmd.event === "disco") body.classList.toggle('disco');
             else if (cmd.event === "shake") body.classList.toggle('shake');
             else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
@@ -198,8 +228,21 @@
                 document.getElementById('msg-board-text').innerHTML = cmd.value;
                 document.getElementById('msg-board-overlay').style.display = 'flex';
             }
+            else if (cmd.event === "delay") {
+                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; });
+            }
+            else if (cmd.event === "boarding") {
+                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; });
+            }
+            else if (cmd.event === "reset_trains") {
+                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; });
+            }
+            else if (cmd.event === "clear_fx") {
+                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried');
+            }
         });
 
+        // Live Clock
         setInterval(() => {
             const now = new Date();
             document.querySelector('.clock-text').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
