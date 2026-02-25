@@ -2,125 +2,113 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Master Control Hub - Sporløs</title>
+    <title>MASTER ADMIN - Sporløs Hub</title>
     <style>
-        body { background: #0a0c10; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
-        
-        /* HEADER & MASTER SWITCH */
+        body { background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
         .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
-        .status-led { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .online { background: #238636; box-shadow: 0 0 12px #238636; }
-        .offline { background: #da3633; box-shadow: 0 0 12px #da3633; }
         
-        #master-switch { padding: 15px 35px; border-radius: 50px; font-weight: 900; cursor: pointer; border: none; transition: 0.3s; font-size: 14px; }
-
-        /* DASHBOARD GRID */
+        /* TARGET SELECTOR */
+        .target-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
+        select { background: #0d1117; color: #2ecc71; font-size: 18px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
         .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        h2 { font-size: 11px; color: #8b949e; margin: 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; letter-spacing: 2px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
+        h2 { font-size: 12px; color: #8b949e; margin: 0 0 15px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
 
-        /* BUTTONS */
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; border-bottom: 4px solid rgba(0,0,0,0.3); transition: 0.1s; color: white; }
+        .btn { width: 100%; padding: 16px; margin-bottom: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; border-bottom: 4px solid rgba(0,0,0,0.3); }
         .btn:active { transform: translateY(3px); border-bottom: 1px solid transparent; }
-        
-        .red { background: #da3633; }
-        .green { background: #238636; }
-        .blue { background: #1f6feb; }
-        .yellow { background: #d29922; color: black; }
-        .black { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
-
-        /* INPUTS */
-        input { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; }
-        .hint { font-size: 10px; color: #484f58; text-transform: none; margin-top: -5px; }
+        .red { background: #da3633; } .green { background: #238636; } .blue { background: #1f6feb; } .yellow { background: #d29922; color: black; } .black { background: #21262d; border: 1px solid #30363d; }
+        input { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div class="master-header">
-        <h1>OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
-        <div style="display:flex; align-items:center; gap:30px;">
-            <div id="hb-text"><span id="hb-led" class="status-led offline"></span>SKÆRM OFFLINE</div>
-            <button id="master-switch" class="red" onclick="toggleMaster()">MASTER SWITCH: OFF</button>
-        </div>
+        <h1 style="margin:0;">OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
+    </div>
+
+    <div class="target-box">
+        VÆLG SKÆRM AT STYRE: 
+        <select id="target-screen">
+            <option value="ALL">ALLE SKÆRME</option>
+            </select>
+        <div style="font-size: 10px; color: #8b949e;">(Skærme dukker automatisk op når de tændes)</div>
     </div>
 
     <div class="grid">
-        
         <div class="card">
             <h2>SCENE MANAGEMENT</h2>
-            <button class="btn red" onclick="send('status', 'PREMIERE NU')">START PREMIERE</button>
-            <button class="btn yellow" onclick="send('status', 'I GANG')">SET TIL LIVE</button>
-            <button class="btn blue" onclick="send('status', 'FÆRDIG')">AFSLUT SPIL</button>
-            <button class="btn black" style="margin-top:20px; border:1px solid #da3633" onclick="trigger('reset')">HARD RESTART HUB</button>
-            <div class="hint">Nulstiller skærmen og fjerner alle trolls.</div>
+            <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">START PREMIERE</button>
+            <button class="btn yellow" onclick="sendCommand('status', 'I GANG')">SÆT TIL LIVE</button>
+            <button class="btn black" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
+            <button class="btn black" style="border:1px solid #da3633; margin-top:20px;" onclick="sendCommand('reset', 'true')">HARD RESTART SKÆRM</button>
         </div>
 
         <div class="card">
-            <h2>MEDIA & JUMPSCARES</h2>
-            <button class="btn green" onclick="trigger('roblox')">ROBLOX MAN FACE</button>
-            <button class="btn green" onclick="trigger('meme')">JOB APP MEME</button>
-            
-            <h2 style="margin-top:10px">YOUTUBE / VIDEO LINK</h2>
+            <h2>MEDIA & VIDEO</h2>
+            <button class="btn green" onclick="sendCommand('roblox', 'true')">ROBLOX MAN FACE</button>
+            <button class="btn green" onclick="sendCommand('meme', 'true')">JOB APP MEME</button>
+            <h2 style="margin-top:15px">AFSPIL YOUTUBE</h2>
             <input type="text" id="vInput" placeholder="Indsæt YouTube Link...">
-            <button class="btn blue" onclick="send('video', document.getElementById('vInput').value)">SEND VIDEO TIL SKÆRM</button>
-            <div class="hint">Indsæt et YouTube link for at afspille det på projektoren.</div>
+            <button class="btn blue" onclick="sendCommand('video', document.getElementById('vInput').value)">SEND VIDEO</button>
         </div>
 
         <div class="card">
-            <h2>CHAOS & OVERRIDES</h2>
-            <button class="btn black" onclick="trigger('blackout')">BLACKOUT (20S)</button>
-            <button class="btn red" onclick="trigger('delay')">FORSINK ALT (99M)</button>
-            <button class="btn blue" onclick="trigger('bluescreen')">BLUE SCREEN CRASH</button>
-            <button class="btn yellow" style="color:black" onclick="trigger('mirror')">MIRROR MODE</button>
-            
-            <h2 style="margin-top:10px">MANUEL TICKER</h2>
-            <input type="text" id="tInput" placeholder="Besked til bunden...">
-            <button class="btn blue" onclick="send('ticker', document.getElementById('tInput').value)">PUSH BESKED</button>
+            <h2>CHAOS OVERRIDES</h2>
+            <button class="btn black" onclick="sendCommand('blackout', 'true')">BLACKOUT (20S)</button>
+            <button class="btn red" onclick="sendCommand('delay', 'true')">FORSINK ALT (99M)</button>
+            <button class="btn yellow" onclick="sendCommand('mirror', 'true')">MIRROR MODE</button>
+            <button class="btn blue" onclick="sendCommand('bluescreen', 'true')">BLUE SCREEN</button>
+            <h2 style="margin-top:10px">TICKER</h2>
+            <input type="text" id="tInput" placeholder="Skriv besked...">
+            <button class="btn blue" onclick="sendCommand('ticker', document.getElementById('tInput').value)">SEND BESKED</button>
         </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let active = false;
-
-        // Toggle the Bridge between Admin and Screen
-        window.toggleMaster = () => {
-            active = !active;
-            const btn = document.getElementById('master-switch');
-            btn.className = active ? 'green' : 'red';
-            btn.innerText = active ? 'MASTER SWITCH: ON' : 'MASTER SWITCH: OFF';
-            set(ref(db, 'remote/active'), active);
-        };
-
-        // Heartbeat Monitor
-        onValue(ref(db, 'remote/heartbeat'), (snap) => {
-            const last = snap.val();
-            const led = document.getElementById('hb-led');
-            const text = document.getElementById('hb-text');
-            if (Date.now() - last < 5000) {
-                led.className = "status-led online";
-                text.innerHTML = '<span class="status-led online"></span>SKÆRM ONLINE';
-            } else {
-                led.className = "status-led offline";
-                text.innerHTML = '<span class="status-led offline"></span>SKÆRM OFFLINE';
+        // Auto-detect connected screens
+        onValue(ref(db, 'remote/screens'), (snapshot) => {
+            const screens = snapshot.val();
+            const select = document.getElementById('target-screen');
+            const currentSelection = select.value;
+            
+            select.innerHTML = '<option value="ALL">ALLE SKÆRME</option>';
+            
+            if (screens) {
+                const now = Date.now();
+                Object.keys(screens).forEach(id => {
+                    // Only show screens that pinged in the last 10 seconds
+                    if (now - screens[id].heartbeat < 10000) {
+                        const opt = document.createElement('option');
+                        opt.value = id;
+                        opt.innerText = id;
+                        select.appendChild(opt);
+                    }
+                });
+            }
+            // Keep previous selection if it's still alive
+            if (Array.from(select.options).some(o => o.value === currentSelection)) {
+                select.value = currentSelection;
             }
         });
 
-        window.send = (path, val) => {
-            const u = {}; u['remote/' + path] = val;
-            update(ref(db), u);
-        };
-
-        window.trigger = (event) => {
-            const u = {}; u['remote/event'] = event;
-            u['remote/ts'] = Date.now();
+        // Universal Command Sender
+        window.sendCommand = (event, val) => {
+            const target = document.getElementById('target-screen').value;
+            const u = {};
+            u['remote/commands'] = {
+                event: event,
+                value: val,
+                target: target,
+                ts: Date.now() // This timestamp guarantees the screen knows it's a NEW click
+            };
             update(ref(db), u);
         };
     </script>
