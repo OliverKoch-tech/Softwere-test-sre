@@ -2,10 +2,17 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Master Hub - Dual System</title>
+    <title>DSB Master Hub</title>
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
+        /* --- INTRO SCREEN --- */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; }
+        #intro-screen img { max-width: 250px; animation: pulse 2s infinite; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(227,0,15,0.5)); }
+        #intro-screen h1 { color: #E3000F; font-size: 40px; letter-spacing: 8px; margin: 0; }
+        #intro-screen h3 { color: #888; font-size: 20px; letter-spacing: 4px; margin-top: 10px; font-weight: normal; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
         /* --- TROLL EFFECTS --- */
         .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
         .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } .shake { animation: shake 0.4s infinite; }
@@ -13,8 +20,7 @@
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
         @keyframes shake { 0% { transform: translate(5px, 3px); } 50% { transform: translate(-5px, -3px); } 100% { transform: translate(0, 0); } }
         
-        /* --- DSB MODE --- */
-        #dsb-mode { display: block; }
+        /* --- DSB MODE LAYOUT --- */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         table { width: 100%; border-collapse: collapse; } td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
@@ -23,128 +29,137 @@
         .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
 
-        /* --- INFO MODE --- */
-        #info-mode { display: none; height: 100%; gap: 30px; padding-bottom: 60px; box-sizing: border-box; }
-        .info-left { flex: 1; display: flex; flex-direction: column; background: linear-gradient(145deg, #0a0e17, #0d1b2a); border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .info-right { flex: 1.2; background: linear-gradient(145deg, #0a0e17, #0d1b2a); border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        
-        .info-time { font-size: 110px; color: #1f6feb; font-weight: 900; line-height: 1; margin-bottom: 10px; text-shadow: 0 5px 15px rgba(31, 111, 235, 0.4); }
-        .info-date { font-size: 35px; color: white; }
-        .info-weather { font-size: 40px; color: #FFD700; margin-top: 20px; border-bottom: 2px solid #1f6feb; padding-bottom: 30px;}
-        
-        .info-msg-title { color: #2ecc71; font-size: 30px; margin-top: 30px; margin-bottom: 15px; font-weight: bold; }
-        .info-msg { background: rgba(31, 111, 235, 0.15); border-left: 10px solid #1f6feb; padding: 30px; font-size: 36px; color: white; border-radius: 0 15px 15px 0; line-height: 1.4; flex-grow: 1; text-transform: none; }
-        
-        .food-day { display: flex; justify-content: space-between; font-size: 32px; border-bottom: 2px solid #1f6feb; padding: 22px 0; }
-        .food-day span:first-child { font-weight: 900; color: #1f6feb; }
-        .news-item { font-size: 28px; border-bottom: 1px solid #333; padding: 22px 0; line-height: 1.4; text-transform: none; }
-        
-        /* INFO RIGHT VIEWS */
-        .rotator-view { display: none; height: 100%; flex-direction: column; }
-        .view-active { display: flex; }
-        
-        #info-qr-view { align-items: center; justify-content: center; text-align: center; }
-        #qr-image { width: 350px; height: 350px; background: white; padding: 15px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #qr-text { font-size: 40px; color: white; font-weight: bold; line-height: 1.3; }
+        /* --- NEW: DVD SCREENSAVER --- */
+        #dvd-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 99999; display: none; overflow: hidden; }
+        #dvd-logo { position: absolute; height: 150px; filter: invert(30%) sepia(100%) saturate(5000%) hue-rotate(0deg); transition: filter 0.1s; }
 
-        /* --- OVERLAYS --- */
+        /* --- NEW: SENTIENT AI TERMINAL --- */
+        #terminal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 99998; display: none; padding: 60px; box-sizing: border-box; }
+        #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
+        .cursor { animation: blink 1s step-end infinite; }
+
+        /* --- EXISTING OVERLAYS & ALERTS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         #blackout { background: black; z-index: 9996; } 
         #hacker-matrix { background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 28px; padding: 60px; z-index: 9997; text-transform: none; }
         #jumpscare { z-index: 9998; background-size: contain; background-repeat: no-repeat; background-position: center; }
         #bsod { background: #0000aa; color: white; z-index: 10000; padding: 50px; font-family: monospace; text-transform: none; }
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
-        
-        /* NOTIFICATIONS & ALERTS */
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
         
-        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 99999; }
+        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; }
         .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000;}
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
     </style>
 </head>
 <body id="main-body">
 
+    <div id="intro-screen">
+        <img src="logo.png" alt="DSB Logo" onerror="this.style.display='none'">
+        <h1>SYSTEM INITIALIZING</h1>
+        <h3>MADE BY OLIVER</h3>
+    </div>
+
+    <div id="dvd-overlay"><img id="dvd-logo" src="logo.png"></div>
+    <div id="terminal-overlay"><div id="terminal-text"></div></div>
+
     <div id="screen-id-tag">STARTER...</div>
     
-    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; text-transform:none;"></div></div>
+    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; text-transform:none; color:white;"></div></div>
     <div id="blackout" class="overlay"></div><div id="jumpscare" class="overlay"></div>
     <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...</div>
     <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem...</p></div>
     <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer<br>15% fuldført<br>Sluk ikke computeren.</div></div>
 
-    <div id="dsb-mode">
-        <div class="header">
-            <div style="font-size: 50px; font-weight: 900; letter-spacing: 2px;">AFGANGE / DEPARTURES</div>
-            <div style="text-align: right;">
-                <div class="time clock-text">00:00:00</div>
-                <div class="date-text" style="font-size: 20px; font-weight: bold; margin-top: 5px;">HENTER DATO...</div>
-                <div class="weather-text" style="color: #aaa; font-size: 18px;">--°C</div>
-            </div>
-        </div>
-        <table>
-            <tbody id="train-table">
-                <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-                <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-                <tr><td class="yellow">10:30</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
-                <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
-                <tr><td class="yellow">13:00</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
-                <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-            </tbody>
-        </table>
-        <img src="logo.png" class="footer-logo">
-    </div>
-
-    <div id="info-mode">
-        <div class="info-left">
-            <div>
-                <div class="info-time clock-text">00:00</div>
-                <div class="info-date date-text">DATO</div>
-                <div class="info-weather weather-text">VEJR</div>
-            </div>
-            <div style="display:flex; flex-direction:column; flex-grow:1;">
-                <div class="info-msg-title">AKTUEL MEDDELELSE:</div>
-                <div class="info-msg" id="school-msg">VELKOMMEN TIL SKOLEN.</div>
-            </div>
-        </div>
-        
-        <div class="info-right">
-            <div id="info-news-view" class="rotator-view view-active">
-                <h2 style="color:#1f6feb; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #1f6feb; padding-bottom:10px;">SENESTE NYT (DR)</h2>
-                <div id="news-list-display" style="font-size: 30px; line-height: 1.5;">Indlæser nyheder...</div>
-            </div>
-            <div id="info-food-view" class="rotator-view">
-                <h2 style="color:#2ecc71; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #2ecc71; padding-bottom:10px;">UGENS MADPLAN</h2>
-                <div class="food-day"><span>MANDAG</span><span id="f-mon">-</span></div>
-                <div class="food-day"><span>TIRSDAG</span><span id="f-tue">-</span></div>
-                <div class="food-day"><span>ONSDAG</span><span id="f-wed">-</span></div>
-                <div class="food-day"><span>TORSDAG</span><span id="f-thu">-</span></div>
-                <div class="food-day"><span>FREDAG</span><span id="f-fri">-</span></div>
-            </div>
-            <div id="info-dayplan-view" class="rotator-view">
-                <h2 style="color:#e67e22; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #e67e22; padding-bottom:10px;">DAGENS PLAN</h2>
-                <div id="dayplan-content" style="font-size:32px; color:white; line-height:1.6; text-transform:none;">Ingen plan for i dag.</div>
-            </div>
-            <div id="info-custom-view" class="rotator-view">
-                <h2 id="custom-title" style="color:#9b59b6; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #9b59b6; padding-bottom:10px;">INFO</h2>
-                <div id="custom-content" style="font-size:36px; color:white; line-height:1.4; text-transform:none;">Læser data...</div>
-            </div>
-            <div id="info-qr-view" class="rotator-view">
-                <h2 style="color:#8957e5; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #8957e5; padding-bottom:10px; width:100%; text-align:left;">DAGENS LINK</h2>
-                <div style="flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                    <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=https://dr.dk">
-                    <div id="qr-text">SCAN KODEN MED DIN TELEFON</div>
-                </div>
-            </div>
+    <div class="header">
+        <div style="font-size: 50px; font-weight: 900; letter-spacing: 2px;">AFGANGE / DEPARTURES</div>
+        <div style="text-align: right;">
+            <div class="time clock-text">00:00:00</div>
+            <div class="date-text" style="font-size: 20px; font-weight: bold; margin-top: 5px;">HENTER DATO...</div>
+            <div class="weather-text" style="color: #aaa; font-size: 18px;">--°C</div>
         </div>
     </div>
-
+    
+    <table>
+        <tbody id="train-table">
+            <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:30</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
+            <tr><td class="yellow">13:00</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+        </tbody>
+    </table>
+    
+    <img src="logo.png" class="footer-logo">
     <div class="ticker-container"><div class="ticker-text" id="ticker-msg">SYNCER MED HUB...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // --- INTRO LOGIC ---
+        setTimeout(() => {
+            const intro = document.getElementById('intro-screen');
+            intro.style.opacity = '0';
+            setTimeout(() => intro.style.display = 'none', 1000); 
+        }, 3500); 
+
+        // --- DVD ANIMATION LOGIC ---
+        let dvdInterval;
+        let dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
+        function startDvd() {
+            const overlay = document.getElementById('dvd-overlay');
+            const logo = document.getElementById('dvd-logo');
+            overlay.style.display = 'block';
+            clearInterval(dvdInterval);
+            
+            dvdInterval = setInterval(() => {
+                const rect = logo.getBoundingClientRect();
+                if (dvdX + rect.width >= window.innerWidth || dvdX <= 0) { dvdDx = -dvdDx; changeHue(); }
+                if (dvdY + rect.height >= window.innerHeight || dvdY <= 0) { dvdDy = -dvdDy; changeHue(); }
+                dvdX += dvdDx; dvdY += dvdDy;
+                logo.style.transform = `translate(${dvdX}px, ${dvdY}px)`;
+            }, 16);
+        }
+        function changeHue() {
+            dvdHue = (dvdHue + 75) % 360;
+            // The massive saturate/sepia forces color onto white/grey images
+            document.getElementById('dvd-logo').style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`;
+        }
+        function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
+
+        // --- TERMINAL TYPING LOGIC ---
+        let typeTimeout;
+        function playTerminal(text) {
+            document.getElementById('terminal-overlay').style.display = 'block';
+            const el = document.getElementById('terminal-text');
+            el.innerHTML = '';
+            clearTimeout(typeTimeout);
+            
+            let i = 0;
+            // Decode newlines
+            text = text.replace(/\\n/g, '<br>');
+            
+            function typeChar() {
+                if (i < text.length) {
+                    // Check if it's an HTML tag (like <br>) and skip parsing it letter by letter
+                    if (text.charAt(i) === '<') {
+                        let tag = "";
+                        while (text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
+                        tag += '>';
+                        el.innerHTML = el.innerHTML.replace('<span class="cursor">█</span>', '') + tag + '<span class="cursor">█</span>';
+                    } else {
+                        el.innerHTML = el.innerHTML.replace('<span class="cursor">█</span>', '') + text.charAt(i) + '<span class="cursor">█</span>';
+                    }
+                    i++;
+                    // Random human-like typing speed
+                    typeTimeout = setTimeout(typeChar, Math.random() * 50 + 20);
+                }
+            }
+            typeChar();
+        }
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
@@ -155,49 +170,6 @@
         let bootTime = Date.now(); window.scrambleTimer = null;
 
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
-
-        // --- DYNAMIC ROTATOR LOGIC ---
-        let currentViewIndex = 0;
-        let rotationTimeMs = 20000; 
-        let showQR = true; 
-        let lastRotation = Date.now();
-
-        setInterval(() => {
-            if (Date.now() - lastRotation >= rotationTimeMs) {
-                let activeViews = ['info-news-view', 'info-food-view', 'info-dayplan-view', 'info-custom-view'];
-                if (showQR) activeViews.push('info-qr-view');
-                document.querySelectorAll('.rotator-view').forEach(el => el.classList.remove('view-active'));
-                currentViewIndex = (currentViewIndex + 1) % activeViews.length;
-                document.getElementById(activeViews[currentViewIndex]).classList.add('view-active');
-                lastRotation = Date.now();
-            }
-        }, 1000);
-
-        // --- LISTEN FOR STATE CHANGES ---
-        onValue(ref(db, 'remote/state'), (snapshot) => {
-            const state = snapshot.val();
-            if (!state) return;
-            if (state.mode === 'info') {
-                document.getElementById('dsb-mode').style.display = 'none';
-                document.getElementById('info-mode').style.display = 'flex';
-            } else {
-                document.getElementById('dsb-mode').style.display = 'block';
-                document.getElementById('info-mode').style.display = 'none';
-            }
-            if (state.school_msg) document.getElementById('school-msg').innerHTML = state.school_msg;
-            if (state.food) {
-                ['mon','tue','wed','thu','fri'].forEach(day => {
-                    if(document.getElementById('f-'+day)) document.getElementById('f-'+day).innerText = state.food[day] || "-";
-                });
-            }
-            if (state.rotation_time !== undefined) rotationTimeMs = parseInt(state.rotation_time) * 1000;
-            if (state.show_qr !== undefined) showQR = state.show_qr;
-            if (state.day_plan) document.getElementById('dayplan-content').innerHTML = state.day_plan;
-            if (state.custom_title) document.getElementById('custom-title').innerText = state.custom_title;
-            if (state.custom_text) document.getElementById('custom-content').innerHTML = state.custom_text;
-            if (state.qr_link) document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(state.qr_link)}`;
-            if (state.qr_text) document.getElementById('qr-text').innerText = state.qr_text;
-        });
 
         // --- COMMAND LISTENER ---
         onValue(ref(db, 'remote/commands'), (snapshot) => {
@@ -220,6 +192,11 @@
                 document.getElementById('msg-board-text').innerHTML = cmd.value;
                 document.getElementById('msg-board-overlay').style.display = 'flex';
             }
+            
+            // NEW FEATURES TRIGGER
+            else if (cmd.event === "dvd") startDvd();
+            else if (cmd.event === "terminal") playTerminal(cmd.value);
+
             else if (cmd.event === "add_train") {
                 try {
                     const t = JSON.parse(cmd.value);
@@ -264,16 +241,20 @@
                 body.classList.remove('mirror', 'upside-down', 'glitch-red', 'deep-fried', 'disco', 'shake');
                 if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); }
             }
-            else if (cmd.event === "clear_media") document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none');
+            else if (cmd.event === "clear_media") {
+                document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none');
+                stopDvd(); // Stops the DVD screensaver safely
+                document.getElementById('terminal-overlay').style.display = 'none'; // Clears terminal
+            }
             else if (cmd.event === "reset_trains") document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; });
         });
 
-        // --- CLOCK, WEATHER & NIGHTLY ROUTINE ---
         function updateTime() {
             const now = new Date();
             document.querySelectorAll('.clock-text').forEach(el => el.innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'}) + (el.classList.contains('time') ? ':'+now.getSeconds().toString().padStart(2,'0') : ''));
             document.querySelectorAll('.date-text').forEach(el => el.innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'long'}).toUpperCase());
             
+            // NIGHTLY ROUTINE (9:30 PM)
             if (now.getHours() === 21 && now.getMinutes() === 30 && now.getSeconds() === 0) {
                 const overlay = document.getElementById('msg-board-overlay');
                 const title = document.getElementById('msg-board-title');
@@ -292,6 +273,7 @@
         }
         setInterval(updateTime, 1000); updateTime();
 
+        // Real Weather
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -301,15 +283,13 @@
         }
         fetchWeather();
 
+        // DR News Feed
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
                 const hl = d.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
                 document.getElementById('ticker-msg').innerText = "+++ NYHEDER: " + hl + " +++ ";
-                let newsHtml = "";
-                d.items.slice(0, 4).forEach(item => { newsHtml += `<div class="news-item">• ${item.title}</div>`; });
-                document.getElementById('news-list-display').innerHTML = newsHtml;
             } catch(e) {}
         }
         fetchNews(); setInterval(fetchNews, 600000);

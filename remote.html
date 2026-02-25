@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MASTER ADMIN - Dual Hub</title>
+    <title>MASTER ADMIN - DSB Hub</title>
     <style>
         body { background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
         
@@ -15,22 +15,21 @@
         
         /* --- ADMIN PANEL STYLES --- */
         .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
-        .mode-switcher { background: #161b22; border: 2px solid #1f6feb; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
-        .mode-btn { padding: 15px 40px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; transition: 0.3s; }
-        .mode-active { background: #1f6feb; color: white; box-shadow: 0 0 15px rgba(31,111,235,0.5); }
-        .mode-inactive { background: #21262d; color: #8b949e; }
         .target-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
         select { background: #0d1117; color: #2ecc71; font-size: 16px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
         h2 { font-size: 12px; color: #8b949e; margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+
         .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; border-bottom: 4px solid rgba(0,0,0,0.3); font-size: 11px; transition: 0.1s; }
         .btn:active { transform: translateY(3px); border-bottom: 1px solid transparent; }
+        
         .red { background: #da3633; } .green { background: #238636; } .blue { background: #1f6feb; } .yellow { background: #d29922; color: black; } .black { background: #21262d; border: 1px solid #30363d; color: white;} .purple { background: #8957e5; }
+        
         input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; font-family: sans-serif; }
         .flex-row { display: flex; gap: 5px; margin-bottom: 8px; }
         .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; }
-        .toggle-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #c9d1d9; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -49,24 +48,15 @@
         <h1 style="margin:0;">OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
     </div>
 
-    <div class="mode-switcher">
-        <div>
-            <h2 style="border:none; color:white; font-size:18px; margin-bottom:5px;">ACTIVE SYSTEM:</h2>
-            <div style="color:#8b949e; font-size:12px; text-transform:none;">Changes the projector layout. Trolls work in BOTH modes.</div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button id="btn-dsb" class="mode-btn mode-active" onclick="setMode('dsb')">DSB TRAIN BOARD</button>
-            <button id="btn-info" class="mode-btn mode-inactive" onclick="setMode('info')">SCHOOL INFO SCREEN</button>
-        </div>
-    </div>
-
     <div class="target-box">
         SELECT SCREEN: <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
         <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE SCREEN ID</button>
         <button class="btn blue" style="width:auto; margin:0;" onclick="sendCommand('msg_board', prompt('Enter Full Screen Emergency Message:'))">🚨 FULL SCREEN ALERT</button>
     </div>
 
-    <div id="panel-dsb" class="grid">
+    <div class="section-title">DSB TRAIN BOARD CONTROLS</div>
+
+    <div class="grid">
         <div class="card">
             <h2>SCENE MANAGEMENT</h2>
             <button class="btn red" onclick="sendCommand('status', 'PREMIERE NU')">START PREMIERE</button>
@@ -84,66 +74,33 @@
             </div>
             <button class="btn red" style="background:#8b0000" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
             <button class="btn green" onclick="sendCommand('boarding')">BOARDING (BLINK GREEN)</button>
+            
             <h2 style="margin-top:20px;">ADD FAKE TRAIN</h2>
             <div class="flex-row"><input type="text" id="trTime" placeholder="Time (14:00)"><input type="text" id="trType" placeholder="Type (IC)"></div>
             <div class="flex-row"><input type="text" id="trDest" placeholder="Dest (HOGWARTS)"><input type="text" id="trTrack" placeholder="Track"></div>
             <button class="btn yellow" onclick="sendTrain()">INJECT TO BOARD</button>
         </div>
-    </div>
-
-    <div id="panel-info" class="grid" style="display:none;">
-        <div class="card">
-            <h2>SCHOOL MESSAGE BOX</h2>
-            <textarea id="sMsg" rows="3" placeholder="Write a general message..."></textarea>
-            <button class="btn blue" onclick="updateInfo('school_msg', document.getElementById('sMsg').value)">UPDATE MESSAGE</button>
-            
-            <h2 style="margin-top:15px;">DAY PLAN (ROTATOR)</h2>
-            <textarea id="dPlan" rows="3" placeholder="08:00 - Math..."></textarea>
-            <button class="btn yellow" onclick="updateInfo('day_plan', document.getElementById('dPlan').value)">UPDATE DAY PLAN</button>
-        </div>
-
-        <div class="card">
-            <h2>CUSTOM SECTION (ROTATOR)</h2>
-            <input type="text" id="cTitle" placeholder="Custom Title">
-            <textarea id="cText" rows="3" placeholder="Custom Text..."></textarea>
-            <button class="btn purple" onclick="saveCustom()">UPDATE CUSTOM SECTION</button>
-            
-            <h2 style="margin-top:15px;">WEEKLY FOOD MENU</h2>
-            <div class="flex-row"><input type="text" id="fMon" placeholder="Mon"><input type="text" id="fTue" placeholder="Tue"></div>
-            <div class="flex-row"><input type="text" id="fWed" placeholder="Wed"><input type="text" id="fThu" placeholder="Thu"></div>
-            <input type="text" id="fFri" placeholder="Fri">
-            <button class="btn green" onclick="saveFood()">UPDATE MENU</button>
-        </div>
-
-        <div class="card">
-            <h2>QR CODE SETTINGS</h2>
-            <input type="text" id="qrLink" placeholder="URL (https://youtube.com)">
-            <input type="text" id="qrText" placeholder="QR Subtext">
-            <div class="toggle-label">
-                <span>SHOW QR IN ROTATION:</span>
-                <select id="qrToggle" style="width:80px; padding:5px; margin-bottom:0;" onchange="updateInfoRaw('show_qr', this.value === 'true')">
-                    <option value="true">ON</option><option value="false">OFF</option>
-                </select>
-            </div>
-            <button class="btn blue" onclick="saveQR()">UPDATE QR DATA</button>
-            
-            <h2 style="margin-top:15px;">ROTATOR TIMING</h2>
-            <div class="flex-row">
-                <input type="number" id="rotTime" placeholder="Seconds" style="width:80px;" value="20">
-                <button class="btn yellow" onclick="updateInfoRaw('rotation_time', document.getElementById('rotTime').value)">SET SPEED (SEC)</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-title">UNIVERSAL TROLLS, USERS & RESETS</div>
-
-    <div class="grid">
+        
         <div class="card">
             <h2>USER MANAGEMENT</h2>
             <input type="text" id="newU" placeholder="New Username">
             <input type="password" id="newP" placeholder="New Password">
             <button class="btn blue" onclick="addUser()">CREATE ADMIN USER</button>
             <div style="font-size:10px; color:#8b949e; margin-top:5px; text-transform:none;">Add a new user to access this control panel. Default is admin/1234.</div>
+        </div>
+    </div>
+
+    <div class="section-title">THE "MESS AROUND" TROLLS & RESETS</div>
+
+    <div class="grid">
+        
+        <div class="card">
+            <h2>AI HACKER TERMINAL</h2>
+            <textarea id="termInput" rows="4" placeholder="Type message for the Sentient AI to type out... Use \n for new lines."></textarea>
+            <button class="btn green" style="background:#0f0; color:black;" onclick="sendTerminal()">TYPE TO SCREEN</button>
+            
+            <h2 style="margin-top:20px;">DVD LOGO BOUNCE</h2>
+            <button class="btn purple" onclick="sendCommand('dvd')">START DVD SCREENSAVER</button>
         </div>
 
         <div class="card">
@@ -163,7 +120,9 @@
             <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
             <button class="btn blue" onclick="sendCommand('bluescreen')">BLUE SCREEN CRASH</button>
             <button class="btn blue" style="background:#006dae;" onclick="sendCommand('winupdate')">WINDOWS UPDATE TROLL</button>
-            <div class="flex-row" style="margin-top:10px;">
+            
+            <h2 style="margin-top:10px;">WEATHER HACKER</h2>
+            <div class="flex-row">
                 <input type="text" id="wInput" placeholder="LAVA RAIN 999°C">
                 <button class="btn blue" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET WEATHER</button>
             </div>
@@ -171,9 +130,10 @@
 
         <div class="card">
             <h2 style="color:#2ecc71;">SOFT RESETS (FIXES)</h2>
-            <button class="btn green" onclick="sendCommand('clear_media')">CLOSE ALL OVERLAYS / ALERTS</button>
+            <button class="btn green" onclick="sendCommand('clear_media')">CLOSE ALL OVERLAYS (Terminal, DVD, Alerts)</button>
             <button class="btn green" onclick="sendCommand('clear_fx')">CLEAR VISUAL FX / STOP SCRAMBLE</button>
             <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS (TIL TIDEN)</button>
+            
             <h2 style="color:#da3633; margin-top:30px;">EMERGENCY (HARD)</h2>
             <button class="btn black" style="border:1px solid #da3633;" onclick="sendCommand('reset')">HARD RESTART SCREEN</button>
         </div>
@@ -191,7 +151,6 @@
         let usersDB = {};
         onValue(ref(db, 'remote/users'), (snap) => {
             usersDB = snap.val();
-            // Create default admin if DB is completely empty
             if (!usersDB) {
                 usersDB = { admin: "1234" };
                 update(ref(db), { 'remote/users/admin': "1234" });
@@ -223,7 +182,7 @@
             }
         };
 
-        // Screen Detection
+        // --- SCREEN DETECTION ---
         onValue(ref(db, 'remote/screens'), (snapshot) => {
             const screens = snapshot.val();
             const select = document.getElementById('target-screen');
@@ -241,68 +200,27 @@
             if (Array.from(select.options).some(o => o.value === currentSelection)) { select.value = currentSelection; }
         });
 
-        // Load existing state for Info Panel
-        onValue(ref(db, 'remote/state'), (snap) => {
-            const state = snap.val();
-            if(state) {
-                if(state.food) {
-                    document.getElementById('fMon').value = state.food.mon || "";
-                    document.getElementById('fTue').value = state.food.tue || "";
-                    document.getElementById('fWed').value = state.food.wed || "";
-                    document.getElementById('fThu').value = state.food.thu || "";
-                    document.getElementById('fFri').value = state.food.fri || "";
-                }
-                if(state.qr_link) document.getElementById('qrLink').value = state.qr_link;
-                if(state.qr_text) document.getElementById('qrText').value = state.qr_text;
-                if(state.school_msg) document.getElementById('sMsg').value = state.school_msg.replace(/<br>/g, '\n');
-                if(state.day_plan) document.getElementById('dPlan').value = state.day_plan.replace(/<br>/g, '\n');
-                if(state.custom_title) document.getElementById('cTitle').value = state.custom_title;
-                if(state.custom_text) document.getElementById('cText').value = state.custom_text.replace(/<br>/g, '\n');
-                if(state.rotation_time !== undefined) document.getElementById('rotTime').value = state.rotation_time;
-                if(state.show_qr !== undefined) document.getElementById('qrToggle').value = state.show_qr ? "true" : "false";
-            }
-        });
-
-        window.setMode = (mode) => {
-            update(ref(db), { 'remote/state/mode': mode });
-            document.getElementById('btn-dsb').className = mode === 'dsb' ? 'mode-btn mode-active' : 'mode-btn mode-inactive';
-            document.getElementById('btn-info').className = mode === 'info' ? 'mode-btn mode-active' : 'mode-btn mode-inactive';
-            document.getElementById('panel-dsb').style.display = mode === 'dsb' ? 'grid' : 'none';
-            document.getElementById('panel-info').style.display = mode === 'info' ? 'grid' : 'none';
-        };
-
-        window.updateInfoRaw = (path, val) => {
-            const u = {}; u['remote/state/' + path] = val; update(ref(db), u);
-        };
-        
-        window.updateInfo = (path, val) => {
-            if (val) val = val.replace(/\n/g, '<br>'); 
-            window.updateInfoRaw(path, val);
-        };
-        
-        window.saveFood = () => {
-            const food = { mon: document.getElementById('fMon').value, tue: document.getElementById('fTue').value, wed: document.getElementById('fWed').value, thu: document.getElementById('fThu').value, fri: document.getElementById('fFri').value };
-            window.updateInfoRaw('food', food);
-        };
-
-        window.saveQR = () => {
-            window.updateInfoRaw('qr_link', document.getElementById('qrLink').value);
-            window.updateInfoRaw('qr_text', document.getElementById('qrText').value);
-        };
-        
-        window.saveCustom = () => {
-            window.updateInfoRaw('custom_title', document.getElementById('cTitle').value);
-            window.updateInfo('custom_text', document.getElementById('cText').value);
-        };
-
+        // --- COMMAND SENDER ---
         window.sendCommand = (event, val = "") => {
             const target = document.getElementById('target-screen').value;
             const u = {}; u['remote/commands'] = { event: event, value: val, target: target, ts: Date.now() };
             update(ref(db), u);
         };
 
+        window.sendTerminal = () => {
+            let text = document.getElementById('termInput').value;
+            if (!text) text = "> SYSTEM OVERRIDE SUCCESSFUL.\\n> AWAITING COMMANDS...";
+            window.sendCommand('terminal', text);
+            document.getElementById('termInput').value = ""; // Clear box after send
+        };
+
         window.sendTrain = () => {
-            const payload = JSON.stringify({ time: document.getElementById('trTime').value || "??:??", type: document.getElementById('trType').value || "IC", dest: document.getElementById('trDest').value || "UNKNOWN", track: document.getElementById('trTrack').value || "?" });
+            const payload = JSON.stringify({ 
+                time: document.getElementById('trTime').value || "??:??", 
+                type: document.getElementById('trType').value || "IC", 
+                dest: document.getElementById('trDest').value || "UNKNOWN", 
+                track: document.getElementById('trTrack').value || "?" 
+            });
             window.sendCommand('add_train', payload);
         };
     </script>
