@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <title>MASTER ADMIN - OLIVER TECH</title>
     <style>
-        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; }
+        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; }
         
+        /* --- GLOBE BACKGROUND --- */
+        #globe-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none; opacity: 0.15;
+        }
+
         /* --- CLEAN WHITE INTRO (MATCHES PROJECTOR) --- */
         #intro-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -25,26 +31,26 @@
 
         /* --- LOGIN SCREEN --- */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; }
+        .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; position: relative; z-index: 2; }
         .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; text-transform: none; }
         .login-btn { width: 100%; padding: 12px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
 
         /* --- HEADER & LOGO --- */
-        .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: #fff; }
+        .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: rgba(255,255,255,0.9); position: relative; z-index: 1; }
         .master-header img { height: 120px; margin-bottom: 10px; }
         .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
 
         /* --- MAIN UI --- */
-        .container { max-width: 1300px; margin: 0 auto; padding: 25px; }
-        .target-box { background: #fff; border: 1px solid #000; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .container { max-width: 1300px; margin: 0 auto; padding: 25px; position: relative; z-index: 1; }
+        .target-box { background: #fff; border: 1px solid #000; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         select { padding: 10px; font-weight: bold; border: 1px solid #000; cursor: pointer; background: white; }
 
-        .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; }
+        .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; background: rgba(255,255,255,0.8); display: inline-block; padding-right: 15px;}
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; position: relative; overflow: hidden; }
-        .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .card { background: rgba(255,255,255,0.95); border: 1px solid #eee; padding: 25px; transition: 0.2s; position: relative; overflow: hidden; backdrop-filter: blur(5px); }
+        .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
         h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
 
         /* --- BUTTONS --- */
@@ -56,23 +62,31 @@
         .btn.green { border-color: #2ecc71; color: #2ecc71; }
         .btn.green:hover { background: #2ecc71; color: #fff; }
 
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; background: rgba(255,255,255,0.9); }
         .flex-row { display: flex; gap: 10px; }
         
         /* NEW NETWORK TABLE */
-        table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; margin-top: 15px; }
         table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; color: #999; }
         table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
+
+        /* DROPDOWN DETAILS STYLING */
+        details.dropdown-card summary { list-style: none; outline: none; cursor: pointer; font-size: 12px; font-weight: 900; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; padding-bottom: 5px;}
+        details.dropdown-card summary::-webkit-details-marker { display: none; }
+        details.dropdown-card[open] summary { border-bottom: 2px solid #1f6feb; margin-bottom: 15px; }
+        details.dropdown-card summary:hover { color: #1f6feb; }
     </style>
 </head>
 <body>
+
+    <canvas id="globe-canvas"></canvas>
 
     <div id="intro-screen">
         <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v8.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v9.0</div>
     </div>
 
     <div id="login-screen">
@@ -98,8 +112,11 @@
 
         <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
         <div class="grid" style="grid-template-columns: 1fr;">
-            <div class="card" style="border: 2px solid #1f6feb;">
-                <h2>CONNECTED SCREENS</h2>
+            <details class="card dropdown-card" style="border: 2px solid #1f6feb;">
+                <summary>
+                    <span>▼ CONNECTION MENU (CLICK TO EXPAND)</span>
+                    <span style="color:#1f6feb;">LIVE</span>
+                </summary>
                 <table class="net-table">
                     <thead>
                         <tr>
@@ -112,7 +129,7 @@
                     <tbody id="network-tbody">
                         </tbody>
                 </table>
-            </div>
+            </details>
         </div>
 
         <div class="section-title">NUCLEAR CONTROL CENTER</div>
@@ -241,6 +258,80 @@
         </div>
     </div>
 
+    <script>
+        const canvas = document.getElementById('globe-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resizeGlobe() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeGlobe);
+        resizeGlobe();
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
+        const points = [];
+        const numPoints = 800; // Density of the globe
+
+        // Generate Fibonacci sphere points
+        const phi = Math.PI * (3 - Math.sqrt(5));
+        for (let i = 0; i < numPoints; i++) {
+            const y = 1 - (i / (numPoints - 1)) * 2;
+            const radiusAtY = Math.sqrt(1 - y * y);
+            const theta = phi * i;
+            
+            const x = Math.cos(theta) * radiusAtY;
+            const z = Math.sin(theta) * radiusAtY;
+            
+            points.push({ x, y, z, char: chars[Math.floor(Math.random() * chars.length)] });
+        }
+
+        let angle = 0;
+        function drawGlobe() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.font = "14px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            angle += 0.003; // Rotation speed
+            
+            const cosA = Math.cos(angle);
+            const sinA = Math.sin(angle);
+            const projected = [];
+            
+            for (let i = 0; i < numPoints; i++) {
+                const p = points[i];
+                // Rotate around Y axis
+                const rotX = p.x * cosA - p.z * sinA;
+                const rotZ = p.z * cosA + p.x * sinA;
+                const rotY = p.y;
+                
+                const distance = 3;
+                const z = rotZ + distance;
+                const scale = (Math.min(width, height) * 0.8) / z;
+                
+                const screenX = width / 2 + rotX * scale;
+                const screenY = height / 2 + rotY * scale;
+                
+                projected.push({screenX, screenY, z: rotZ, char: p.char});
+            }
+            
+            // Sort by depth to draw back to front
+            projected.sort((a, b) => b.z - a.z);
+            
+            for (let i = 0; i < numPoints; i++) {
+                const p = projected[i];
+                const alpha = (p.z + 1) / 2; // Maps -1 to 1 into 0 to 1
+                const opacity = 0.2 + (alpha * 0.8);
+                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+                ctx.fillText(p.char, p.screenX, p.screenY);
+            }
+            requestAnimationFrame(drawGlobe);
+        }
+        drawGlobe();
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -297,18 +388,11 @@
             window.sendCommand('manual_train', JSON.stringify(data));
         };
 
-        // NEW FIX: Loops through rows 0 to 5 and sends manual cancel to ensure the projector receives it flawlessly.
         window.cancelAllTrains = () => {
             const rows = [0, 1, 2, 3, 4, 5];
             rows.forEach((rowId, index) => {
-                // We use a slight 300ms delay between sending each command so Firebase registers each update perfectly
                 setTimeout(() => {
-                    const data = {
-                        id: rowId.toString(),
-                        msg: "AFLYST",
-                        color: "red",
-                        blink: true
-                    };
+                    const data = { id: rowId.toString(), msg: "AFLYST", color: "red", blink: true };
                     window.sendCommand('manual_train', JSON.stringify(data));
                 }, index * 300);
             });
@@ -358,14 +442,14 @@
                     <td style="color: ${isOnline ? '#2ecc71' : '#E3000F'}; font-weight: 900;">${isOnline ? 'ONLINE' : 'OFFLINE'}</td>
                     <td>${isOnline ? ping + ' ms' : 'N/A'}</td>
                     <td>
-                        <button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK FROM NETWORK</button>
+                        <button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
             
             if (!hasActiveScreens) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED ON NETWORK</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED</td></tr>';
             }
 
             if (Array.from(select.options).some(o => o.value === current)) { select.value = current; }
