@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>OLIVER CTRL HUB v2.0</title>
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; margin: 0; padding: 30px; }
+        .dashboard-header { border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .panel { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        h2 { font-size: 0.8rem; color: #8b949e; margin: 0; padding-bottom: 10px; border-bottom: 1px solid #333; }
+        .btn { padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .red { background: #da3633; color: white; }
+        .blue { background: #1f6feb; color: white; }
+        .yellow { background: #d29922; color: black; }
+        .purple { background: #8957e5; color: white; }
+        .black { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+        input { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 6px; color: #FFD700; font-size: 16px; width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <h1>OLIVER <span style="color:#da3633;">CTRL</span> HUB</h1>
+        <div style="color: #2ecc71;">● SYSTEM ONLINE</div>
+    </div>
+
+    <div class="control-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+        
+        <div class="panel">
+            <h2>STATUS KONTROL</h2>
+            <button class="btn red" onclick="send('status', 'PREMIERE NU')">Trigger Premiere</button>
+            <button class="btn yellow" onclick="send('status', 'I GANG')">Sæt til Live</button>
+            <button class="btn black" onclick="send('status', 'KLAR')">Reset Board</button>
+        </div>
+
+        <div class="panel">
+            <h2>CHAOS ENGINE</h2>
+            <button class="btn black" onclick="trigger('blackout')">Blackout (20s)</button>
+            <button class="btn red" onclick="trigger('delay')">Delay All (99m)</button>
+            <button class="btn purple" onclick="trigger('roblox')">Roblox Face</button>
+            <button class="btn purple" onclick="trigger('meme')">Meme Jumpscare</button>
+        </div>
+
+        <div class="panel">
+            <h2>TICKER OVERRIDE</h2>
+            <input type="text" id="tInput" placeholder="Skriv troll besked...">
+            <button class="btn blue" onclick="send('ticker', document.getElementById('tInput').value)">Send til Ticker</button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.send = (path, val) => {
+            const updates = {};
+            updates['remote/' + path] = val;
+            update(ref(db), updates);
+        };
+
+        window.trigger = (event) => {
+            const updates = {};
+            updates['remote/event'] = event;
+            updates['remote/timestamp'] = Date.now(); 
+            update(ref(db), updates);
+        };
+    </script>
+</body>
+</html>

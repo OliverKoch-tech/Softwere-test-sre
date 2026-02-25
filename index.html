@@ -2,168 +2,126 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>DSB Afgange - Øster Kippinge LIVE</title>
+    <title>DSB Master Hub - Øster Kippinge</title>
     <style>
-        body { background-color: #050505; color: #ffffff; font-family: 'Arial', sans-serif; margin: 0; padding: 20px; text-transform: uppercase; overflow: hidden; height: 100vh; }
+        body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: 0.5s; }
         
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
-        .title { font-size: 45px; font-weight: 900; letter-spacing: 2px; margin-top: 10px; }
+        /* THE TROLL CSS */
+        .mirror { transform: scaleX(-1); }
+        .glitch-red { animation: panic 0.1s infinite; }
+        @keyframes panic { 0% { background: #050505; } 50% { background: #400; } }
         
-        .info-block { text-align: right; }
-        .time { color: #FFD700; font-size: 50px; font-weight: bold; line-height: 1; }
-        .date { color: #ffffff; font-size: 22px; font-weight: bold; margin-top: 5px; }
-        .weather { color: #aaaaaa; font-size: 18px; font-weight: bold; margin-top: 2px; }
-
-        /* TABEL */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #aaaaaa; border-bottom: 2px solid #333; font-size: 22px; padding-bottom: 10px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; }
+        .time { color: #FFD700; font-size: 50px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         td { padding: 12px 0; border-bottom: 1px solid #1a1a1a; font-size: 28px; font-weight: bold; }
-        
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; }
-        .ic { background-color: #E3000F; color: white; padding: 2px 8px; border-radius: 3px; }
-        .re { background-color: #002855; color: white; padding: 2px 8px; border-radius: 3px; }
         .blinking { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        .section-divider { background-color: #111; color: #aaaaaa; text-align: center; font-size: 20px; letter-spacing: 4px; padding: 8px 0; }
-
-        /* JUMPSCARE LAYERS */
+        /* OVERLAYS */
         #blackout { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9998; display: none; }
-        #jumpscare-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        #jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        #error-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0000aa; color: white; z-index: 10000; display: none; padding: 50px; font-family: monospace; text-transform: none; }
 
-        /* TICKER */
-        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; z-index: 1000; }
+        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; }
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
-        
-        .footer-corner-logo { position: fixed; bottom: 70px; left: 20px; z-index: 5; }
-        .footer-ghost-logo { height: 25px; opacity: 0.2; filter: grayscale(100%) drop-shadow(0px 0px 1px #ffffff); }
+        .footer-logo { position: fixed; bottom: 70px; left: 20px; height: 25px; opacity: 0.2; filter: grayscale(100%) drop-shadow(0 0 1px white); }
     </style>
 </head>
-<body>
+<body id="main-body">
     <div id="blackout"></div>
-    <div id="jumpscare-overlay"></div>
+    <div id="jumpscare"></div>
+    <div id="error-overlay"><h1>:(</h1><p>Your PC ran into a problem and needs to restart. We're just collecting some error info, and then we'll restart for you.</p><p>0% complete</p></div>
 
     <div class="header">
-        <div class="title" id="main-title">AFGANGE / DEPARTURES</div>
-        <div class="info-block">
+        <div style="font-size: 45px; font-weight: 900;">AFGANGE</div>
+        <div style="text-align: right;">
             <div class="time" id="clock">00:00:00</div>
-            <div class="date" id="date-row">HENTER DATO...</div>
-            <div class="weather" id="weather-row">ØSTER KIPPINGE: --°C</div>
+            <div id="date-row" style="font-size: 18px; font-weight: bold;">--</div>
+            <div id="weather" style="color: #aaa; font-size: 16px;">ØSTER KIPPINGE: --°C</div>
         </div>
     </div>
 
     <table>
         <thead><tr><th>TID</th><th>TOG</th><th>DESTINATION</th><th>SPOR</th><th>BEMÆRKNING</th></tr></thead>
-        <tbody>
-            <tr class="train-row"><td class="yellow">09:30</td><td><span class="ic">IC 142</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr class="train-row"><td class="yellow">10:00</td><td><span class="re">RE 12</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr class="train-row"><td class="yellow">10:30</td><td><span class="re">RE 88</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
-            
-            <tr style="background: rgba(227, 0, 15, 0.15);">
-                <td class="yellow blinking">11:00</td><td><span class="ic">SPIL</span></td>
-                <td class="yellow">SPORLØS</td><td class="yellow">1</td>
-                <td class="red blinking" id="play-status">KLAR</td>
-            </tr>
-
-            <tr><td colspan="5" class="section-divider">--- HJEMREJSE (FRA KL. 13:00) ---</td></tr>
-            <tr class="train-row"><td class="yellow">13:00</td><td><span class="re">RE 01</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">KLAR</td></tr>
-            <tr class="train-row"><td class="yellow">13:30</td><td><span class="ic">ICL 55</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+        <tbody id="train-table">
+            <tr><td class="yellow">09:30</td><td><span style="background:#E3000F; color:white; padding:2px 8px;">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr style="background: rgba(227, 0, 15, 0.15);"><td class="yellow blinking">11:00</td><td><span style="background:#E3000F; color:white; padding:2px 8px;">SPIL</span></td><td class="yellow">SPORLØS</td><td class="yellow">1</td><td class="red blinking" id="play-status">KLAR</td></tr>
+            <tr><td class="yellow">13:00</td><td><span style="background:#002855; color:white; padding:2px 8px;">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">KLAR</td></tr>
         </tbody>
     </table>
 
-    <div class="footer-corner-logo"><img src="logo.png" class="footer-ghost-logo"></div>
-    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">SYNCER MED OLIVER-NET...</div></div>
+    <img src="logo.png" class="footer-logo">
+    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">SYNCER...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 1. UR, DATO & NEDTÆLLING
-        function updateDisplay() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK');
-            
-            const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
-            document.getElementById('date-row').innerText = now.toLocaleDateString('da-DK', options).toUpperCase();
+        // --- DEBUG HEARTBEAT (So the Admin PC knows you are online) ---
+        setInterval(() => { set(ref(db, 'remote/heartbeat'), Date.now()); }, 2000);
 
-            // Nedtælling til Lørdag (dag 6)
-            const dayIdx = now.getDay();
-            let diff = 6 - dayIdx;
-            let countdownText = "";
-
-            if (diff > 1) countdownText = `*** KUN ${diff} DAGE TIL PREMIERE PÅ SPORLØS! *** `;
-            else if (diff === 1) countdownText = `*** I MORGEN SKER DET! PREMIERE PÅ SPORLØS KL. 11:00! *** `;
-            else if (diff === 0) countdownText = `*** DET ER I DAG! PREMIERE PÅ SPORLØS LIGE NU! *** `;
-            else countdownText = `*** TAK FOR EN FANTASTISK FORESTILLING! *** `;
-
-            window.currentCountdown = countdownText;
-        }
-        setInterval(updateDisplay, 1000); updateDisplay();
-
-        // 2. VEJR (Øster Kippinge)
-        async function fetchWeather() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
-                const data = await res.json();
-                const temp = Math.round(data.current_weather.temperature);
-                document.getElementById('weather-row').innerText = `ØSTER KIPPINGE: ${temp}°C SKYET`;
-            } catch (e) { document.getElementById('weather-row').innerText = "VEJR DATA OFFLINE"; }
-        }
-        fetchWeather(); setInterval(fetchWeather, 600000);
-
-        // 3. NYHEDER & TICKER
-        async function fetchNews() {
-            try {
-                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
-                const data = await res.json();
-                const headlines = data.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
-                document.getElementById('ticker-msg').innerText = window.currentCountdown + "NYHEDER: " + headlines + " +++ ";
-            } catch (e) { document.getElementById('ticker-msg').innerText = window.currentCountdown; }
-        }
-        fetchNews(); setInterval(fetchNews, 600000);
-
-        // 4. REMOTE CONTROL
         onValue(ref(db, 'remote/'), (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
+            // 1. MASTER RESET (Clears everything)
+            if (data.event === "reset") { location.reload(); return; }
+
+            // 2. TEXT UPDATES
             if (data.status) document.getElementById('play-status').innerText = data.status;
             if (data.ticker) document.getElementById('ticker-msg').innerText = "*** " + data.ticker.toUpperCase() + " ***";
 
-            if (data.event === "blackout") {
+            // 3. JUMPSCARES
+            if (data.event === "roblox") triggerImg('roblox.jpg');
+            if (data.event === "meme") triggerImg('meme.jpg');
+
+            // 4. CHAOS EVENTS
+            const body = document.getElementById('main-body');
+            if (data.event === "blackout") { 
                 document.getElementById('blackout').style.display = 'block';
-                setTimeout(() => { document.getElementById('blackout').style.display = 'none'; }, 20000);
+                setTimeout(() => document.getElementById('blackout').style.display = 'none', 20000);
             }
-
-            const jump = document.getElementById('jumpscare-overlay');
-            if (data.event === "roblox") {
-                jump.style.backgroundImage = "url('roblox.png')";
-                triggerJump();
-            }
-            if (data.event === "meme") {
-                jump.style.backgroundImage = "url('meme.jpg')";
-                triggerJump();
-            }
-
+            if (data.event === "mirror") body.classList.toggle('mirror');
+            if (data.event === "panic") body.classList.add('glitch-red');
+            if (data.event === "bluescreen") document.getElementById('error-overlay').style.display = 'block';
+            
             if (data.event === "delay") {
                 document.querySelectorAll('.status-msg').forEach(el => {
-                    el.innerText = "FORSINKET 99 MIN";
-                    el.className = "red blinking status-msg";
+                    el.innerText = "FORSINKET 99 MIN"; el.className = "red blinking";
                 });
             }
         });
 
-        function triggerJump() {
-            const jump = document.getElementById('jumpscare-overlay');
-            jump.style.display = 'block';
-            setTimeout(() => { jump.style.display = 'none'; }, 3000);
+        function triggerImg(img) {
+            const el = document.getElementById('jumpscare');
+            el.style.backgroundImage = `url('${img}')`;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
         }
+
+        // Clock, Weather & Date
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK');
+            document.getElementById('date-row').innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'short'}).toUpperCase();
+        }
+        setInterval(updateTime, 1000); updateTime();
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
+                const d = await res.json();
+                document.getElementById('weather').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C SKYET`;
+            } catch(e) {}
+        }
+        fetchWeather();
     </script>
 </body>
 </html>
