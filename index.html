@@ -6,14 +6,14 @@
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* --- TROLL EFFEKTER --- */
+        /* --- TROLL EFFEKTER (BEVARET 100%) --- */
         .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
         .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } .shake { animation: shake 0.4s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
         @keyframes shake { 0% { transform: translate(5px, 3px); } 50% { transform: translate(-5px, -3px); } 100% { transform: translate(0, 0); } }
         
-        /* --- DSB MODE --- */
+        /* --- DSB MODE (BEVARET 100%) --- */
         #dsb-mode { display: block; }
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
@@ -23,19 +23,26 @@
         .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
 
-        /* --- INFO MODE (SKOLE) --- */
+        /* --- INFO MODE (OPGRADERET MED QR) --- */
         #info-mode { display: none; height: 100%; gap: 30px; padding-bottom: 60px; box-sizing: border-box; }
-        .info-left { flex: 1; display: flex; flex-direction: column; background: #0a0e17; border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; }
-        .info-right { flex: 1; background: #0a0e17; border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; position: relative; overflow: hidden; }
-        .info-time { font-size: 100px; color: #1f6feb; font-weight: 900; line-height: 1; margin-bottom: 10px; }
-        .info-date { font-size: 35px; color: white; }
-        .info-weather { font-size: 40px; color: #FFD700; margin-top: 20px; border-bottom: 2px solid #333; padding-bottom: 20px;}
-        .info-msg-title { color: #2ecc71; font-size: 30px; margin-top: 30px; margin-bottom: 15px; font-weight: bold; }
-        .info-msg { background: rgba(31, 111, 235, 0.15); border-left: 10px solid #1f6feb; padding: 30px; font-size: 32px; color: white; border-radius: 0 15px 15px 0; line-height: 1.4; flex-grow: 1; }
+        .info-left { flex: 1; display: flex; flex-direction: column; background: linear-gradient(145deg, #0a0e17, #0d1b2a); border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .info-right { flex: 1.2; background: linear-gradient(145deg, #0a0e17, #0d1b2a); border: 2px solid #1f6feb; border-radius: 20px; padding: 40px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         
-        .food-day { display: flex; justify-content: space-between; font-size: 28px; border-bottom: 2px solid #1f6feb; padding: 20px 0; }
+        .info-time { font-size: 110px; color: #1f6feb; font-weight: 900; line-height: 1; margin-bottom: 10px; text-shadow: 0 5px 15px rgba(31, 111, 235, 0.4); }
+        .info-date { font-size: 35px; color: white; }
+        .info-weather { font-size: 40px; color: #FFD700; margin-top: 20px; border-bottom: 2px solid #1f6feb; padding-bottom: 30px;}
+        
+        .info-msg-title { color: #2ecc71; font-size: 30px; margin-top: 30px; margin-bottom: 15px; font-weight: bold; }
+        .info-msg { background: rgba(31, 111, 235, 0.15); border-left: 10px solid #1f6feb; padding: 30px; font-size: 36px; color: white; border-radius: 0 15px 15px 0; line-height: 1.4; flex-grow: 1; text-transform: none; }
+        
+        .food-day { display: flex; justify-content: space-between; font-size: 32px; border-bottom: 2px solid #1f6feb; padding: 22px 0; }
         .food-day span:first-child { font-weight: 900; color: #1f6feb; }
-        .news-item { font-size: 26px; border-bottom: 1px solid #333; padding: 20px 0; line-height: 1.4; }
+        .news-item { font-size: 28px; border-bottom: 1px solid #333; padding: 22px 0; line-height: 1.4; text-transform: none; }
+        
+        /* QR KODE VIEW */
+        #info-qr-view { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        #qr-image { width: 350px; height: 350px; background: white; padding: 15px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #qr-text { font-size: 40px; color: white; font-weight: bold; line-height: 1.3; }
 
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
@@ -44,8 +51,6 @@
         #jumpscare { z-index: 9998; background-size: contain; background-repeat: no-repeat; background-position: center; }
         #bsod { background: #0000aa; color: white; z-index: 10000; padding: 50px; font-family: monospace; text-transform: none; }
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
-        
-        /* FULL SCREEN VIGTIG BESKED */
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
         
@@ -76,6 +81,7 @@
         <table>
             <tbody id="train-table">
                 <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+                <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
                 <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
                 <tr><td class="yellow">13:00</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
             </tbody>
@@ -90,17 +96,19 @@
                 <div class="info-date date-text">DATO</div>
                 <div class="info-weather weather-text">VEJR</div>
             </div>
-            <div>
+            <div style="display:flex; flex-direction:column; flex-grow:1;">
                 <div class="info-msg-title">AKTUEL MEDDELELSE:</div>
                 <div class="info-msg" id="school-msg">VELKOMMEN TIL SKOLEN.</div>
             </div>
         </div>
         
         <div class="info-right">
+            
             <div id="info-news-view">
                 <h2 style="color:#1f6feb; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #1f6feb; padding-bottom:10px;">SENESTE NYT (DR)</h2>
                 <div id="news-list-display" style="font-size: 30px; line-height: 1.5;">Indlæser nyheder...</div>
             </div>
+            
             <div id="info-food-view" style="display:none;">
                 <h2 style="color:#2ecc71; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #2ecc71; padding-bottom:10px;">UGENS MADPLAN</h2>
                 <div class="food-day"><span>MANDAG</span><span id="f-mon">-</span></div>
@@ -109,6 +117,15 @@
                 <div class="food-day"><span>TORSDAG</span><span id="f-thu">-</span></div>
                 <div class="food-day"><span>FREDAG</span><span id="f-fri">-</span></div>
             </div>
+            
+            <div id="info-qr-view">
+                <h2 style="color:#8957e5; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #8957e5; padding-bottom:10px; width:100%;">DAGENS LINK</h2>
+                <div style="flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=https://dr.dk">
+                    <div id="qr-text">SCAN KODEN MED DIN TELEFON</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -128,13 +145,14 @@
 
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
-        // --- INFO MODE ROTATOR (1 MINUT / 60000 ms) ---
-        let showNews = true;
+        // --- 3-VEJS ROTATOR (20 SEKUNDER) ---
+        let currentView = 0; // 0 = News, 1 = Food, 2 = QR
         setInterval(() => {
-            showNews = !showNews;
-            document.getElementById('info-news-view').style.display = showNews ? 'block' : 'none';
-            document.getElementById('info-food-view').style.display = showNews ? 'none' : 'block';
-        }, 60000);
+            currentView = (currentView + 1) % 3;
+            document.getElementById('info-news-view').style.display = currentView === 0 ? 'block' : 'none';
+            document.getElementById('info-food-view').style.display = currentView === 1 ? 'block' : 'none';
+            document.getElementById('info-qr-view').style.display = currentView === 2 ? 'flex' : 'none';
+        }, 20000);
 
         // --- LYT EFTER DATA OG MODES ---
         onValue(ref(db, 'remote/state'), (snapshot) => {
@@ -150,13 +168,18 @@
                 document.getElementById('info-mode').style.display = 'none';
             }
 
-            // Info Data (Mad & Normal Meddelelse)
+            // Info Data (Besked, Mad, QR)
             if (state.school_msg) document.getElementById('school-msg').innerHTML = state.school_msg;
             if (state.food) {
                 ['mon','tue','wed','thu','fri'].forEach(day => {
                     if(document.getElementById('f-'+day)) document.getElementById('f-'+day).innerText = state.food[day] || "-";
                 });
             }
+            if (state.qr_link) {
+                // Opdaterer billedet live ved at ændre src URL'en
+                document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(state.qr_link)}`;
+            }
+            if (state.qr_text) document.getElementById('qr-text').innerText = state.qr_text;
         });
 
         // --- COMMAND LISTENER (TROLLS & TOG) ---
@@ -175,14 +198,10 @@
             else if (cmd.event === "weather") {
                 document.querySelectorAll('.weather-text').forEach(el => el.innerText = cmd.value);
             }
-            
-            // FULL SCREEN VIGTIG BESKED
             else if (cmd.event === "msg_board") {
                 document.getElementById('msg-board-text').innerText = cmd.value;
                 document.getElementById('msg-board-overlay').style.display = 'flex';
             }
-
-            // DSB TOG
             else if (cmd.event === "add_train") {
                 try {
                     const t = JSON.parse(cmd.value);
@@ -201,8 +220,6 @@
             else if (cmd.event === "boarding") {
                 document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; });
             }
-
-            // SCRAMBLER
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
@@ -247,7 +264,7 @@
             }
         });
 
-        // --- UR, DATO, VEJR & NYHEDER (OPDATERER BEGGE MODES) ---
+        // --- UR, DATO, VEJR & NYHEDER ---
         function updateTime() {
             const now = new Date();
             document.querySelectorAll('.clock-text').forEach(el => el.innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'}) + (el.classList.contains('time') ? ':'+now.getSeconds().toString().padStart(2,'0') : ''));
@@ -268,10 +285,8 @@
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
-                // Til Ticker (Bund)
                 const hl = d.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
                 document.getElementById('ticker-msg').innerText = "+++ NYHEDER: " + hl + " +++ ";
-                // Til Info Mode (Højre boks)
                 let newsHtml = "";
                 d.items.slice(0, 4).forEach(item => { newsHtml += `<div class="news-item">• ${item.title}</div>`; });
                 document.getElementById('news-list-display').innerHTML = newsHtml;
