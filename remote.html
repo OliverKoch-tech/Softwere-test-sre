@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MASTER ADMIN - OLIVER TECH</title>
+    <title>MASTER ADMIN - SRE Hub</title>
     <style>
         body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; }
         
@@ -12,7 +12,7 @@
             z-index: 0; pointer-events: none; opacity: 0.15;
         }
 
-        /* --- CLEAN WHITE INTRO (MATCHES PROJECTOR) --- */
+        /* --- CLEAN WHITE INTRO --- */
         #intro-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #ffffff; z-index: 9999999; 
@@ -65,7 +65,7 @@
         input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; background: rgba(255,255,255,0.9); }
         .flex-row { display: flex; gap: 10px; }
         
-        /* NEW NETWORK TABLE */
+        /* NETWORK TABLE */
         table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; margin-top: 15px; }
         table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; color: #999; }
         table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -86,7 +86,7 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v9.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v10.0</div>
     </div>
 
     <div id="login-screen">
@@ -209,6 +209,14 @@
 
         <div class="section-title">THE MESS AROUND HACKS</div>
         <div class="grid">
+            
+            <div class="card" style="border: 2px solid #E3000F;">
+                <h2>LIVE SURVEILLANCE (CCTV)</h2>
+                <video id="admin-preview" autoplay muted style="width:100%; border:1px solid #eee; margin-bottom:10px; display:none; background: #000;"></video>
+                <button class="btn red" onclick="startCCTV()">ACTIVATE LIVE CAMERA HACK</button>
+                <button class="btn black" onclick="stopCCTV()">STOP STREAMING & HIDE</button>
+            </div>
+
             <div class="card">
                 <h2>AI TERMINAL & DVD</h2>
                 <textarea id="termInput" rows="3" placeholder="AI text (use \n for lines)..."></textarea>
@@ -272,9 +280,8 @@
 
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
         const points = [];
-        const numPoints = 800; // Density of the globe
+        const numPoints = 800; 
 
-        // Generate Fibonacci sphere points
         const phi = Math.PI * (3 - Math.sqrt(5));
         for (let i = 0; i < numPoints; i++) {
             const y = 1 - (i / (numPoints - 1)) * 2;
@@ -294,7 +301,7 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
-            angle += 0.003; // Rotation speed
+            angle += 0.003; 
             
             const cosA = Math.cos(angle);
             const sinA = Math.sin(angle);
@@ -302,7 +309,6 @@
             
             for (let i = 0; i < numPoints; i++) {
                 const p = points[i];
-                // Rotate around Y axis
                 const rotX = p.x * cosA - p.z * sinA;
                 const rotZ = p.z * cosA + p.x * sinA;
                 const rotY = p.y;
@@ -317,12 +323,11 @@
                 projected.push({screenX, screenY, z: rotZ, char: p.char});
             }
             
-            // Sort by depth to draw back to front
             projected.sort((a, b) => b.z - a.z);
             
             for (let i = 0; i < numPoints; i++) {
                 const p = projected[i];
-                const alpha = (p.z + 1) / 2; // Maps -1 to 1 into 0 to 1
+                const alpha = (p.z + 1) / 2; 
                 const opacity = 0.2 + (alpha * 0.8);
                 ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
                 ctx.fillText(p.char, p.screenX, p.screenY);
@@ -334,7 +339,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, set, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
@@ -408,7 +413,93 @@
             window.sendCommand('ticker', ""); 
         };
 
-        // LIVE NETWORK MONITORING
+        // --- NEW: WEBRTC CCTV LOGIC ---
+        let localStream = null;
+        let peerConnections = {};
+
+        window.startCCTV = async () => {
+            const target = document.getElementById('target-screen').value;
+            let targets = [];
+            
+            // If ALL, push all currently online screens into the target array
+            if (target === "ALL") {
+                Object.keys(lastKnownScreens).forEach(id => {
+                    if (Date.now() - lastKnownScreens[id].heartbeat < 10000) targets.push(id);
+                });
+            } else {
+                targets.push(target);
+            }
+
+            if (targets.length === 0) { alert("NO ACTIVE SCREENS TO STREAM TO!"); return; }
+
+            try {
+                // Request camera access
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                const preview = document.getElementById('admin-preview');
+                preview.srcObject = localStream;
+                preview.style.display = 'block';
+
+                targets.forEach(async (id) => {
+                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                    peerConnections[id] = pc;
+
+                    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+                    pc.onicecandidate = (event) => {
+                        if (event.candidate) {
+                            push(ref(db, `webrtc/${id}/ice_admin`), event.candidate.toJSON());
+                        }
+                    };
+
+                    onChildAdded(ref(db, `webrtc/${id}/ice_index`), (snap) => {
+                        const candidate = snap.val();
+                        if (candidate && pc.remoteDescription) {
+                            pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => {});
+                        }
+                    });
+
+                    // Clear old data for a fresh connection
+                    await set(ref(db, `webrtc/${id}`), null);
+
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    
+                    // Send Offer to Projector
+                    await set(ref(db, `webrtc/${id}/offer`), { type: offer.type, sdp: offer.sdp });
+
+                    // Listen for Answer from Projector
+                    onValue(ref(db, `webrtc/${id}/answer`), (snap) => {
+                        const answer = snap.val();
+                        if (answer && !pc.currentRemoteDescription) {
+                            pc.setRemoteDescription(new RTCSessionDescription(answer)).catch(e => console.error(e));
+                        }
+                    });
+                });
+
+                // Trigger Projector Overlay
+                window.sendCommand('cctv_on', '', target);
+
+            } catch (err) {
+                console.error(err);
+                alert("Could not access camera! Make sure you are using a secure HTTPS connection or localhost.");
+            }
+        };
+
+        window.stopCCTV = () => {
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            Object.keys(peerConnections).forEach(id => {
+                peerConnections[id].close();
+            });
+            peerConnections = {};
+            document.getElementById('admin-preview').style.display = 'none';
+            window.sendCommand('cctv_off'); // Hides overlay on target(s)
+            window.sendCommand('clear_media'); // Secondary Failsafe
+        };
+
+        // --- LIVE NETWORK MONITORING ---
         let lastKnownScreens = {};
         
         onValue(ref(db, 'remote/screens'), (snapshot) => {
