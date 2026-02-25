@@ -5,39 +5,45 @@
     <title>MASTER ADMIN - Dual Hub</title>
     <style>
         body { background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
-        .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
         
-        /* MODE SWITCHER */
+        /* --- LOGIN SCREEN OVERLAY --- */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { background: #161b22; border: 2px solid #da3633; border-radius: 12px; padding: 40px; width: 350px; text-align: center; box-shadow: 0 0 30px rgba(218, 54, 51, 0.3); }
+        .login-box h1 { margin-top: 0; color: #da3633; }
+        .login-box input { width: 100%; padding: 15px; margin-bottom: 15px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 15px; background: #da3633; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        
+        /* --- ADMIN PANEL STYLES --- */
+        .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
         .mode-switcher { background: #161b22; border: 2px solid #1f6feb; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
         .mode-btn { padding: 15px 40px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; transition: 0.3s; }
         .mode-active { background: #1f6feb; color: white; box-shadow: 0 0 15px rgba(31,111,235,0.5); }
         .mode-inactive { background: #21262d; color: #8b949e; }
-        
-        /* TARGET BOX */
         .target-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
         select { background: #0d1117; color: #2ecc71; font-size: 16px; padding: 10px; border: 1px solid #30363d; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        /* GRID LAYOUT */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
         h2 { font-size: 12px; color: #8b949e; margin: 0 0 10px 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
-
-        /* BUTTONS */
         .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; border-bottom: 4px solid rgba(0,0,0,0.3); font-size: 11px; transition: 0.1s; }
         .btn:active { transform: translateY(3px); border-bottom: 1px solid transparent; }
-        
         .red { background: #da3633; } .green { background: #238636; } .blue { background: #1f6feb; } .yellow { background: #d29922; color: black; } .black { background: #21262d; border: 1px solid #30363d; color: white;} .purple { background: #8957e5; }
-        
-        /* INPUTS */
         input, textarea { background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 8px; font-size: 12px; font-family: sans-serif; }
         .flex-row { display: flex; gap: 5px; margin-bottom: 8px; }
         .section-title { width: 100%; padding: 10px; background: #30363d; font-size: 16px; font-weight: bold; text-align: center; border-radius: 8px; margin-top: 20px; margin-bottom: 15px; }
-        
-        /* TOGGLE SWITCH */
         .toggle-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #c9d1d9; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>SYSTEM LOGIN</h1>
+            <input type="text" id="logUser" placeholder="USERNAME">
+            <input type="password" id="logPass" placeholder="PASSWORD">
+            <button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button>
+            <div style="font-size: 10px; color: #555; margin-top: 15px;">UNAUTHORIZED ACCESS PROHIBITED</div>
+        </div>
+    </div>
 
     <div class="master-header">
         <h1 style="margin:0;">OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
@@ -78,7 +84,6 @@
             </div>
             <button class="btn red" style="background:#8b0000" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
             <button class="btn green" onclick="sendCommand('boarding')">BOARDING (BLINK GREEN)</button>
-            
             <h2 style="margin-top:20px;">ADD FAKE TRAIN</h2>
             <div class="flex-row"><input type="text" id="trTime" placeholder="Time (14:00)"><input type="text" id="trType" placeholder="Type (IC)"></div>
             <div class="flex-row"><input type="text" id="trDest" placeholder="Dest (HOGWARTS)"><input type="text" id="trTrack" placeholder="Track"></div>
@@ -88,10 +93,9 @@
 
     <div id="panel-info" class="grid" style="display:none;">
         <div class="card">
-            <h2>SCHOOL MESSAGE BOX (LEFT SIDE)</h2>
-            <textarea id="sMsg" rows="3" placeholder="Write a general message for the info board..."></textarea>
+            <h2>SCHOOL MESSAGE BOX</h2>
+            <textarea id="sMsg" rows="3" placeholder="Write a general message..."></textarea>
             <button class="btn blue" onclick="updateInfo('school_msg', document.getElementById('sMsg').value)">UPDATE MESSAGE</button>
-            <div style="font-size:10px; color:#8b949e; margin-top:5px; text-transform:none;">Use &lt;br&gt; for line breaks.</div>
             
             <h2 style="margin-top:15px;">DAY PLAN (ROTATOR)</h2>
             <textarea id="dPlan" rows="3" placeholder="08:00 - Math..."></textarea>
@@ -100,7 +104,7 @@
 
         <div class="card">
             <h2>CUSTOM SECTION (ROTATOR)</h2>
-            <input type="text" id="cTitle" placeholder="Custom Title (e.g., BIRTHDAYS)">
+            <input type="text" id="cTitle" placeholder="Custom Title">
             <textarea id="cText" rows="3" placeholder="Custom Text..."></textarea>
             <button class="btn purple" onclick="saveCustom()">UPDATE CUSTOM SECTION</button>
             
@@ -118,8 +122,7 @@
             <div class="toggle-label">
                 <span>SHOW QR IN ROTATION:</span>
                 <select id="qrToggle" style="width:80px; padding:5px; margin-bottom:0;" onchange="updateInfoRaw('show_qr', this.value === 'true')">
-                    <option value="true">ON</option>
-                    <option value="false">OFF</option>
+                    <option value="true">ON</option><option value="false">OFF</option>
                 </select>
             </div>
             <button class="btn blue" onclick="saveQR()">UPDATE QR DATA</button>
@@ -132,9 +135,17 @@
         </div>
     </div>
 
-    <div class="section-title">UNIVERSAL TROLLS & RESETS (WORKS IN BOTH MODES)</div>
+    <div class="section-title">UNIVERSAL TROLLS, USERS & RESETS</div>
 
     <div class="grid">
+        <div class="card">
+            <h2>USER MANAGEMENT</h2>
+            <input type="text" id="newU" placeholder="New Username">
+            <input type="password" id="newP" placeholder="New Password">
+            <button class="btn blue" onclick="addUser()">CREATE ADMIN USER</button>
+            <div style="font-size:10px; color:#8b949e; margin-top:5px; text-transform:none;">Add a new user to access this control panel. Default is admin/1234.</div>
+        </div>
+
         <div class="card">
             <h2>VISUAL FX & HACKS</h2>
             <button class="btn yellow" onclick="sendCommand('mirror')">MIRROR MODE</button>
@@ -142,7 +153,6 @@
             <button class="btn red" onclick="sendCommand('panic')">PANIC BLINK</button>
             <button class="btn purple" onclick="sendCommand('disco')">DISCO MODE</button>
             <button class="btn purple" onclick="sendCommand('shake')">EARTHQUAKE SHAKE</button>
-            <button class="btn purple" onclick="sendCommand('deepfried')">DEEP FRIED MEME</button>
             <button class="btn green" style="background:#0f0; color:black; margin-top:10px;" onclick="sendCommand('scramble')">START MATRIX SCRAMBLE</button>
         </div>
 
@@ -151,12 +161,9 @@
             <button class="btn green" onclick="sendCommand('roblox')">ROBLOX FACE (3S)</button>
             <button class="btn green" onclick="sendCommand('meme')">MEME JUMP (3S)</button>
             <button class="btn black" onclick="sendCommand('blackout')">BLACKOUT SCREEN</button>
-            <button class="btn green" style="background:#0f0; color:black;" onclick="sendCommand('hacker')">HACKER TERMINAL</button>
             <button class="btn blue" onclick="sendCommand('bluescreen')">BLUE SCREEN CRASH</button>
             <button class="btn blue" style="background:#006dae;" onclick="sendCommand('winupdate')">WINDOWS UPDATE TROLL</button>
-            
-            <h2 style="margin-top:10px;">WEATHER HACKER</h2>
-            <div class="flex-row">
+            <div class="flex-row" style="margin-top:10px;">
                 <input type="text" id="wInput" placeholder="LAVA RAIN 999°C">
                 <button class="btn blue" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET WEATHER</button>
             </div>
@@ -167,7 +174,6 @@
             <button class="btn green" onclick="sendCommand('clear_media')">CLOSE ALL OVERLAYS / ALERTS</button>
             <button class="btn green" onclick="sendCommand('clear_fx')">CLEAR VISUAL FX / STOP SCRAMBLE</button>
             <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS (TIL TIDEN)</button>
-            
             <h2 style="color:#da3633; margin-top:30px;">EMERGENCY (HARD)</h2>
             <button class="btn black" style="border:1px solid #da3633;" onclick="sendCommand('reset')">HARD RESTART SCREEN</button>
         </div>
@@ -180,6 +186,42 @@
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // --- AUTHENTICATION SYSTEM ---
+        let usersDB = {};
+        onValue(ref(db, 'remote/users'), (snap) => {
+            usersDB = snap.val();
+            // Create default admin if DB is completely empty
+            if (!usersDB) {
+                usersDB = { admin: "1234" };
+                update(ref(db), { 'remote/users/admin': "1234" });
+            }
+        });
+
+        window.checkLogin = () => {
+            const u = document.getElementById('logUser').value;
+            const p = document.getElementById('logPass').value;
+            if (usersDB && usersDB[u] === p) {
+                document.getElementById('login-screen').style.display = 'none';
+            } else {
+                alert("ACCESS DENIED: Invalid username or password.");
+            }
+        };
+
+        window.addUser = () => {
+            const u = document.getElementById('newU').value;
+            const p = document.getElementById('newP').value;
+            if (u && p) {
+                const updates = {};
+                updates['remote/users/' + u] = p;
+                update(ref(db), updates);
+                alert("USER ADDED: " + u);
+                document.getElementById('newU').value = "";
+                document.getElementById('newP').value = "";
+            } else {
+                alert("Please enter both username and password.");
+            }
+        };
 
         // Screen Detection
         onValue(ref(db, 'remote/screens'), (snapshot) => {
@@ -199,7 +241,7 @@
             if (Array.from(select.options).some(o => o.value === currentSelection)) { select.value = currentSelection; }
         });
 
-        // Load existing state for Info Panel inputs
+        // Load existing state for Info Panel
         onValue(ref(db, 'remote/state'), (snap) => {
             const state = snap.val();
             if(state) {
@@ -216,40 +258,30 @@
                 if(state.day_plan) document.getElementById('dPlan').value = state.day_plan.replace(/<br>/g, '\n');
                 if(state.custom_title) document.getElementById('cTitle').value = state.custom_title;
                 if(state.custom_text) document.getElementById('cText').value = state.custom_text.replace(/<br>/g, '\n');
-                
                 if(state.rotation_time !== undefined) document.getElementById('rotTime').value = state.rotation_time;
                 if(state.show_qr !== undefined) document.getElementById('qrToggle').value = state.show_qr ? "true" : "false";
             }
         });
 
-        // Mode Switcher
         window.setMode = (mode) => {
             update(ref(db), { 'remote/state/mode': mode });
-            
             document.getElementById('btn-dsb').className = mode === 'dsb' ? 'mode-btn mode-active' : 'mode-btn mode-inactive';
             document.getElementById('btn-info').className = mode === 'info' ? 'mode-btn mode-active' : 'mode-btn mode-inactive';
-            
             document.getElementById('panel-dsb').style.display = mode === 'dsb' ? 'grid' : 'none';
             document.getElementById('panel-info').style.display = mode === 'info' ? 'grid' : 'none';
         };
 
-        // Info State Updates
         window.updateInfoRaw = (path, val) => {
             const u = {}; u['remote/state/' + path] = val; update(ref(db), u);
         };
         
         window.updateInfo = (path, val) => {
-            // Convert newlines to <br> for HTML display
             if (val) val = val.replace(/\n/g, '<br>'); 
             window.updateInfoRaw(path, val);
         };
         
         window.saveFood = () => {
-            const food = {
-                mon: document.getElementById('fMon').value, tue: document.getElementById('fTue').value,
-                wed: document.getElementById('fWed').value, thu: document.getElementById('fThu').value,
-                fri: document.getElementById('fFri').value
-            };
+            const food = { mon: document.getElementById('fMon').value, tue: document.getElementById('fTue').value, wed: document.getElementById('fWed').value, thu: document.getElementById('fThu').value, fri: document.getElementById('fFri').value };
             window.updateInfoRaw('food', food);
         };
 
@@ -263,7 +295,6 @@
             window.updateInfo('custom_text', document.getElementById('cText').value);
         };
 
-        // Trolls & Commands
         window.sendCommand = (event, val = "") => {
             const target = document.getElementById('target-screen').value;
             const u = {}; u['remote/commands'] = { event: event, value: val, target: target, ts: Date.now() };
@@ -271,10 +302,7 @@
         };
 
         window.sendTrain = () => {
-            const payload = JSON.stringify({ 
-                time: document.getElementById('trTime').value || "??:??", type: document.getElementById('trType').value || "IC",
-                dest: document.getElementById('trDest').value || "UNKNOWN", track: document.getElementById('trTrack').value || "?"
-            });
+            const payload = JSON.stringify({ time: document.getElementById('trTime').value || "??:??", type: document.getElementById('trType').value || "IC", dest: document.getElementById('trDest').value || "UNKNOWN", track: document.getElementById('trTrack').value || "?" });
             window.sendCommand('add_train', payload);
         };
     </script>

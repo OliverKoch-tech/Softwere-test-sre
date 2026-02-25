@@ -86,8 +86,11 @@
         <table>
             <tbody id="train-table">
                 <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+                <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+                <tr><td class="yellow">10:30</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
                 <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
                 <tr><td class="yellow">13:00</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
+                <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
             </tbody>
         </table>
         <img src="logo.png" class="footer-logo">
@@ -107,12 +110,10 @@
         </div>
         
         <div class="info-right">
-            
             <div id="info-news-view" class="rotator-view view-active">
                 <h2 style="color:#1f6feb; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #1f6feb; padding-bottom:10px;">SENESTE NYT (DR)</h2>
                 <div id="news-list-display" style="font-size: 30px; line-height: 1.5;">Indlæser nyheder...</div>
             </div>
-            
             <div id="info-food-view" class="rotator-view">
                 <h2 style="color:#2ecc71; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #2ecc71; padding-bottom:10px;">UGENS MADPLAN</h2>
                 <div class="food-day"><span>MANDAG</span><span id="f-mon">-</span></div>
@@ -121,17 +122,14 @@
                 <div class="food-day"><span>TORSDAG</span><span id="f-thu">-</span></div>
                 <div class="food-day"><span>FREDAG</span><span id="f-fri">-</span></div>
             </div>
-
             <div id="info-dayplan-view" class="rotator-view">
                 <h2 style="color:#e67e22; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #e67e22; padding-bottom:10px;">DAGENS PLAN</h2>
                 <div id="dayplan-content" style="font-size:32px; color:white; line-height:1.6; text-transform:none;">Ingen plan for i dag.</div>
             </div>
-
             <div id="info-custom-view" class="rotator-view">
                 <h2 id="custom-title" style="color:#9b59b6; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #9b59b6; padding-bottom:10px;">INFO</h2>
                 <div id="custom-content" style="font-size:36px; color:white; line-height:1.4; text-transform:none;">Læser data...</div>
             </div>
-            
             <div id="info-qr-view" class="rotator-view">
                 <h2 style="color:#8957e5; font-size:40px; margin:0 0 20px 0; border-bottom:4px solid #8957e5; padding-bottom:10px; width:100%; text-align:left;">DAGENS LINK</h2>
                 <div style="flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -139,7 +137,6 @@
                     <div id="qr-text">SCAN KODEN MED DIN TELEFON</div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -161,23 +158,17 @@
 
         // --- DYNAMIC ROTATOR LOGIC ---
         let currentViewIndex = 0;
-        let rotationTimeMs = 20000; // Default 20 seconds
-        let showQR = true; // Default ON
+        let rotationTimeMs = 20000; 
+        let showQR = true; 
         let lastRotation = Date.now();
 
         setInterval(() => {
             if (Date.now() - lastRotation >= rotationTimeMs) {
-                // Determine active views
                 let activeViews = ['info-news-view', 'info-food-view', 'info-dayplan-view', 'info-custom-view'];
                 if (showQR) activeViews.push('info-qr-view');
-                
-                // Hide all
                 document.querySelectorAll('.rotator-view').forEach(el => el.classList.remove('view-active'));
-                
-                // Increment and show next
                 currentViewIndex = (currentViewIndex + 1) % activeViews.length;
                 document.getElementById(activeViews[currentViewIndex]).classList.add('view-active');
-                
                 lastRotation = Date.now();
             }
         }, 1000);
@@ -186,8 +177,6 @@
         onValue(ref(db, 'remote/state'), (snapshot) => {
             const state = snapshot.val();
             if (!state) return;
-
-            // Mode Switch
             if (state.mode === 'info') {
                 document.getElementById('dsb-mode').style.display = 'none';
                 document.getElementById('info-mode').style.display = 'flex';
@@ -195,28 +184,22 @@
                 document.getElementById('dsb-mode').style.display = 'block';
                 document.getElementById('info-mode').style.display = 'none';
             }
-
-            // Update Info Data
             if (state.school_msg) document.getElementById('school-msg').innerHTML = state.school_msg;
             if (state.food) {
                 ['mon','tue','wed','thu','fri'].forEach(day => {
                     if(document.getElementById('f-'+day)) document.getElementById('f-'+day).innerText = state.food[day] || "-";
                 });
             }
-            
-            // New Features Logic
             if (state.rotation_time !== undefined) rotationTimeMs = parseInt(state.rotation_time) * 1000;
             if (state.show_qr !== undefined) showQR = state.show_qr;
-            
             if (state.day_plan) document.getElementById('dayplan-content').innerHTML = state.day_plan;
             if (state.custom_title) document.getElementById('custom-title').innerText = state.custom_title;
             if (state.custom_text) document.getElementById('custom-content').innerHTML = state.custom_text;
-
             if (state.qr_link) document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(state.qr_link)}`;
             if (state.qr_text) document.getElementById('qr-text').innerText = state.qr_text;
         });
 
-        // --- COMMAND LISTENER (TROLLS & TRAINS) ---
+        // --- COMMAND LISTENER ---
         onValue(ref(db, 'remote/commands'), (snapshot) => {
             const cmd = snapshot.val();
             if (!cmd) return;
@@ -231,7 +214,6 @@
             else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
             else if (cmd.event === "weather") document.querySelectorAll('.weather-text').forEach(el => el.innerText = cmd.value);
             else if (cmd.event === "msg_board") {
-                // Keep emergency red style for standard messages
                 document.getElementById('msg-board-title').innerText = "VIGTIG MEDDELELSE";
                 document.getElementById('msg-board-title').style.color = "#FFD700";
                 document.getElementById('msg-board-overlay').style.borderColor = "#E3000F";
@@ -265,7 +247,6 @@
                     }, 80);
                 }
             }
-            // OVERLAYS & FX
             else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
             else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
             else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
@@ -293,23 +274,19 @@
             document.querySelectorAll('.clock-text').forEach(el => el.innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit'}) + (el.classList.contains('time') ? ':'+now.getSeconds().toString().padStart(2,'0') : ''));
             document.querySelectorAll('.date-text').forEach(el => el.innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'long'}).toUpperCase());
             
-            // FRIENDLY BEDTIME ROUTINE (Exactly at 21:30:00)
             if (now.getHours() === 21 && now.getMinutes() === 30 && now.getSeconds() === 0) {
                 const overlay = document.getElementById('msg-board-overlay');
                 const title = document.getElementById('msg-board-title');
-                
                 title.innerText = "GODNAT!";
-                title.style.color = "#3498db"; // Friendly Blue
+                title.style.color = "#3498db"; 
                 overlay.style.borderColor = "#3498db";
                 document.getElementById('msg-board-text').innerHTML = "Tak for i dag!<br>Husk at børste tænder og sove godt.<br>Vi ses i morgen!";
                 overlay.style.display = 'flex';
-                
-                // Hide automatically after 60 seconds
                 setTimeout(() => {
                     overlay.style.display = 'none';
-                    title.innerText = "VIGTIG MEDDELELSE"; // Reset text
-                    title.style.color = "#FFD700"; // Reset Color
-                    overlay.style.borderColor = "#E3000F"; // Reset border
+                    title.innerText = "VIGTIG MEDDELELSE"; 
+                    title.style.color = "#FFD700"; 
+                    overlay.style.borderColor = "#E3000F"; 
                 }, 60000);
             }
         }
