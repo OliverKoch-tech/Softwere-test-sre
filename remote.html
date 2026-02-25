@@ -5,24 +5,49 @@
     <title>MASTER ADMIN - OLIVER TECH</title>
     <style>
         body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; }
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; color: #000; }
+        
+        /* --- CLEAN WHITE INTRO (MATCHES PROJECTOR) --- */
+        #intro-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #ffffff; z-index: 9999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 1s ease-in-out; color: #000;
+        }
         #intro-screen img { max-width: 200px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
+        #intro-loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #000;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 20px 0;
+        }
         #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- LOGIN SCREEN --- */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; text-transform: none; }
+        .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; text-transform: none; }
         .login-btn { width: 100%; padding: 12px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+
+        /* --- HEADER & LOGO --- */
         .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: #fff; }
         .master-header img { height: 120px; margin-bottom: 10px; }
+        .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
+
+        /* --- MAIN UI --- */
         .container { max-width: 1300px; margin: 0 auto; padding: 25px; }
         .target-box { background: #fff; border: 1px solid #000; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 20px; }
         select { padding: 10px; font-weight: bold; border: 1px solid #000; cursor: pointer; background: white; }
+
         .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; }
+        .card { background: #fff; border: 1px solid #eee; padding: 25px; transition: 0.2s; position: relative; overflow: hidden; }
+        .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
+
+        /* --- BUTTONS --- */
         .btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; }
         .btn:hover { background: #000; color: #fff; }
         .btn.black { background: #000; color: #fff; }
@@ -30,6 +55,7 @@
         .btn.red:hover { background: #E3000F; color: #fff; }
         .btn.green { border-color: #2ecc71; color: #2ecc71; }
         .btn.green:hover { background: #2ecc71; color: #fff; }
+
         input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; }
         .flex-row { display: flex; gap: 10px; }
     </style>
@@ -41,25 +67,34 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v7.0</div>
     </div>
 
     <div id="login-screen">
-        <div class="login-box"><h1>SYSTEM ACCESS</h1><input type="text" id="logUser" placeholder="USERNAME"><input type="password" id="logPass" placeholder="PASSWORD"><button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button></div>
+        <div class="login-box">
+            <h1>SYSTEM ACCESS</h1>
+            <input type="text" id="logUser" placeholder="USERNAME">
+            <input type="password" id="logPass" placeholder="PASSWORD">
+            <button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button>
+        </div>
     </div>
 
-    <div class="master-header"><img src="logo.png" alt="Logo" onerror="this.style.display='none'"><h1>OLIVER TECH</h1></div>
+    <div class="master-header">
+        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h1>OLIVER TECH</h1>
+    </div>
 
     <div class="container">
         <div class="target-box">
-            <span>TARGET:</span>
-            <select id="target-screen"><option value="ALL">ALL SCREENS</option></select>
-            <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID</button>
+            <span>COMMAND TARGET:</span>
+            <select id="target-screen"><option value="ALL">ALL ACTIVE SCREENS</option></select>
+            <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID TAGS</button>
         </div>
 
         <div class="section-title">NUCLEAR CONTROL CENTER</div>
         <div class="grid">
             <div class="card" style="border: 2px solid #2ecc71;">
-                <h2>SPECIFIC CLEARS</h2>
+                <h2>RESETS & CLEARS</h2>
                 <button class="btn green" onclick="sendCommand('clear_media')">STOP ALL OVERLAYS</button>
                 <button class="btn green" onclick="sendCommand('clear_fx')">REMOVE VISUAL FX</button>
                 <button class="btn green" onclick="clearTicker()">REVERT TO DR NEWS</button>
@@ -67,14 +102,14 @@
             </div>
             <div class="card" style="border: 2px solid #000;">
                 <h2>ID TAG CONTROL</h2>
-                <button class="btn black" onclick="sendCommand('show_id')">SHOW ALL IDs</button>
-                <button class="btn black" onclick="sendCommand('hide_id')">HIDE ALL IDs</button>
+                <button class="btn black" onclick="sendCommand('show_id')">SHOW ALL ID TAGS</button>
+                <button class="btn black" onclick="sendCommand('hide_id')">HIDE ALL ID TAGS</button>
             </div>
             <div class="card" style="border: 2px solid #E3000F;">
-                <h2>SYSTEM STOP</h2>
-                <button class="btn red" onclick="sendCommand('blackout')">BLACKOUT</button>
-                <button class="btn red" onclick="sendCommand('reset')">REBOOT HUB</button>
-                <button class="btn black" onclick="sendCommand('msg_board', '')">CLOSE ALERT</button>
+                <h2>EMERGENCY STOP</h2>
+                <button class="btn red" onclick="sendCommand('blackout')">FORCE BLACKOUT</button>
+                <button class="btn red" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
+                <button class="btn black" onclick="sendCommand('msg_board', '')">CLOSE ALERT BOX</button>
             </div>
         </div>
 
@@ -82,66 +117,185 @@
         <div class="grid" style="grid-template-columns: 1fr;">
             <div class="card">
                 <h2>MANUAL ROW OVERRIDE</h2>
-                <div class="flex-row">
-                    <select id="manual-row-select" style="flex: 1;"><option value="0">1: KBH H</option><option value="1">2: SLIPKØBING</option><option value="2">3: MODYBY</option><option value="3">4: SPORLØS</option><option value="4">5: HJEMBY</option><option value="5">6: VIRKELIGHEDEN</option></select>
-                    <input type="text" id="manual-msg" placeholder="Status text..." style="flex: 2; margin:0;">
-                    <select id="manual-color" style="flex: 1;"><option value="white">WHITE</option><option value="red">RED</option><option value="yellow">YELLOW</option><option value="green">GREEN</option></select>
-                    <label style="font-size: 10px;"><input type="checkbox" id="manual-blink"> BLINK</label>
+                <div class="flex-row" style="align-items: center;">
+                    <select id="manual-row-select" style="flex: 1;">
+                        <option value="0">1: KØBENHAVN H</option>
+                        <option value="1">2: SLIPKØBING</option>
+                        <option value="2">3: MODYBY</option>
+                        <option value="3">4: SPORLØS</option>
+                        <option value="4">5: HJEMBY</option>
+                        <option value="5">6: VIRKELIGHEDEN</option>
+                    </select>
+                    <input type="text" id="manual-msg" placeholder="New Status Text..." style="flex: 2; margin:0;">
+                    <select id="manual-color" style="flex: 1;">
+                        <option value="white">WHITE</option>
+                        <option value="red">RED</option>
+                        <option value="yellow">YELLOW</option>
+                        <option value="green">GREEN</option>
+                    </select>
+                    <label style="font-size: 10px; cursor:pointer;"><input type="checkbox" id="manual-blink"> BLINK</label>
                     <button class="btn black" style="width:auto; margin:0;" onclick="sendManualTrain()">UPDATE ROW</button>
                 </div>
             </div>
         </div>
 
-        <div class="section-title">GLOBAL CONTROLS</div>
+        <div class="section-title">GLOBAL DSB CONTROLS</div>
         <div class="grid">
             <div class="card">
-                <h2>TICKER & NEWS</h2>
-                <input type="text" id="tInput" placeholder="Headline...">
+                <h2>TICKER & BROADCAST</h2>
+                <input type="text" id="tInput" placeholder="Override news feed...">
                 <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tInput').value)">SEND HEADLINE</button>
                 <button class="btn red" style="margin-top:10px" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
+                <button class="btn" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
             </div>
+            
             <div class="card">
-                <h2>TRAIN STATUS</h2>
-                <div class="flex-row"><input type="number" id="dInput" placeholder="Min" style="flex:1"><button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button></div>
-                <button class="btn green" onclick="sendCommand('boarding')">SET BOARDING</button>
-                <button class="btn red" onclick="sendCommand('cancel_all')">CANCEL ALL</button>
+                <h2>GLOBAL TRAIN STATUS</h2>
+                <div class="flex-row">
+                    <input type="number" id="dInput" placeholder="Min" style="flex:1">
+                    <button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+                </div>
+                <button class="btn green" onclick="sendCommand('boarding')">SET ALL TO BOARDING</button>
+                <button class="btn red" onclick="sendCommand('cancel_all')">CANCEL ALL TRAINS</button>
             </div>
+
             <div class="card">
-                <h2>ALERT BOX</h2>
-                <textarea id="mInput" rows="2" placeholder="Emergency message..."></textarea>
-                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT</button>
+                <h2>EMERGENCY ANNOUNCEMENTS</h2>
+                <textarea id="mInput" rows="2" placeholder="Overlay text..."></textarea>
+                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND FULL SCREEN ALERT</button>
             </div>
         </div>
 
-        <div class="section-title">TROLLS & HACKS</div>
+        <div class="section-title">THE MESS AROUND HACKS</div>
         <div class="grid">
-            <div class="card"><h2>AI TERMINAL</h2><textarea id="termInput" rows="3" placeholder="AI text..."></textarea><button class="btn black" onclick="sendTerminal()">INJECT</button><button class="btn blue" onclick="sendCommand('dvd')">DVD BOUNCE</button></div>
-            <div class="card"><h2>CHAOS</h2><div class="flex-row"><button class="btn" onclick="sendCommand('mirror')">MIRROR</button><button class="btn" onclick="sendCommand('invert')">INVERT</button><button class="btn" onclick="sendCommand('shake')">SHAKE</button></div><button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE</button><button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED</button></div>
-            <div class="card"><h2>JUMPSCARES</h2><div class="flex-row"><button class="btn red" onclick="sendCommand('roblox')">ROBLOX</button><button class="btn red" onclick="sendCommand('meme')">MEME</button></div><button class="btn red" onclick="sendCommand('bluescreen')">BSOD</button><button class="btn red" onclick="sendCommand('winupdate')">WIN UPDATE</button></div>
+            <div class="card">
+                <h2>AI TERMINAL & DVD</h2>
+                <textarea id="termInput" rows="3" placeholder="AI text (use \n for lines)..."></textarea>
+                <button class="btn black" onclick="sendTerminal()">INJECT TERMINAL</button>
+                <button class="btn" onclick="sendCommand('dvd')">DVD BOUNCE MODE</button>
+                <button class="btn black" onclick="sendCommand('hacker')">MATRIX OVERLAY</button>
+            </div>
+
+            <div class="card">
+                <h2>VISUAL CHAOS</h2>
+                <div class="flex-row">
+                    <button class="btn" onclick="sendCommand('mirror')">MIRROR</button>
+                    <button class="btn" onclick="sendCommand('invert')">INVERT</button>
+                </div>
+                <div class="flex-row">
+                    <button class="btn" onclick="sendCommand('shake')">SHAKE</button>
+                    <button class="btn" onclick="sendCommand('disco')">DISCO</button>
+                </div>
+                <button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE BOARD</button>
+                <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
+            </div>
+
+            <div class="card">
+                <h2>JUMPSCARES & FAILS</h2>
+                <div class="flex-row">
+                    <button class="btn red" onclick="sendCommand('roblox')">ROBLOX JUMP</button>
+                    <button class="btn red" onclick="sendCommand('meme')">MEME JUMP</button>
+                </div>
+                <button class="btn red" onclick="sendCommand('bluescreen')">BSOD</button>
+                <button class="btn red" onclick="sendCommand('winupdate')">FORCE WIN UPDATE</button>
+            </div>
+        </div>
+
+        <div class="section-title">SYSTEM ADMINISTRATION</div>
+        <div class="grid">
+            <div class="card">
+                <h2>USER MANAGEMENT</h2>
+                <input type="text" id="newU" placeholder="Username">
+                <input type="password" id="newP" placeholder="Password">
+                <button class="btn black" onclick="addUser()">ADD ADMIN USER</button>
+            </div>
+            <div class="card">
+                <h2>WEATHER OVERRIDE</h2>
+                <input type="text" id="wInput" placeholder="Temp/Condition...">
+                <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // Intro Logic
+        let introIdx = 0;
+        const statusEl = document.getElementById('load-status');
+        const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
+
+        // Authentication
         let usersDB = { admin: "1234" };
         onValue(ref(db, 'remote/users'), (snap) => { if(snap.val()) usersDB = snap.val(); });
-        window.checkLogin = () => { if (usersDB[document.getElementById('logUser').value] === document.getElementById('logPass').value) document.getElementById('login-screen').style.display = 'none'; else alert("DENIED"); };
-        window.addUser = () => { if (document.getElementById('newU').value && document.getElementById('newP').value) { update(ref(db, 'remote/users'), { [document.getElementById('newU').value]: document.getElementById('newP').value }); alert("ADDED"); } };
-        window.sendCommand = (event, val = "") => { update(ref(db, 'remote/commands'), { event: event, value: val, target: document.getElementById('target-screen').value, ts: Date.now() }); };
-        window.sendManualTrain = () => { window.sendCommand('manual_train', JSON.stringify({ id: document.getElementById('manual-row-select').value, msg: document.getElementById('manual-msg').value || "Til Tiden", color: document.getElementById('manual-color').value, blink: document.getElementById('manual-blink').checked })); };
-        window.sendTerminal = () => { window.sendCommand('terminal', document.getElementById('termInput').value || "> SYSTEM OVERRIDE..."); document.getElementById('termInput').value = ""; };
-        window.clearTicker = () => { document.getElementById('tInput').value = ""; window.sendCommand('ticker', ""); };
+
+        window.checkLogin = () => { 
+            const u = document.getElementById('logUser').value;
+            const p = document.getElementById('logPass').value;
+            if (usersDB[u] === p) document.getElementById('login-screen').style.display = 'none'; 
+            else alert("ACCESS DENIED"); 
+        };
+
+        window.addUser = () => { 
+            const u = document.getElementById('newU').value;
+            const p = document.getElementById('newP').value;
+            if (u && p) { 
+                update(ref(db, 'remote/users'), { [u]: p }); 
+                alert("USER ADDED"); 
+                document.getElementById('newU').value = ""; document.getElementById('newP').value = "";
+            } 
+        };
+
+        // Commands Logic
+        window.sendCommand = (event, val = "") => {
+            update(ref(db, 'remote/commands'), { 
+                event: event, 
+                value: val, 
+                target: document.getElementById('target-screen').value, 
+                ts: Date.now() 
+            });
+        };
+
+        window.sendManualTrain = () => {
+            const data = {
+                id: document.getElementById('manual-row-select').value,
+                msg: document.getElementById('manual-msg').value || "Til Tiden",
+                color: document.getElementById('manual-color').value,
+                blink: document.getElementById('manual-blink').checked
+            };
+            window.sendCommand('manual_train', JSON.stringify(data));
+        };
+
+        window.sendTerminal = () => { 
+            window.sendCommand('terminal', document.getElementById('termInput').value || "> SYSTEM OVERRIDE..."); 
+            document.getElementById('termInput').value = ""; 
+        };
+
+        window.clearTicker = () => { 
+            document.getElementById('tInput').value = ""; 
+            window.sendCommand('ticker', ""); 
+        };
+
+        // Screen Syncing
         onValue(ref(db, 'remote/screens'), (snapshot) => {
             const screens = snapshot.val();
             const select = document.getElementById('target-screen');
             const current = select.value;
             select.innerHTML = '<option value="ALL">ALL SCREENS</option>';
-            if (screens) Object.keys(screens).forEach(id => { if (Date.now() - screens[id].heartbeat < 10000) { const opt = document.createElement('option'); opt.value = id; opt.innerText = id; select.appendChild(opt); } });
+            if (screens) {
+                Object.keys(screens).forEach(id => {
+                    if (Date.now() - screens[id].heartbeat < 10000) {
+                        const opt = document.createElement('option');
+                        opt.value = id; opt.innerText = id; select.appendChild(opt);
+                    }
+                });
+            }
             select.value = current;
         });
     </script>
