@@ -7,19 +7,10 @@
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
         /* --- CLEAN WHITE INTRO --- */
-        #intro-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #ffffff; z-index: 9999999; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: opacity 1s ease-in-out; color: #000;
-        }
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; color: #000; }
         #intro-screen img { max-width: 280px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 24px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #E3000F;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px 0;
-        }
+        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #E3000F; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
         #load-status { font-family: monospace; font-size: 14px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -41,7 +32,7 @@
             100% { transform: translate(-1px, -2px) rotate(1deg); }
         }
         
-        /* --- DSB MODE LAYOUT --- */
+        /* --- LAYOUT --- */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         table { width: 100%; border-collapse: collapse; } 
@@ -49,10 +40,9 @@
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
         .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } 
         .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
-        .blinking { animation: blinker 1s linear infinite; } 
-        @keyframes blinker { 50% { opacity: 0; } }
+        .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
         
-        /* --- TICKER (REAL NEWS) --- */
+        /* --- TICKER --- */
         .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000; border-top: 2px solid #E3000F;}
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 60s linear infinite; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
@@ -60,7 +50,7 @@
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         #terminal-overlay { background: rgba(0,0,0,0.95); z-index: 99998; padding: 60px; box-sizing: border-box; }
-        #terminal-text { color: #0f0; font-family: monospace; font-size: 40px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
+        #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
         #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
         #dvd-logo { position: absolute; height: 150px; }
         #blackout { background: black; z-index: 9996; } 
@@ -71,6 +61,7 @@
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; }
+        .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
 </head>
 <body id="main-body">
@@ -88,15 +79,18 @@
     <div id="screen-id-tag">ID: --</div>
     <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white;"></div></div>
     <div id="blackout" class="overlay"></div>
+    <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...<br>> OVERRIDING DSB MAINFRAME...</div>
     <div id="jumpscare" class="overlay"></div>
-    <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...</div>
-    <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem...</p></div>
-    <div id="win-update" class="overlay"><div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.</div></div>
+    <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem og skal genstarte. Vi indsamler fejloplysninger, og derefter genstarter vi for dig.</p></div>
+    <div id="win-update" class="overlay">
+        <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+        <div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.<br>Sluk ikke computeren.</div>
+    </div>
 
     <div class="header">
         <div style="font-size: 50px; font-weight: 900;">AFGANGE / DEPARTURES</div>
         <div style="text-align: right;">
-            <div class="time clock-text">00:00:00</div>
+            <div class="time clock-text" id="clock">00:00:00</div>
             <div class="weather-text" style="color: #FFD700; font-size: 20px; font-weight: bold;">HENTER VEJR...</div>
         </div>
     </div>
@@ -112,25 +106,21 @@
         </tbody>
     </table>
     
+    <img src="logo.png" class="footer-logo">
     <div class="ticker-container"><div class="ticker-text" id="ticker-msg">HENTER SENESTE NYT FRA DR...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // --- INTRO LOGIC ---
-        const introMessages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Ready."];
+        const introMessages = ["Connecting to DSB Servers...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
         let introMsgIdx = 0;
         const statusEl = document.getElementById('load-status');
         const introMsgInterval = setInterval(() => {
-            if(introMsgIdx < introMessages.length) {
-                statusEl.innerText = introMessages[introMsgIdx];
-                introMsgIdx++;
-            } else {
-                clearInterval(introMsgInterval);
-            }
+            if(introMsgIdx < introMessages.length) { statusEl.innerText = introMessages[introMsgIdx]; introMsgIdx++; }
+            else { clearInterval(introMsgInterval); }
         }, 800);
-
         setTimeout(() => {
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
@@ -142,9 +132,8 @@
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
                 const d = await res.json();
-                const temp = Math.round(d.current_weather.temperature);
-                document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${temp}°C`;
-            } catch(e) { document.querySelector('.weather-text').innerText = "VEJR: --°C"; }
+                document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`;
+            } catch(e) {}
         }
         fetchWeather(); setInterval(fetchWeather, 900000);
 
@@ -155,30 +144,22 @@
                 const d = await res.json();
                 const hl = d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ");
                 document.getElementById('ticker-msg').innerText = "+++ SENESTE NYT: " + hl + " +++";
-            } catch(e) { document.getElementById('ticker-msg').innerText = "NYHEDSFEED UTILGÆNGELIG..."; }
+            } catch(e) {}
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
         // --- DVD BOUNCE LOGIC ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
-            const overlay = document.getElementById('dvd-overlay');
-            const logo = document.getElementById('dvd-logo');
-            overlay.style.display = 'block';
-            dvdX = Math.random() * (window.innerWidth - 150);
-            dvdY = Math.random() * (window.innerHeight - 150);
+            document.getElementById('dvd-overlay').style.display = 'block';
             clearInterval(dvdInterval);
             dvdInterval = setInterval(() => {
-                const rect = logo.getBoundingClientRect();
-                if (dvdX + rect.width >= window.innerWidth || dvdX <= 0) { dvdDx = -dvdDx; changeHue(); }
-                if (dvdY + rect.height >= window.innerHeight || dvdY <= 0) { dvdDy = -dvdDy; changeHue(); }
+                const logo = document.getElementById('dvd-logo');
+                if (dvdX + 150 >= window.innerWidth || dvdX <= 0) { dvdDx = -dvdDx; dvdHue = (dvdHue + 75) % 360; logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`; }
+                if (dvdY + 150 >= window.innerHeight || dvdY <= 0) { dvdDy = -dvdDy; dvdHue = (dvdHue + 75) % 360; logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`; }
                 dvdX += dvdDx; dvdY += dvdDy;
                 logo.style.transform = `translate(${dvdX}px, ${dvdY}px)`;
             }, 16);
-        }
-        function changeHue() {
-            dvdHue = (dvdHue + 75) % 360;
-            document.getElementById('dvd-logo').style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`;
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
@@ -207,7 +188,7 @@
         const db = getDatabase(app);
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
-        let bootTime = Date.now();
+        let bootTime = Date.now(); window.scrambleTimer = null;
 
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
@@ -222,10 +203,6 @@
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
-            else if (cmd.event === "clear_media") { 
-                document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
-                stopDvd(); 
-            }
             else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
             else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
@@ -234,37 +211,27 @@
             else if (cmd.event === "panic") body.classList.toggle('glitch-red');
             else if (cmd.event === "disco") body.classList.toggle('disco');
             else if (cmd.event === "shake") body.classList.toggle('shake');
+            else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
             else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
-            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
             else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
             else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "msg_board") {
-                document.getElementById('msg-board-text').innerHTML = cmd.value;
-                document.getElementById('msg-board-overlay').style.display = 'flex';
-            }
-            else if (cmd.event === "delay") {
-                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; });
-            }
-            else if (cmd.event === "boarding") {
-                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; });
-            }
-            else if (cmd.event === "reset_trains") {
-                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; });
-            }
-            else if (cmd.event === "clear_fx") {
-                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried');
-            }
+            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
+            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
+            else if (cmd.event === "msg_board") { document.getElementById('msg-board-text').innerHTML = cmd.value; document.getElementById('msg-board-overlay').style.display = 'flex'; }
+            else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
+            else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
+            else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
+            else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
+            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
                     tds.forEach(td => { if(!td.dataset.orig) td.dataset.orig = td.innerHTML; });
                     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X!?";
                     window.scrambleTimer = setInterval(() => {
-                        tds.forEach(td => {
-                            if(td.querySelector('span')) return;
-                            td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? chars[Math.floor(Math.random()*chars.length)] : c).join('');
-                        });
+                        tds.forEach(td => { if(td.querySelector('span')) return; td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? chars[Math.floor(Math.random()*chars.length)] : c).join(''); });
                     }, 80);
                 }
             }
@@ -273,7 +240,7 @@
         // Live Clock
         setInterval(() => {
             const now = new Date();
-            document.querySelector('.clock-text').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
         }, 1000);
     </script>
 </body>
