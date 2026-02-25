@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <title>DSB Hub - Projektor</title>
     <style>
-        body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s; }
+        body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* FX CLASSES */
+        /* INSANE FX */
         .mirror { transform: scaleX(-1); }
         .upside-down { transform: rotate(180deg); }
         .glitch-red { animation: panic 0.1s infinite; }
-        @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); }
+        .disco { animation: disco 0.3s infinite; }
+        .shake { animation: shake 0.4s infinite; }
         
-        /* LAYOUT */
+        @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
+        @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
+        @keyframes shake { 0% { transform: translate(5px, 3px) rotate(0deg); } 25% { transform: translate(-5px, -3px) rotate(-2deg); } 50% { transform: translate(-5px, 3px) rotate(2deg); } 75% { transform: translate(5px, -3px) rotate(0deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+        
+        /* AUDIO UNLOCKER */
+        #unlock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #E3000F; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 50px; font-weight: bold; z-index: 999999; cursor: pointer; }
+
+        /* LAYOUT & TABLE */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; }
+        .ic-box { background: #E3000F; padding: 2px 8px; color: white; }
+        .re-box { background: #002855; padding: 2px 8px; color: white; }
         .blinking { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
@@ -28,9 +39,12 @@
         #jumpscare { z-index: 9998; background-size: contain; background-repeat: no-repeat; background-position: center; }
         #bsod { background: #0000aa; color: white; z-index: 10000; padding: 50px; font-family: monospace; text-transform: none; }
         
-        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; border: 1px solid #2ecc71; z-index: 99999; }
+        /* MESSAGE BOARD */
+        #msg-board-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 40, 85, 0.95); z-index: 9995; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; box-sizing: border-box; border: 20px solid #E3000F; }
+        #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
+        #msg-board-text { color: white; font-size: 60px; font-weight: bold; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
 
-        /* TICKER & LOGO */
+        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; border: 1px solid #2ecc71; z-index: 99999; }
         .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; z-index: 1000;}
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
@@ -38,15 +52,17 @@
     </style>
 </head>
 <body id="main-body">
+
+    <div id="unlock-screen" onclick="this.style.display='none'">
+        KLIK HER FOR AT LÅSE OP<br>
+        <span style="font-size: 20px; margin-top:10px;">(Dette tillader YouTube og lyd at afspille)</span>
+    </div>
+
     <div id="screen-id-tag">STARTER...</div>
     
+    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text"></div></div>
     <div id="blackout" class="overlay"></div>
-    <div id="hacker-matrix" class="overlay">
-        > SYSTEM COMPROMISED...<br>
-        > INJECTING PAYLOAD...<br>
-        > OVERRIDING DSB MAINFRAME...<br>
-        > ERROR 404: REALITY NOT FOUND.
-    </div>
+    <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...<br>> ERROR 404: REALITY NOT FOUND.</div>
     <div id="jumpscare" class="overlay"></div>
     <div id="bsod" class="overlay"><h1>:(</h1><p>Din PC løb ind i et problem og skal genstarte...</p></div>
 
@@ -61,10 +77,12 @@
 
     <table>
         <tbody>
-            <tr><td class="yellow">09:30</td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:00</td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking" id="play-status">KLAR</td></tr>
-            <tr><td class="yellow">13:00</td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">09:30</td><td><span class="ic-box">IC 142</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:00</td><td><span class="re-box">RE 12</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:30</td><td><span class="re-box">RE 88</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking" id="play-status">KLAR</td></tr>
+            <tr><td class="yellow">13:00</td><td><span class="re-box">RE 01</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL 55</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
         </tbody>
     </table>
 
@@ -84,54 +102,62 @@
         
         let bootTime = Date.now(); 
 
-        // Heartbeat
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
             const cmd = snapshot.val();
             if (!cmd) return;
-
-            // Ghost Killer & Target Lock
             if (cmd.ts <= bootTime) return; 
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
 
-            bootTime = cmd.ts; // Lock to prevent duplicates
-
+            bootTime = cmd.ts;
             const body = document.getElementById('main-body');
 
-            // -- CORE FUNCTIONS --
-            if (cmd.event === "reset") location.reload(); // HARD reset
+            if (cmd.event === "reset") location.reload(); 
             else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
             else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
             
-            // -- SOFT RESETS (The new fixers) --
+            // FULL SCREEN MESSAGE BOARD
+            else if (cmd.event === "msg_board") {
+                document.getElementById('msg-board-text').innerText = cmd.value;
+                document.getElementById('msg-board-overlay').style.display = 'flex';
+            }
+            
+            // SOFT RESETS
             else if (cmd.event === "clear_fx") {
-                body.classList.remove('mirror', 'upside-down', 'glitch-red');
+                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'deep-fried', 'disco', 'shake');
             }
             else if (cmd.event === "clear_media") {
                 document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none');
                 const vid = document.getElementById('video-layer');
-                if (vid) vid.remove(); // Stops audio immediately
+                if (vid) vid.remove();
             }
             else if (cmd.event === "reset_trains") {
-                document.querySelectorAll('.status-msg').forEach(el => { 
-                    el.innerText = "TIL TIDEN"; el.className = "white status-msg"; 
-                });
+                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; });
+            }
+            
+            // HIDE/SHOW ID
+            else if (cmd.event === "toggle_id") {
+                const tag = document.getElementById('screen-id-tag');
+                tag.style.display = (tag.style.display === 'none') ? 'block' : 'none';
             }
 
-            // -- CHAOS & MEDIA --
+            // CHAOS & OVERLAYS
             else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
             else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
             else if (cmd.event === "roblox") triggerImg('roblox.jpg');
             else if (cmd.event === "meme") triggerImg('meme.jpg');
             else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
             
-            // -- CSS TROLLS --
+            // INSANE FX
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
             else if (cmd.event === "invert") body.classList.toggle('upside-down');
             else if (cmd.event === "panic") body.classList.add('glitch-red');
+            else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
+            else if (cmd.event === "disco") body.classList.toggle('disco');
+            else if (cmd.event === "shake") body.classList.toggle('shake');
             
-            // -- TRAIN STATUS TROLLS --
+            // TRAINS
             else if (cmd.event === "delay") {
                 document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET 99 MIN"; el.className = "red blinking status-msg"; });
             }
@@ -139,19 +165,17 @@
                 document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "AFLYST"; el.className = "red blinking status-msg"; });
             }
             
-            // -- YOUTUBE PLAYER (Robust Regex Embed) --
+            // YOUTUBE (Regex extracts ID and builds iframe)
             else if (cmd.event === "video") {
                 const match = cmd.value.match(/(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
                 if(match && match[1]) {
-                    // Remove old video if exists
                     const oldVid = document.getElementById('video-layer');
                     if (oldVid) oldVid.remove();
-
                     const vidDiv = document.createElement('div');
                     vidDiv.id = 'video-layer';
                     vidDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;background:black;';
-                    // Auto-play, hide controls, disable keyboard
-                    vidDiv.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1&controls=0&disablekb=1" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+                    // The ?autoplay=1 parameter forces it to start
+                    vidDiv.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${match[1]}?autoplay=1&controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
                     document.body.appendChild(vidDiv);
                 }
             }
@@ -161,16 +185,16 @@
             const el = document.getElementById('jumpscare');
             el.style.backgroundImage = `url('${img}')`;
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3000); // Auto-hides after 3s
+            setTimeout(() => el.style.display = 'none', 3000); 
         }
 
-        // --- CLOCK, WEATHER, NEWS ---
+        // CLOCK, WEATHER, NEWS
         function updateTime() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK');
             document.getElementById('date-row').innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'short'}).toUpperCase();
             let diff = 6 - now.getDay();
-            window.countdownStr = diff > 0 ? `KUN ${diff} DAGE TIL PREMIERE! ` : (diff === 0 ? "DET ER PREMIERE DAG! " : "TAK FOR I DAG! ");
+            window.countdownStr = diff > 0 ? `KUN ${diff} DAGE TIL PREMIERE! ` : (diff === 0 ? "PREMIERE I DAG! " : "TAK FOR I DAG! ");
         }
         setInterval(updateTime, 1000); updateTime();
 
