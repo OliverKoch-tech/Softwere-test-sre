@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Dynamic Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            background-color: #f0f8ff;
+            transition: background-color 0.5s ease;
+        }
+        #dynamicText {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #clock {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div id="dynamicText">Hello! Welcome to my interactive page.</div>
+    <div id="clock">Loading time...</div>
+    <button onclick="changeThingsUp()">Click Me for Magic!</button>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateTime, 1000);
+
+        const phrases = [
+            "Wow, you are actually coding!",
+            "Look at those colors change!",
+            "JavaScript is pretty cool.",
+            "Click it again!"
+        ];
+        let phraseCount = 0;
+
+        function changeThingsUp() {
+            document.getElementById('dynamicText').innerText = phrases[phraseCount];
+            phraseCount++; 
+            if (phraseCount >= phrases.length) {
+                phraseCount = 0;
+            }
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            document.body.style.backgroundColor = randomColor;
+        }
+    </script>
+</body>
+</html>
