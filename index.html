@@ -6,52 +6,36 @@
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
-        /* --- CLEAN WHITE INTRO (MATCHES ADMIN) --- */
-        #intro-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #ffffff; z-index: 9999999; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: opacity 1s ease-in-out; color: #000;
-        }
+        /* --- CLEAN WHITE INTRO --- */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease-in-out; color: #000; }
         #intro-screen img { max-width: 250px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #000;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px 0;
-        }
+        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
         #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS --- */
-        .mirror { transform: scaleX(-1); } 
-        .upside-down { transform: rotate(180deg); } 
-        .glitch-red { animation: panic 0.1s infinite; }
-        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } 
-        .disco { animation: disco 0.3s infinite; } 
+        .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } 
         .shake { animation: shake 0.4s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
-        @keyframes shake { 
-            0% { transform: translate(3px, 2px) rotate(0deg); }
-            20% { transform: translate(-3px, -2px) rotate(-1deg); }
-            40% { transform: translate(-3px, 2px) rotate(1deg); }
-            60% { transform: translate(3px, -2px) rotate(0deg); }
-            80% { transform: translate(1px, 2px) rotate(-1deg); }
-            100% { transform: translate(-1px, -2px) rotate(1deg); }
-        }
+        @keyframes shake { 0% { transform: translate(3px, 2px) rotate(0deg); } 20% { transform: translate(-3px, -2px) rotate(-1deg); } 40% { transform: translate(-3px, 2px) rotate(1deg); } 60% { transform: translate(3px, -2px) rotate(0deg); } 80% { transform: translate(1px, 2px) rotate(-1deg); } 100% { transform: translate(-1px, -2px) rotate(1deg); } }
         
         /* --- LAYOUT --- */
-        .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; align-items: flex-end; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         table { width: 100%; border-collapse: collapse; } 
         td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; transition: color 0.2s; }
         .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
         .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } 
         .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
-        .blinking { animation: blinker 1s linear infinite; } 
-        @keyframes blinker { 50% { opacity: 0; } }
+        .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
         
+        /* LOGO SEKTION VED TIDEN */
+        .header-right { text-align: right; display: flex; align-items: center; gap: 25px; }
+        .sre-logo { height: 80px; object-fit: contain; }
+
         /* --- TICKER --- */
         .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; z-index: 1000; border-top: 2px solid #E3000F;}
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 60s linear infinite; }
@@ -70,7 +54,6 @@
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
         #msg-board-overlay { background: rgba(0, 40, 85, 0.98); z-index: 99995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
-        
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #444; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
@@ -100,9 +83,12 @@
 
     <div class="header">
         <div style="font-size: 50px; font-weight: 900;">AFGANGE / DEPARTURES</div>
-        <div style="text-align: right;">
-            <div class="time clock-text" id="clock">00:00:00</div>
-            <div class="weather-text" style="color: #FFD700; font-size: 20px; font-weight: bold;">HENTER VEJR...</div>
+        <div class="header-right">
+            <img src="Srelogo.png" class="sre-logo" alt="SRE Logo" onerror="this.style.display='none'">
+            <div style="text-align: right;">
+                <div class="time clock-text" id="clock">00:00:00</div>
+                <div class="weather-text" style="color: #FFD700; font-size: 20px; font-weight: bold;">HENTER VEJR...</div>
+            </div>
         </div>
     </div>
     
@@ -128,7 +114,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GLOBAL STATE ---
         let customTickerActive = false;
         let lastDrNews = "HENTER SENESTE NYT FRA DR...";
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
@@ -136,12 +121,10 @@
         let bootTime = Date.now();
         window.scrambleTimer = null;
 
-        // --- INTRO ---
         const statusEl = document.getElementById('load-status');
         const introMsgInterval = setInterval(() => { statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 4500);
 
-        // --- WEATHER & NEWS ---
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -149,8 +132,7 @@
                 document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`;
             } catch(e) {}
         }
-        fetchWeather(); setInterval(fetchWeather, 900000);
-
+        fetchWeather();
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
@@ -161,7 +143,6 @@
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
-        // --- DVD ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -176,7 +157,6 @@
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
-        // --- TERMINAL ---
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
@@ -195,7 +175,6 @@
             typeChar();
         }
 
-        // --- FIREBASE COMMANDS ---
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
@@ -203,14 +182,13 @@
             if (!cmd || cmd.ts <= bootTime) return;
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
             bootTime = cmd.ts;
-
             const body = document.getElementById('main-body');
 
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
             else if (cmd.event === "ticker") {
-                if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
+                if (!cmd.value) { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
                 else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
             }
             else if (cmd.event === "msg_board") {
