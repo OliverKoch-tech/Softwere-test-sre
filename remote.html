@@ -2,76 +2,126 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>OLIVER CTRL HUB v2.0</title>
+    <title>Master Control Hub - Sporløs</title>
     <style>
-        body { background: #0d1117; color: white; font-family: sans-serif; margin: 0; padding: 30px; }
-        .dashboard-header { border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+        body { background: #0a0c10; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 25px; text-transform: uppercase; }
+        
+        /* HEADER & MASTER SWITCH */
+        .master-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #30363d; padding-bottom: 20px; margin-bottom: 25px; }
+        .status-led { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .online { background: #238636; box-shadow: 0 0 12px #238636; }
+        .offline { background: #da3633; box-shadow: 0 0 12px #da3633; }
+        
+        #master-switch { padding: 15px 35px; border-radius: 50px; font-weight: 900; cursor: pointer; border: none; transition: 0.3s; font-size: 14px; }
+
+        /* DASHBOARD GRID */
         .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .panel { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        h2 { font-size: 0.8rem; color: #8b949e; margin: 0; padding-bottom: 10px; border-bottom: 1px solid #333; }
-        .btn { padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
-        .red { background: #da3633; color: white; }
-        .blue { background: #1f6feb; color: white; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        h2 { font-size: 11px; color: #8b949e; margin: 0; border-bottom: 1px solid #21262d; padding-bottom: 8px; letter-spacing: 2px; }
+
+        /* BUTTONS */
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; border-bottom: 4px solid rgba(0,0,0,0.3); transition: 0.1s; color: white; }
+        .btn:active { transform: translateY(3px); border-bottom: 1px solid transparent; }
+        
+        .red { background: #da3633; }
+        .green { background: #238636; }
+        .blue { background: #1f6feb; }
         .yellow { background: #d29922; color: black; }
-        .purple { background: #8957e5; color: white; }
         .black { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
-        input { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 6px; color: #FFD700; font-size: 16px; width: 100%; box-sizing: border-box; }
+
+        /* INPUTS */
+        input { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 6px; color: #FFD700; width: 100%; box-sizing: border-box; outline: none; }
+        .hint { font-size: 10px; color: #484f58; text-transform: none; margin-top: -5px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-header">
-        <h1>OLIVER <span style="color:#da3633;">CTRL</span> HUB</h1>
-        <div style="color: #2ecc71;">● SYSTEM ONLINE</div>
+    <div class="master-header">
+        <h1>OLIVER <span style="color:#da3633">TECH</span> ADMIN</h1>
+        <div style="display:flex; align-items:center; gap:30px;">
+            <div id="hb-text"><span id="hb-led" class="status-led offline"></span>SKÆRM OFFLINE</div>
+            <button id="master-switch" class="red" onclick="toggleMaster()">MASTER SWITCH: OFF</button>
+        </div>
     </div>
 
-    <div class="control-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+    <div class="grid">
         
-        <div class="panel">
-            <h2>STATUS KONTROL</h2>
-            <button class="btn red" onclick="send('status', 'PREMIERE NU')">Trigger Premiere</button>
-            <button class="btn yellow" onclick="send('status', 'I GANG')">Sæt til Live</button>
-            <button class="btn black" onclick="send('status', 'KLAR')">Reset Board</button>
+        <div class="card">
+            <h2>SCENE MANAGEMENT</h2>
+            <button class="btn red" onclick="send('status', 'PREMIERE NU')">START PREMIERE</button>
+            <button class="btn yellow" onclick="send('status', 'I GANG')">SET TIL LIVE</button>
+            <button class="btn blue" onclick="send('status', 'FÆRDIG')">AFSLUT SPIL</button>
+            <button class="btn black" style="margin-top:20px; border:1px solid #da3633" onclick="trigger('reset')">HARD RESTART HUB</button>
+            <div class="hint">Nulstiller skærmen og fjerner alle trolls.</div>
         </div>
 
-        <div class="panel">
-            <h2>CHAOS ENGINE</h2>
-            <button class="btn black" onclick="trigger('blackout')">Blackout (20s)</button>
-            <button class="btn red" onclick="trigger('delay')">Delay All (99m)</button>
-            <button class="btn purple" onclick="trigger('roblox')">Roblox Face</button>
-            <button class="btn purple" onclick="trigger('meme')">Meme Jumpscare</button>
+        <div class="card">
+            <h2>MEDIA & JUMPSCARES</h2>
+            <button class="btn green" onclick="trigger('roblox')">ROBLOX MAN FACE</button>
+            <button class="btn green" onclick="trigger('meme')">JOB APP MEME</button>
+            
+            <h2 style="margin-top:10px">YOUTUBE / VIDEO LINK</h2>
+            <input type="text" id="vInput" placeholder="Indsæt YouTube Link...">
+            <button class="btn blue" onclick="send('video', document.getElementById('vInput').value)">SEND VIDEO TIL SKÆRM</button>
+            <div class="hint">Indsæt et YouTube link for at afspille det på projektoren.</div>
         </div>
 
-        <div class="panel">
-            <h2>TICKER OVERRIDE</h2>
-            <input type="text" id="tInput" placeholder="Skriv troll besked...">
-            <button class="btn blue" onclick="send('ticker', document.getElementById('tInput').value)">Send til Ticker</button>
+        <div class="card">
+            <h2>CHAOS & OVERRIDES</h2>
+            <button class="btn black" onclick="trigger('blackout')">BLACKOUT (20S)</button>
+            <button class="btn red" onclick="trigger('delay')">FORSINK ALT (99M)</button>
+            <button class="btn blue" onclick="trigger('bluescreen')">BLUE SCREEN CRASH</button>
+            <button class="btn yellow" style="color:black" onclick="trigger('mirror')">MIRROR MODE</button>
+            
+            <h2 style="margin-top:10px">MANUEL TICKER</h2>
+            <input type="text" id="tInput" placeholder="Besked til bunden...">
+            <button class="btn blue" onclick="send('ticker', document.getElementById('tInput').value)">PUSH BESKED</button>
         </div>
 
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" 
-        };
+        const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        let active = false;
+
+        // Toggle the Bridge between Admin and Screen
+        window.toggleMaster = () => {
+            active = !active;
+            const btn = document.getElementById('master-switch');
+            btn.className = active ? 'green' : 'red';
+            btn.innerText = active ? 'MASTER SWITCH: ON' : 'MASTER SWITCH: OFF';
+            set(ref(db, 'remote/active'), active);
+        };
+
+        // Heartbeat Monitor
+        onValue(ref(db, 'remote/heartbeat'), (snap) => {
+            const last = snap.val();
+            const led = document.getElementById('hb-led');
+            const text = document.getElementById('hb-text');
+            if (Date.now() - last < 5000) {
+                led.className = "status-led online";
+                text.innerHTML = '<span class="status-led online"></span>SKÆRM ONLINE';
+            } else {
+                led.className = "status-led offline";
+                text.innerHTML = '<span class="status-led offline"></span>SKÆRM OFFLINE';
+            }
+        });
+
         window.send = (path, val) => {
-            const updates = {};
-            updates['remote/' + path] = val;
-            update(ref(db), updates);
+            const u = {}; u['remote/' + path] = val;
+            update(ref(db), u);
         };
 
         window.trigger = (event) => {
-            const updates = {};
-            updates['remote/event'] = event;
-            updates['remote/timestamp'] = Date.now(); 
-            update(ref(db), updates);
+            const u = {}; u['remote/event'] = event;
+            u['remote/ts'] = Date.now();
+            update(ref(db), u);
         };
     </script>
 </body>

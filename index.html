@@ -2,80 +2,59 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>DSB Master Hub - Øster Kippinge LIVE</title>
+    <title>DSB Hub - Projektor</title>
     <style>
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: 0.5s; }
         
-        /* HEADER LAYOUT */
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
-        .title-block { font-size: 45px; font-weight: 900; letter-spacing: 2px; }
-        .info-block { text-align: right; }
-        .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; }
-        .date { color: #ffffff; font-size: 20px; font-weight: bold; margin-top: 5px; }
-        .weather { color: #aaaaaa; font-size: 18px; font-weight: bold; margin-top: 2px; }
-
-        /* TABLE DESIGN */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #aaaaaa; border-bottom: 2px solid #333; font-size: 22px; padding-bottom: 10px; }
-        td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
-        
-        .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; }
-        .ic-box { background-color: #E3000F; color: white; padding: 2px 10px; border-radius: 4px; }
-        .re-box { background-color: #002855; color: white; padding: 2px 10px; border-radius: 4px; }
-        .blinking { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-
-        /* CHAOS EFFECTS */
         .mirror { transform: scaleX(-1); }
         .glitch-red { animation: panic 0.1s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
+        
+        .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
+        .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; }
+        .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; }
+        .blinking { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
 
-        /* OVERLAYS */
         #blackout { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9998; display: none; }
         #jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
         #bsod { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0000aa; color: white; z-index: 10000; display: none; padding: 50px; font-family: monospace; text-transform: none; }
+        #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 5px 10px; font-size: 12px; font-family: monospace; border: 1px solid #2ecc71; z-index: 99999; }
 
-        /* TICKER */
-        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; z-index: 1000; }
+        .ticker-container { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #002855; color: white; padding: 15px 0; font-size: 24px; font-weight: bold; white-space: nowrap; border-top: 2px solid #ffffff33; z-index: 1000;}
         .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 45s linear infinite; }
         @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
-        
-        /* LOGO */
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%) drop-shadow(0 0 1px white); }
     </style>
 </head>
 <body id="main-body">
+    <div id="screen-id-tag">STARTER...</div>
     <div id="blackout"></div>
     <div id="jumpscare"></div>
-    <div id="bsod"><h1>:(</h1><p>Din PC løb ind i et problem og skal genstarte. Vi indsamler fejloplysninger...</p></div>
+    <div id="bsod"><h1>:(</h1><p>Din PC løb ind i et problem og skal genstarte...</p></div>
 
     <div class="header">
-        <div class="title-block">AFGANGE / DEPARTURES</div>
-        <div class="info-block">
+        <div style="font-size: 50px; font-weight: 900; letter-spacing: 2px;">AFGANGE / DEPARTURES</div>
+        <div style="text-align: right;">
             <div class="time" id="clock">00:00:00</div>
-            <div class="date" id="date-row">ONSDAG 25. FEB 2026</div>
-            <div class="weather" id="weather-row">ØSTER KIPPINGE: HENTER...</div>
+            <div id="date-row" style="font-size: 20px; font-weight: bold; margin-top: 5px;">HENTER DATO...</div>
+            <div id="weather" style="color: #aaa; font-size: 18px;">ØSTER KIPPINGE: --°C</div>
         </div>
     </div>
 
     <table>
-        <thead><tr><th>TID</th><th>TOG</th><th>DESTINATION</th><th>SPOR</th><th>BEMÆRKNING</th></tr></thead>
         <tbody>
-            <tr><td class="yellow">09:30</td><td><span class="ic-box">IC 142</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:00</td><td><span class="re-box">RE 12</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:30</td><td><span class="re-box">RE 88</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr style="background: rgba(227, 0, 15, 0.2);">
-                <td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td>
-                <td class="yellow">SPORLØS (PREMIERE)</td><td class="yellow">1</td>
-                <td class="red blinking" id="play-status">KLAR</td>
-            </tr>
-            <tr><td class="yellow">13:00</td><td><span class="re-box">RE 01</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">13:30</td><td><span class="ic-box">ICL 55</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">09:30</td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr><td class="yellow">10:00</td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking" id="play-status">KLAR</td></tr>
+            <tr><td class="yellow">13:00</td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
         </tbody>
     </table>
 
     <img src="logo.png" class="footer-logo">
-    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">INITIALISERER...</div></div>
+    <div class="ticker-container"><div class="ticker-text" id="ticker-msg">SYNCER MED HUB...</div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -85,37 +64,52 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Heartbeat for Admin PC
-        setInterval(() => { set(ref(db, 'remote/heartbeat'), Date.now()); }, 2000);
+        const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
+        document.getElementById('screen-id-tag').innerText = "ID: " + myId;
+        
+        let bootTime = Date.now(); 
 
-        // --- REMOTE LOGIC ---
-        onValue(ref(db, 'remote/'), (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
+        setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
-            // MASTER RESET - Always works
-            if (data.event === "reset") { location.reload(); return; }
+        onValue(ref(db, 'remote/commands'), (snapshot) => {
+            const cmd = snapshot.val();
+            if (!cmd) return;
 
-            // ONLY ACT IF MASTER SWITCH IS ON
-            if (data.active !== true) return;
+            // IGNORE GLITCHES: Only process if it happened AFTER the screen turned on
+            if (cmd.ts <= bootTime) return; 
 
-            if (data.status) document.getElementById('play-status').innerText = data.status;
-            if (data.ticker) document.getElementById('ticker-msg').innerText = "*** " + data.ticker.toUpperCase() + " ***";
+            // MULTI-SCREEN: Check if this command is meant for this screen
+            if (cmd.target !== "ALL" && cmd.target !== myId) return;
+
+            bootTime = cmd.ts; // Lock it in so we don't repeat it
 
             const body = document.getElementById('main-body');
-            if (data.event === "blackout") {
+
+            if (cmd.event === "reset") location.reload();
+            else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
+            else if (cmd.event === "ticker") document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
+            else if (cmd.event === "blackout") {
                 document.getElementById('blackout').style.display = 'block';
                 setTimeout(() => document.getElementById('blackout').style.display = 'none', 20000);
             }
-            if (data.event === "roblox") triggerImg('roblox.jpg');
-            if (data.event === "meme") triggerImg('meme.jpg');
-            if (data.event === "mirror") body.classList.toggle('mirror');
-            if (data.event === "panic") body.classList.add('glitch-red');
-            if (data.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
-            if (data.event === "delay") {
-                document.querySelectorAll('.status-msg').forEach(el => {
-                    el.innerText = "FORSINKET 99 MIN"; el.className = "red blinking status-msg";
-                });
+            else if (cmd.event === "roblox") triggerImg('roblox.jpg');
+            else if (cmd.event === "meme") triggerImg('meme.jpg');
+            else if (cmd.event === "mirror") body.classList.toggle('mirror');
+            else if (cmd.event === "panic") body.classList.add('glitch-red');
+            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
+            else if (cmd.event === "delay") {
+                document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET 99 MIN"; el.className = "red blinking status-msg"; });
+            }
+            // VIDEO PLAYER FEATURE
+            else if (cmd.event === "video") {
+                let vId = cmd.value.split('v=')[1] || cmd.value.split('youtu.be/')[1];
+                if(vId) {
+                    vId = vId.split('&')[0].split('?')[0]; // Clean the link
+                    const vidDiv = document.createElement('div');
+                    vidDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;background:black;';
+                    vidDiv.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vId}?autoplay=1" frameborder="0" allow="autoplay"></iframe><button onclick="this.parentElement.remove()" style="position:fixed;top:20px;right:20px;padding:20px;background:red;color:white;font-weight:bold;cursor:pointer;border:none;border-radius:10px;">LUK VIDEO</button>`;
+                    document.body.appendChild(vidDiv);
+                }
             }
         });
 
@@ -126,35 +120,31 @@
             setTimeout(() => el.style.display = 'none', 3000);
         }
 
-        // --- CLOCK, DATE & COUNTDOWN ---
-        function updateDisplay() {
+        // --- CLOCK, WEATHER, NEWS ---
+        function updateTime() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK');
-            document.getElementById('date-row').innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'short', year:'numeric'}).toUpperCase();
-            
-            // Sat countdown (Saturday is day 6)
+            document.getElementById('date-row').innerText = now.toLocaleDateString('da-DK', {weekday:'long', day:'numeric', month:'short'}).toUpperCase();
             let diff = 6 - now.getDay();
-            window.countdownStr = diff > 0 ? `KUN ${diff} DAGE TIL PREMIERE PÅ SPORLØS! ` : (diff === 0 ? "DET ER PREMIERE DAG! " : "TAK FOR EN GOD FORESTILLING! ");
+            window.countdownStr = diff > 0 ? `KUN ${diff} DAGE TIL PREMIERE! ` : (diff === 0 ? "DET ER PREMIERE DAG! " : "TAK FOR I DAG! ");
         }
-        setInterval(updateDisplay, 1000); updateDisplay();
+        setInterval(updateTime, 1000); updateTime();
 
-        // --- WEATHER (Øster Kippinge) ---
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
                 const d = await res.json();
-                document.getElementById('weather-row').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C SKYET`;
-            } catch(e) { document.getElementById('weather-row').innerText = "VEJR DATA OFFLINE"; }
+                document.getElementById('weather').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C SKYET`;
+            } catch(e) {}
         }
-        fetchWeather(); setInterval(fetchWeather, 600000);
+        fetchWeather();
 
-        // --- NEWS TICKER ---
         async function fetchNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
-                const headlines = d.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
-                document.getElementById('ticker-msg').innerText = window.countdownStr + "+++ NYHEDER: " + headlines + " +++ ";
+                const hl = d.items.slice(0, 5).map(i => i.title.toUpperCase()).join(" +++ ");
+                document.getElementById('ticker-msg').innerText = window.countdownStr + "+++ NYHEDER: " + hl + " +++ ";
             } catch(e) { document.getElementById('ticker-msg').innerText = window.countdownStr; }
         }
         fetchNews(); setInterval(fetchNews, 600000);
