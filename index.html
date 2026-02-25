@@ -15,13 +15,12 @@
             overflow: hidden;
         }
         
-        /* HEADER - Logo removed from here */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             border-bottom: 5px solid #E3000F;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             margin-bottom: 20px;
         }
 
@@ -47,18 +46,17 @@
         .blinking { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* THE WATERMARK LOGO - BOTTOM CENTER */
-        .footer-watermark {
+        /* LOGO IN BOTTOM LEFT CORNER */
+        .footer-corner-logo {
             position: fixed;
-            bottom: 75px; 
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 70px; /* Sits just above the ticker */
+            left: 20px;   /* Tucked into the left corner */
             z-index: 5;
         }
 
         .footer-ghost-logo {
-            height: 18px; /* Extremely small */
-            opacity: 0.08; /* Barely visible */
+            height: 25px; /* Nice and small */
+            opacity: 0.15; /* Barely noticeable as requested */
             filter: grayscale(100%); 
         }
 
@@ -135,22 +133,25 @@
         </tbody>
     </table>
 
-    <div class="footer-watermark">
-         <img src="logo.png" class="footer-ghost-logo" alt="Oliver Design">
+    <div class="footer-corner-logo">
+         <img src="logo.png" class="footer-ghost-logo" alt="Oliver Logo">
     </div>
 
     <div class="ticker-container">
-        <div class="ticker-text" id="ticker-msg">OPDATERER NYHEDER...</div>
+        <div class="ticker-text" id="ticker-msg">HENTER SENESTE NYHEDER FRA DR...</div>
     </div>
 
     <script>
+        // 1. CLOCK
         function updateDisplay() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
             if(now.getDay() === 6) document.getElementById('main-title').innerText = "PREMIERE: SPORLØS";
         }
         setInterval(updateDisplay, 1000);
+        updateDisplay();
 
+        // 2. NEWS & EASTER EGGS
         let loopCounter = 0;
         const oliverEggs = [
             "*** MADE BY OLIVER - ENJOY THIS TOOK 9 HOURS... AND MORE LIKE 67 FAKTISK ***",
@@ -161,6 +162,7 @@
         async function updateTicker() {
             const ticker = document.getElementById('ticker-msg');
             loopCounter++;
+
             if (loopCounter % 4 === 0) {
                 ticker.innerText = oliverEggs[Math.floor(Math.random() * oliverEggs.length)];
             } else {
@@ -170,7 +172,7 @@
                     const headlines = data.items.slice(0, 5).map(item => item.title.toUpperCase()).join(" +++ ");
                     ticker.innerText = "NYHEDER: " + headlines + " +++ ";
                 } catch (e) {
-                    ticker.innerText = "OLIVER'S NEWS SERVICE: SIGNAL AFVENTER... ";
+                    ticker.innerText = "SIGNAL AFVENTER... SYSTEMET ER KODET AF OLIVER.";
                 }
             }
         }
@@ -178,14 +180,15 @@
         updateTicker();
         document.querySelector('.ticker-text').addEventListener('animationiteration', updateTicker);
 
-        const realJargon = ["Til tiden", "Materielmangel", "Signalfejl", "Sporarbejde", "Vejrforhold", "Venter på signal"];
+        // 3. CHAOS ENGINE (Every 5 mins)
+        const realJargon = ["Til tiden", "Materielmangel", "Signalfejl", "Sporarbejde", "Vejrforhold", "Venter på signal", "Teknisk fejl"];
         function makeChaos() {
             const rows = document.querySelectorAll('.train-row');
             const randomRow = rows[Math.floor(Math.random() * rows.length)];
             const msgCell = randomRow.querySelector('.status-msg');
             const newStatus = realJargon[Math.floor(Math.random() * realJargon.length)];
             msgCell.innerText = newStatus;
-            msgCell.className = (newStatus !== "Til tiden") ? "red status-msg blinking" : "white status-msg";
+            msgCell.className = (newStatus !== "Til tiden" && newStatus !== "Klar til afgang") ? "red status-msg blinking" : "white status-msg";
         }
         setInterval(makeChaos, 300000);
     </script>
