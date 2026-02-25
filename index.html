@@ -24,22 +24,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS (CSS) --- */
-        .mirror { transform: scaleX(-1); } 
-        .upside-down { transform: rotate(180deg); } 
-        .glitch-red { animation: panic 0.1s infinite; }
-        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } 
-        .disco { animation: disco 0.3s infinite; } 
-        .shake { animation: shake 0.4s infinite; }
+        .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } .shake { animation: shake 0.4s infinite; }
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
         @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
-        @keyframes shake { 
-            0% { transform: translate(3px, 2px) rotate(0deg); }
-            20% { transform: translate(-3px, -2px) rotate(-1deg); }
-            40% { transform: translate(-3px, 2px) rotate(1deg); }
-            60% { transform: translate(3px, -2px) rotate(0deg); }
-            80% { transform: translate(1px, 2px) rotate(-1deg); }
-            100% { transform: translate(-1px, -2px) rotate(1deg); }
-        }
+        @keyframes shake { 0% { transform: translate(3px, 2px) rotate(0deg); } 20% { transform: translate(-3px, -2px) rotate(-1deg); } 40% { transform: translate(-3px, 2px) rotate(1deg); } 60% { transform: translate(3px, -2px) rotate(0deg); } 80% { transform: translate(1px, 2px) rotate(-1deg); } 100% { transform: translate(-1px, -2px) rotate(1deg); } }
         
         /* --- LAYOUT --- */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; }
@@ -69,8 +58,6 @@
         #win-update { background: #006dae; color: white; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; text-transform: none; text-align: center; }
         #msg-board-overlay { background: rgba(0, 40, 85, 0.95); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px; border: 20px solid #E3000F; box-sizing:border-box; }
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
-        
-        /* UPDATED: WHITE ID TAG */
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #333; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
     </style>
@@ -108,12 +95,12 @@
     
     <table>
         <tbody id="train-table">
-            <tr><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">10:45</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
-            <tr><td class="yellow">11:30</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
-            <tr><td class="yellow">12:15</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr id="train-0"><td class="yellow">09:30</td><td><span class="ic-box">IC</span></td><td class="white">KØBENHAVN H</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr id="train-1"><td class="yellow">10:00</td><td><span class="re-box">RE</span></td><td class="white">LYDFIL VIA SLIPKØBING</td><td class="yellow">2</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr id="train-2"><td class="yellow">10:45</td><td><span class="re-box">RE</span></td><td class="white">TUNG BYRDE VIA MODYBY</td><td class="yellow">3</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr id="train-3" style="background: rgba(227, 0, 15, 0.2);"><td class="yellow blinking">11:00</td><td><span class="ic-box">SPIL</span></td><td class="yellow">SPORLØS PREMIERE</td><td class="yellow">1</td><td class="red blinking status-msg" id="play-status">KLAR</td></tr>
+            <tr id="train-4"><td class="yellow">11:30</td><td><span class="re-box">RE</span></td><td class="white">HJEMBY</td><td class="yellow">1</td><td class="white status-msg">TIL TIDEN</td></tr>
+            <tr id="train-5"><td class="yellow">12:15</td><td><span class="ic-box">ICL</span></td><td class="white">VIRKELIGHEDEN</td><td class="yellow">4</td><td class="white status-msg">TIL TIDEN</td></tr>
         </tbody>
     </table>
     
@@ -128,7 +115,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GLOBAL STATE ---
         let customTickerActive = false;
         let lastDrNews = "HENTER SENESTE NYT FRA DR...";
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
@@ -136,7 +122,6 @@
         let bootTime = Date.now();
         window.scrambleTimer = null;
 
-        // --- INTRO ---
         const introMessages = ["Authenticating System...", "Initializing Terminal...", "Fetching DR News Feed...", "Syncing Weather Station...", "Establishing Secure Link...", "Ready."];
         let introMsgIdx = 0;
         const statusEl = document.getElementById('load-status');
@@ -150,7 +135,6 @@
             setTimeout(() => intro.style.display = 'none', 1000); 
         }, 4500);
 
-        // --- WEATHER & NEWS ---
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -165,14 +149,11 @@
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
                 lastDrNews = "+++ SENESTE NYT: " + d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ") + " +++";
-                if (!customTickerActive) {
-                    document.getElementById('ticker-msg').innerText = lastDrNews;
-                }
+                if (!customTickerActive) document.getElementById('ticker-msg').innerText = lastDrNews;
             } catch(e) {}
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
-        // --- DVD ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -187,7 +168,6 @@
         }
         function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
 
-        // --- TERMINAL ---
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
@@ -206,7 +186,6 @@
             typeChar();
         }
 
-        // --- FIREBASE COMMANDS ---
         setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
@@ -221,13 +200,8 @@
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
             else if (cmd.event === "ticker") {
-                if (cmd.value === "" || cmd.value === null) {
-                    customTickerActive = false;
-                    document.getElementById('ticker-msg').innerText = lastDrNews;
-                } else {
-                    customTickerActive = true;
-                    document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***";
-                }
+                if (cmd.value === "" || cmd.value === null) { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
+                else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
             }
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
             else if (cmd.event === "status") document.getElementById('play-status').innerText = cmd.value;
@@ -241,16 +215,21 @@
             else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
             else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
             else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "roblox") { 
-                const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; 
-                setTimeout(()=>el.style.display='none',3000); 
-            }
-            else if (cmd.event === "meme") { 
-                const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; 
-                setTimeout(()=>el.style.display='none',3000); 
-            }
-            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
+            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
             else if (cmd.event === "msg_board") { document.getElementById('msg-board-text').innerHTML = cmd.value; document.getElementById('msg-board-overlay').style.display = 'flex'; }
+            
+            // INDIVIDUAL MANUAL CHANGE
+            else if (cmd.event === "manual_train") {
+                const data = JSON.parse(cmd.value);
+                const row = document.getElementById('train-' + data.id);
+                if (row) {
+                    const statusCell = row.querySelector('.status-msg');
+                    statusCell.innerText = data.msg.toUpperCase();
+                    statusCell.className = "status-msg " + data.color + (data.blink ? " blinking" : "");
+                }
+            }
+            
             else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
@@ -268,11 +247,7 @@
             }
         });
 
-        // Live Clock
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-        }, 1000);
+        setInterval(() => { const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
     </script>
 </body>
 </html>
