@@ -2,6 +2,7 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="30">
     <title>DSB Afgange - Sporløs Live</title>
     <style>
         body {
@@ -46,6 +47,22 @@
 
         .blinking { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        /* THE POLISHED SUBTLE LOGO */
+        .footer-subtle {
+            position: fixed;
+            bottom: 70px; /* Sits just above the ticker */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 5;
+        }
+
+        .footer-ghost-logo {
+            height: 20px; /* Tiny size */
+            opacity: 0.1; /* 90% transparent - extremely subtle */
+            filter: grayscale(100%); 
+        }
 
         .ticker-container {
             position: fixed; bottom: 0; left: 0; width: 100%;
@@ -123,12 +140,16 @@
         </tbody>
     </table>
 
+    <div class="footer-subtle">
+         <img src="logo.png" class="footer-ghost-logo" alt="Subtle Logo">
+    </div>
+
     <div class="ticker-container">
-        <div class="ticker-text" id="ticker-msg">HENTER SENESTE NYHEDER FRA DR...</div>
+        <div class="ticker-text" id="ticker-msg">HENTER SENESTE NYHEDER...</div>
     </div>
 
     <script>
-        // 1. CLOCK
+        // 1. CLOCK & TITLE
         function updateDisplay() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
@@ -136,40 +157,39 @@
         }
         setInterval(updateDisplay, 1000);
 
-        // 2. NEWS & EASTER EGGS
+        // 2. TICKER ENGINE
         let loopCounter = 0;
         const oliverEggs = [
             "*** MADE BY OLIVER - ENJOY THIS TOOK 9 HOURS... AND MORE LIKE 67 FAKTISK ***",
-            "*** VISUELT DESIGN AF OLIVER - SYSTEM STATUS: NOMINAL ***",
-            "*** FEJL 404: TOGFØREREN ER SPORLØS... SES VI PÅ LØRDAG? ***"
+            "*** VISUELT DESIGN AF OLIVER - STATUS: OPERATIONAL ***",
+            "*** FEJL 404: TOGFØRER ER SPORLØS... SES VI PÅ LØRDAG? ***"
         ];
 
         async function updateTicker() {
             const ticker = document.getElementById('ticker-msg');
             loopCounter++;
 
-            // Every 3rd loop, show an Easter Egg instead of News
-            if (loopCounter % 3 === 0) {
+            // Every 4th loop, show an Easter Egg
+            if (loopCounter % 4 === 0) {
                 ticker.innerText = oliverEggs[Math.floor(Math.random() * oliverEggs.length)];
             } else {
                 try {
                     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                     const data = await response.json();
                     const headlines = data.items.slice(0, 5).map(item => item.title.toUpperCase()).join(" +++ ");
-                    ticker.innerText = "NYHEDER FRA DR: " + headlines + " +++ ";
+                    ticker.innerText = "NYHEDER: " + headlines + " +++ ";
                 } catch (e) {
-                    ticker.innerText = "AFVENTER SIGNAL FRA NYHEDSSERVER... OLIVER ARBEJDER PÅ SAGEN.";
+                    ticker.innerText = "NYHEDER AFVENTER SIGNAL... OLIVER HAR KONTROLLEN.";
                 }
             }
         }
 
-        // Initialize and listen for when the animation ends to swap text
         updateTicker();
         const tickerEl = document.querySelector('.ticker-text');
         tickerEl.addEventListener('animationiteration', updateTicker);
 
         // 3. REALISTIC CHAOS (Every 5 mins)
-        const realJargon = ["Til tiden", "Materielmangel", "Signalfejl", "Sporarbejde", "Vejrforhold", "Venter på signal", "Teknisk fejl på togsæt"];
+        const realJargon = ["Til tiden", "Materielmangel", "Signalfejl", "Sporarbejde", "Vejrforhold", "Venter på signal", "Teknisk fejl"];
         function makeChaos() {
             const rows = document.querySelectorAll('.train-row');
             const randomRow = rows[Math.floor(Math.random() * rows.length)];
