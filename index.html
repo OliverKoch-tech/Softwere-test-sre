@@ -11,6 +11,7 @@
             margin: 0;
             padding: 20px;
             text-transform: uppercase;
+            overflow: hidden; /* Keeps it looking like a real terminal */
         }
         
         .header {
@@ -88,12 +89,12 @@
 
         .footer-subtle {
             text-align: center;
-            padding-bottom: 80px; 
+            padding-bottom: 100px; 
         }
 
         .footer-ghost-logo {
-            height: 30px; 
-            opacity: 0.2; 
+            height: 35px; 
+            opacity: 0.15; /* Even more subtle */
             filter: grayscale(100%); 
         }
 
@@ -108,12 +109,15 @@
             font-size: 28px;
             font-weight: bold;
             white-space: nowrap;
+            border-top: 2px solid #ffffff33;
         }
+
         .ticker-text {
             display: inline-block;
             padding-left: 100%;
             animation: ticker 35s linear infinite;
         }
+
         @keyframes ticker {
             0% { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
@@ -124,7 +128,7 @@
 
     <div class="header">
         <div class="header-left-group">
-            <img src="logo.jpg" class="header-logo" alt="Logo">
+            <img src="logo.png" class="header-logo" alt="Logo">
             <div class="title" id="main-title">AFGANGE / DEPARTURES</div>
         </div>
         <div class="time" id="clock">00:00:00</div>
@@ -193,7 +197,7 @@
     </table>
 
     <div class="footer-subtle">
-         <img src="logo.jpg" class="footer-ghost-logo" alt="Logo">
+         <img src="logo.png" class="footer-ghost-logo" alt="Logo">
     </div>
 
     <div class="ticker-container">
@@ -207,25 +211,18 @@
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('da-DK'); 
             
-            const day = now.getDay(); // 5 is Friday, 6 is Saturday
-            const ticker = document.getElementById('ticker-msg');
+            const day = now.getDay(); 
             const title = document.getElementById('main-title');
 
-            if(day === 5) { // It's Friday
-                ticker.innerText = "*** GLÆD DIG TIL I MORGEN: PREMIERE PÅ SPORLØS KL. 11:00! ***";
-            } else if(day === 6) { // It's Saturday
+            if(day === 6) { // It's Saturday
                 title.innerText = "PREMIERE: SPORLØS";
-                ticker.innerText = "*** DET ER LØRDAG! PREMIERE PÅ SPORLØS LIGE OM LIDT! *** FIND DIN PLADS NU! ***";
             }
         }
         setInterval(updateTime, 1000);
         updateTime();
 
         // --- CHAOS ENGINE (Every 5 Minutes) ---
-        const statuses = [
-            "Til tiden", "Aflyst", "Forsinket 10 min", "Sporændring", 
-            "Tekniske fejl", "Venter på signal", "Sporarbejde"
-        ];
+        const statuses = ["Til tiden", "Aflyst", "Forsinket 10 min", "Sporændring", "Tekniske fejl", "Sporarbejde"];
 
         function makeChaos() {
             const rows = document.querySelectorAll('.train-row');
@@ -235,12 +232,7 @@
             const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
             
             msgCell.innerText = newStatus;
-            
-            if (newStatus === "Aflyst" || newStatus.includes("Forsinket")) {
-                msgCell.className = "red status-msg blinking";
-            } else {
-                msgCell.className = "white status-msg";
-            }
+            msgCell.className = (newStatus === "Aflyst" || newStatus.includes("Forsinket")) ? "red status-msg blinking" : "white status-msg";
 
             if (newStatus === "Sporændring") {
                 trackCell.innerText = Math.floor(Math.random() * 8) + 1;
@@ -249,9 +241,23 @@
                 trackCell.className = "yellow status-track";
             }
         }
+        setInterval(makeChaos, 300000); // 5 mins
 
-        // 300000ms = 5 minutes
-        setInterval(makeChaos, 300000);
+        // --- EASTER EGG ENGINE ---
+        const ticker = document.getElementById('ticker-msg');
+        const easterEggs = [
+            "*** SYSTEM OPDATERET AF: [DIT NAVN] - THE MASTERMIND BAG SKÆRMEN ***",
+            "*** FEJL 404: TOGFØRER FUNDET I KANTINEN MED EN KANELSNEGL ***",
+            "*** VISUELT DESIGN AF EN FREMTIDIG KODER-GENI ***",
+            "*** HVIS DU LÆSER DETTE, ER DU FOR TÆT PÅ SKÆRMEN. GÅ TILBAGE TIL DIN PLADS ***",
+            "*** DETTE SYSTEM KØRER PÅ REN KOFFEIN OG TEATER-MAGI ***"
+        ];
+
+        // Change the easter egg every time the animation restarts (approx 35s)
+        setInterval(() => {
+            const randomEgg = easterEggs[Math.floor(Math.random() * easterEggs.length)];
+            ticker.innerText = randomEgg;
+        }, 35000);
     </script>
 </body>
 </html>
