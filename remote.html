@@ -209,14 +209,6 @@
 
         <div class="section-title">THE MESS AROUND HACKS</div>
         <div class="grid">
-            
-            <div class="card" style="border: 2px solid #E3000F;">
-                <h2>LIVE SURVEILLANCE (CCTV)</h2>
-                <video id="admin-preview" autoplay muted playsinline style="width:100%; border:1px solid #eee; margin-bottom:10px; display:none; background: #000;"></video>
-                <button class="btn red" onclick="startCCTV()">ACTIVATE LIVE CAMERA HACK</button>
-                <button class="btn black" onclick="stopCCTV()">STOP STREAMING & HIDE</button>
-            </div>
-
             <div class="card" style="border: 2px solid #600000;">
                 <h2>RANSOMWARE PROTOCOL</h2>
                 <div class="flex-row">
@@ -352,7 +344,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, set, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
@@ -424,85 +416,6 @@
         window.clearTicker = () => { 
             document.getElementById('tInput').value = ""; 
             window.sendCommand('ticker', ""); 
-        };
-
-        // --- NEW WEBRTC CCTV LOGIC ---
-        let localStream = null;
-        let peerConnections = {};
-
-        window.startCCTV = async () => {
-            const target = document.getElementById('target-screen').value;
-            let targets = [];
-            
-            if (target === "ALL") {
-                Object.keys(lastKnownScreens).forEach(id => {
-                    if (Date.now() - lastKnownScreens[id].heartbeat < 10000) targets.push(id);
-                });
-            } else {
-                targets.push(target);
-            }
-
-            if (targets.length === 0) { alert("NO ACTIVE SCREENS TO STREAM TO!"); return; }
-
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                const preview = document.getElementById('admin-preview');
-                preview.srcObject = localStream;
-                preview.style.display = 'block';
-
-                targets.forEach(async (id) => {
-                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] });
-                    peerConnections[id] = pc;
-
-                    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-                    pc.onicecandidate = (event) => {
-                        if (event.candidate) {
-                            push(ref(db, `webrtc/${id}/ice_admin`), event.candidate.toJSON());
-                        }
-                    };
-
-                    onChildAdded(ref(db, `webrtc/${id}/ice_index`), (snap) => {
-                        const candidate = snap.val();
-                        if (candidate && pc.remoteDescription) {
-                            pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => {});
-                        }
-                    });
-
-                    await set(ref(db, `webrtc/${id}`), null); // Clear old connection data
-
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    
-                    await set(ref(db, `webrtc/${id}/offer`), { type: offer.type, sdp: offer.sdp });
-
-                    onValue(ref(db, `webrtc/${id}/answer`), (snap) => {
-                        const answer = snap.val();
-                        if (answer && !pc.currentRemoteDescription) {
-                            pc.setRemoteDescription(new RTCSessionDescription(answer)).catch(e => console.error(e));
-                        }
-                    });
-                });
-
-                window.sendCommand('cctv_on', '', target);
-
-            } catch (err) {
-                console.error(err);
-                alert("Could not access camera! Make sure you are using a secure HTTPS connection or localhost.");
-            }
-        };
-
-        window.stopCCTV = () => {
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
-            }
-            Object.keys(peerConnections).forEach(id => {
-                peerConnections[id].close();
-            });
-            peerConnections = {};
-            document.getElementById('admin-preview').style.display = 'none';
-            window.sendCommand('cctv_off'); 
         };
 
         // --- LIVE NETWORK MONITORING ---
