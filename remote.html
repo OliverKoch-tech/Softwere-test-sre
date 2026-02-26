@@ -75,6 +75,9 @@
         details.dropdown-card summary::-webkit-details-marker { display: none; }
         details.dropdown-card[open] summary { border-bottom: 2px solid #1f6feb; margin-bottom: 15px; }
         details.dropdown-card summary:hover { color: #1f6feb; }
+        
+        /* STATUS DOT */
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -112,7 +115,7 @@
 
         <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
         <div class="grid" style="grid-template-columns: 1fr;">
-            <details class="card dropdown-card" style="border: 2px solid #1f6feb;">
+            <details class="card dropdown-card" style="border: 2px solid #1f6feb;" open>
                 <summary>
                     <span>▼ CONNECTION MENU (CLICK TO EXPAND)</span>
                     <span style="color:#1f6feb;">LIVE</span>
@@ -122,7 +125,9 @@
                         <tr>
                             <th>SCREEN ID</th>
                             <th>STATUS</th>
-                            <th>SERVER PING</th>
+                            <th>PING</th>
+                            <th>WIFI SPEED</th>
+                            <th>UPTIME</th>
                             <th>ACTIONS</th>
                         </tr>
                     </thead>
@@ -362,15 +367,11 @@
             });
         };
 
-        // --- NEW: DYNAMIC TRAIN MANAGEMENT ---
         let trainData = [];
-        
-        // Load initial train data from Firebase when the admin panel loads
         get(ref(db, 'remote/trains')).then((snapshot) => {
             if (snapshot.exists()) {
                 trainData = snapshot.val();
             } else {
-                // Default fallback exactly as it was hardcoded originally if DB is empty
                 trainData = [
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
                     { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
@@ -422,7 +423,6 @@
         };
 
         window.saveAndPushTrains = () => {
-            // Re-read current UI states before saving
             trainData.forEach((train, index) => {
                 train.time = document.getElementById(`t-time-${index}`).value;
                 train.type = document.getElementById(`t-type-${index}`).value;
@@ -432,22 +432,13 @@
                 train.color = document.getElementById(`t-color-${index}`).value;
                 train.blink = document.getElementById(`t-blink-${index}`).checked;
             });
-
-            // Save the exact array config to Firebase to store it permanently
             set(ref(db, 'remote/trains'), trainData);
-
-            // Tell all connected screens to redraw the board with this new data
             window.sendCommand('sync_trains', JSON.stringify(trainData));
             alert("BOARD UPDATED!");
         };
 
-        // Updated global cancel to accommodate the new dynamic list instead of hardcoded 6 rows
         window.cancelAllTrains = () => {
-            trainData.forEach((t) => {
-                t.status = "AFLYST";
-                t.color = "red";
-                t.blink = true;
-            });
+            trainData.forEach((t) => { t.status = "AFLYST"; t.color = "red"; t.blink = true; });
             renderTrainManager();
             saveAndPushTrains();
         };
@@ -462,8 +453,9 @@
             window.sendCommand('ticker', ""); 
         };
 
-        // --- LIVE NETWORK MONITORING ---
+        // --- LIVE NETWORK MONITORING (WITH UPTIME & SPEED) ---
         let lastKnownScreens = {};
+        let screenStartTimes = {}; // Tracks when each screen connected
         
         onValue(ref(db, 'remote/screens'), (snapshot) => {
             lastKnownScreens = snapshot.val() || {};
@@ -483,18 +475,55 @@
             Object.keys(lastKnownScreens).forEach(id => {
                 const ping = now - lastKnownScreens[id].heartbeat;
                 const isOnline = ping < 10000;
+                const isUnstable = ping >= 3000 && ping < 10000;
                 
+                // Track Connection Start Time
+                if (isOnline) {
+                    if (!screenStartTimes[id]) screenStartTimes[id] = now;
+                } else {
+                    delete screenStartTimes[id]; // Reset if they drop offline completely
+                }
+
+                // Format Uptime Output (HH:MM:SS)
+                let uptimeStr = "00:00:00";
+                if (isOnline && screenStartTimes[id]) {
+                    const diffMs = now - screenStartTimes[id];
+                    const h = Math.floor(diffMs / 3600000).toString().padStart(2, '0');
+                    const m = Math.floor((diffMs % 3600000) / 60000).toString().padStart(2, '0');
+                    const s = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
+                    uptimeStr = `${h}:${m}:${s}`;
+                }
+
                 if (isOnline) {
                     hasActiveScreens = true;
                     const opt = document.createElement('option');
                     opt.value = id; opt.innerText = id; select.appendChild(opt);
                 }
 
+                // Determine Dot Color, Status Text, and Fake WiFi Speed
+                let dotColor = '#E3000F'; // Red
+                let statusText = 'LOST CONNECTION';
+                let speedStr = '0.0 Mbps';
+
+                if (isOnline && !isUnstable) {
+                    dotColor = '#2ecc71'; // Green
+                    statusText = 'STABLE CONNECTION';
+                    speedStr = (Math.random() * 50 + 150).toFixed(1) + ' Mbps'; // Realistic 150-200 Mbps fluctuation
+                } else if (isUnstable) {
+                    dotColor = '#FFD700'; // Yellow
+                    statusText = 'UNSTABLE CONNECTION';
+                    speedStr = (Math.random() * 10 + 5).toFixed(1) + ' Mbps'; // Choking 5-15 Mbps
+                }
+
+                const statusHtml = `<span class="status-dot" style="background-color: ${dotColor};"></span><span style="color: ${dotColor}; font-weight: 900;">${statusText}</span>`;
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${id}</strong></td>
-                    <td style="color: ${isOnline ? '#2ecc71' : '#E3000F'}; font-weight: 900;">${isOnline ? 'ONLINE' : 'OFFLINE'}</td>
+                    <td>${statusHtml}</td>
                     <td>${isOnline ? ping + ' ms' : 'N/A'}</td>
+                    <td>${speedStr}</td>
+                    <td style="font-family: monospace; font-weight: bold;">${uptimeStr}</td>
                     <td>
                         <button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button>
                     </td>
@@ -503,7 +532,7 @@
             });
             
             if (!hasActiveScreens) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED</td></tr>';
             }
 
             if (Array.from(select.options).some(o => o.value === current)) { select.value = current; }
