@@ -160,7 +160,7 @@
         <div class="grid">
             <div class="card" style="border: 2px solid #2ecc71;">
                 <h2>RESETS & CLEARS</h2>
-                <button class="btn green" onclick="sendCommand('clear_media')">STOP ALL OVERLAYS & VIDEO</button>
+                <button class="btn green" onclick="clearMedia()">STOP ALL OVERLAYS & AUDIO</button>
                 <button class="btn green" onclick="sendCommand('clear_fx')">REMOVE VISUAL FX</button>
                 <button class="btn green" onclick="clearTicker()">REVERT TO DR NEWS</button>
                 <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS</button>
@@ -216,11 +216,20 @@
                 <textarea id="mInput" rows="2" placeholder="Overlay text..."></textarea>
                 <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND FULL SCREEN ALERT</button>
                 
-                <h2 style="margin-top: 15px;">YOUTUBE CASTER</h2>
+                <h2 style="margin-top: 15px;">SOUNDCLOUD CASTER</h2>
                 <div class="flex-row">
-                    <input type="text" id="ytInput" placeholder="Video ID (e.g. dQw4w9WgXcQ)" style="flex: 2; margin-bottom: 0;">
-                    <button class="btn black" style="flex: 1; margin-bottom: 0;" onclick="sendCommand('youtube', document.getElementById('ytInput').value)">CAST VIDEO</button>
+                    <input type="text" id="scInput" placeholder="SoundCloud URL (e.g. https://soundcloud.com/...)" style="flex: 2; margin-bottom: 0;">
+                    <button class="btn black" style="flex: 1; margin-bottom: 0;" onclick="castSoundCloud()">CAST AUDIO</button>
                 </div>
+                
+                <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 10px; border-radius: 8px; color: white; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover; border: 2px solid #E3000F;">
+                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                        <span style="font-size: 10px; color: #E3000F; font-weight: bold; letter-spacing: 1px;">NOW CASTING TO SCREENS</span>
+                        <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -334,7 +343,7 @@
             
             projected.sort((a, b) => b.z - a.z);
             
-            // --- UPDATED GLOBE COLOR LOGIC ---
+            // --- GLOBE COLOR LOGIC ---
             const isDarkMode = document.body.classList.contains('dark-mode');
             
             for (let i = 0; i < numPoints; i++) {
@@ -342,7 +351,6 @@
                 const alpha = (p.z + 1) / 2; 
                 const opacity = 0.2 + (alpha * 0.8);
                 
-                // If dark mode is active, draw white letters. Otherwise, black letters.
                 if (isDarkMode) {
                     ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
                 } else {
@@ -374,17 +382,15 @@
         const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
 
-        // --- NEW: FETCH & CREATE USERS FROM FIREBASE ---
+        // Fetch Users from Firebase
         get(ref(db, 'remote/users')).then((snapshot) => {
             if (snapshot.exists()) {
                 usersDB = snapshot.val();
             } else {
-                // If database is completely empty, create the default user "Oliver" / "3112"
                 usersDB = { "Oliver": "3112" };
                 set(ref(db, 'remote/users'), usersDB);
             }
             
-            // Keep listening for live updates (like when you add a new user below)
             onValue(ref(db, 'remote/users'), (liveSnap) => {
                 if (liveSnap.exists()) {
                     usersDB = liveSnap.val();
@@ -396,7 +402,6 @@
             const u = document.getElementById('logUser').value;
             const p = document.getElementById('logPass').value;
             
-            // Checks against the data pulled from Firebase
             if (usersDB[u] && usersDB[u] === p) {
                 isLoggedIn = true;
                 document.getElementById('login-screen').style.display = 'none'; 
@@ -413,7 +418,6 @@
             const u = document.getElementById('newU').value;
             const p = document.getElementById('newP').value;
             if (u && p) { 
-                // Saves the new user permanently to your Firebase
                 update(ref(db, 'remote/users'), { [u]: p }); 
                 alert("USER ADDED TO DATABASE!"); 
                 document.getElementById('newU').value = ""; document.getElementById('newP').value = "";
@@ -427,7 +431,6 @@
                 return;
             }
 
-            // Safety check for dangerous commands
             const dangerousEvents = ['reset', 'blackout', 'kick', 'bluescreen'];
             if (dangerousEvents.includes(event)) {
                 if (!confirm(`WARNING: You are about to trigger [${event.toUpperCase()}]. Proceed?`)) return;
@@ -440,6 +443,44 @@
                 target: target, 
                 ts: Date.now() 
             });
+        };
+
+        // --- NEW: SOUNDCLOUD CASTER FUNCTION ---
+        window.castSoundCloud = () => {
+            const url = document.getElementById('scInput').value;
+            
+            // 1. Send the command to the screens
+            window.sendCommand('soundcloud', url); 
+            
+            // 2. Update Admin Panel Preview
+            const preview = document.getElementById('sc-admin-preview');
+            if (!url || url === "") {
+                preview.style.display = 'none';
+                return;
+            }
+            
+            preview.style.display = 'flex';
+            document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
+            document.getElementById('sc-admin-art').src = "";
+            
+            // Ask SoundCloud for the track details just like the Display Hub does
+            fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`)
+            .then(res => res.json())
+            .then(data => {
+                let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
+                document.getElementById('sc-admin-art').src = artUrl;
+                document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
+            }).catch(e => {
+                document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK";
+            });
+        };
+
+        // --- NEW: CLEAR MEDIA UPDATED ---
+        window.clearMedia = () => {
+            window.sendCommand('clear_media');
+            // Hide the admin preview as well
+            document.getElementById('sc-admin-preview').style.display = 'none';
+            document.getElementById('scInput').value = "";
         };
 
         let trainData = [];

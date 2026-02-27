@@ -50,6 +50,15 @@
 
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        
+        /* NEW SOUNDCLOUD OVERLAY */
+        #sc-overlay { background: black; z-index: 99991; overflow: hidden; }
+        #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        #sc-art { width: 450px; height: 450px; object-fit: cover; border-radius: 15px; border: 5px solid #E3000F; box-shadow: 0 10px 50px rgba(227, 0, 15, 0.4); }
+        #sc-title { margin-top: 40px; font-size: 40px; font-weight: 900; letter-spacing: 5px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); text-align: center; max-width: 80%; }
+        #sc-player-container { display: none; }
+
         #terminal-overlay { background: rgba(0,0,0,0.95); z-index: 99998; padding: 60px; box-sizing: border-box; }
         #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
         #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
@@ -82,8 +91,13 @@
         <div class="load-status" style="color: #E3000F;">Connection terminated by Network Administrator.</div>
     </div>
 
-    <div id="yt-overlay" class="overlay" style="background: black; z-index: 99991;">
-        <iframe id="yt-player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="sc-overlay" class="overlay">
+        <canvas id="sc-canvas"></canvas>
+        <div class="sc-content">
+            <img id="sc-art" src="">
+            <div id="sc-title">FETCHING TRACK...</div>
+        </div>
+        <div id="sc-player-container"></div>
     </div>
 
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
@@ -132,13 +146,93 @@
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
         let bootTime = Date.now();
         window.scrambleTimer = null;
-        
-        // --- NEW: KICKED FLAG ---
         let isKicked = false;
 
         const statusEl = document.getElementById('load-status');
         const introMsgInterval = setInterval(() => { statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 4500);
+
+        // --- NEW: 3D ASCII TOPOGRAPHY VISUALIZER ---
+        const scCanvas = document.getElementById('sc-canvas');
+        const scCtx = scCanvas.getContext('2d');
+        let scAnimFrame;
+        let visTime = 0;
+
+        function startVisualizer() {
+            scCanvas.width = window.innerWidth;
+            scCanvas.height = window.innerHeight;
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
+            const gridSize = 35; // Size of the map
+            const spacing = 1.6; // Spread of letters
+            
+            function draw() {
+                scCtx.clearRect(0, 0, scCanvas.width, scCanvas.height);
+                scCtx.font = "14px monospace";
+                scCtx.textAlign = "center";
+                
+                visTime += 0.05;
+                // Fake "Bass Pulse" simulating an audio reactor
+                let bassPulse = Math.pow(Math.sin(visTime * Math.PI * 1.5), 6) * 3.5; 
+
+                // 45 degrees to view from corner, Tilt down slightly
+                const angleY = Math.PI / 4; 
+                const angleX = Math.PI / 3.5; 
+                
+                const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+                const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
+                
+                const projected = [];
+
+                for(let x = -gridSize; x <= gridSize; x++) {
+                    for(let z = -gridSize; z <= gridSize; z++) {
+                        const dist = Math.sqrt(x*x + z*z);
+                        
+                        // Topography Math: Creates rolling waves outward + bass hits
+                        let y = Math.sin(dist * 0.4 - visTime * 3) * (1 + bassPulse * 0.4) 
+                              + Math.cos(x * 0.3 + visTime) * 1.5;
+                        
+                        let px = x * spacing;
+                        let pz = z * spacing;
+                        let py = y;
+                        
+                        // Apply Rotations (3D to 2D)
+                        let rx = px * cosY - pz * sinY;
+                        let rz = pz * cosY + px * sinY;
+                        let ry = py * cosX - rz * sinX;
+                        let rz2 = rz * cosX + py * sinX;
+                        
+                        const distance = 45;
+                        const fov = Math.min(scCanvas.width, scCanvas.height) * 0.8;
+                        const zScale = distance + rz2;
+                        if(zScale <= 0) continue;
+                        
+                        const scale = fov / zScale;
+                        const sx = scCanvas.width / 2 + rx * scale;
+                        const sy = scCanvas.height / 2 + ry * scale + 100; // Shift down
+                        
+                        projected.push({ sx, sy, z: rz2, char: chars[Math.abs(x*z) % chars.length] });
+                    }
+                }
+                
+                // Depth Sort
+                projected.sort((a,b) => b.z - a.z); 
+                
+                // Draw points
+                projected.forEach(p => {
+                    let alpha = Math.max(0, 1 - (p.z + 20) / 70);
+                    scCtx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+                    scCtx.fillText(p.char, p.sx, p.sy);
+                });
+                
+                scAnimFrame = requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function stopVisualizer() {
+            if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
+        }
+        // ---------------------------------------------
 
         async function fetchWeather() {
             try {
@@ -229,7 +323,6 @@
         const heartbeatInterval = setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
-            // --- NEW: ABORT IF KICKED ---
             if (isKicked) return;
 
             const cmd = snapshot.val();
@@ -240,27 +333,42 @@
 
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "kick") {
-                // --- NEW: SET FLAG TO IGNORE ALL FUTURE COMMANDS ---
                 isKicked = true;
                 clearInterval(heartbeatInterval); 
                 document.getElementById('kick-screen').style.display = 'flex';
             }
-            else if (cmd.event === "sync_trains") {
-                renderTrains(JSON.parse(cmd.value));
-            }
+            else if (cmd.event === "sync_trains") renderTrains(JSON.parse(cmd.value));
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
-            // --- NEW: YOUTUBE LOGIC ---
-            else if (cmd.event === "youtube") {
-                const overlay = document.getElementById('yt-overlay');
+            
+            // --- NEW: SOUNDCLOUD COMMAND ---
+            else if (cmd.event === "soundcloud") {
+                const overlay = document.getElementById('sc-overlay');
+                const container = document.getElementById('sc-player-container');
                 if (!cmd.value || cmd.value === "") {
                     overlay.style.display = 'none';
-                    document.getElementById('yt-player').src = "";
+                    container.innerHTML = "";
+                    stopVisualizer();
                 } else {
-                    document.getElementById('yt-player').src = `https://www.youtube.com/embed/${cmd.value}?autoplay=1&controls=0`;
+                    document.getElementById('sc-title').innerText = "LOADING AUDIO...";
+                    document.getElementById('sc-art').src = "";
                     overlay.style.display = 'block';
+                    startVisualizer();
+                    
+                    fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(cmd.value)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
+                        document.getElementById('sc-art').src = artUrl;
+                        document.getElementById('sc-title').innerText = data.title.toUpperCase();
+                        
+                        container.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(cmd.value)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
+                    }).catch(e => {
+                        document.getElementById('sc-title').innerText = "SOUNDCLOUD ERROR";
+                    });
                 }
             }
+            
             else if (cmd.event === "ticker") {
                 if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
                 else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
@@ -303,11 +411,12 @@
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
             else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
-            // --- NEW: CLEAR YOUTUBE MEDIA ---
+            // --- UPDATED CLEAR MEDIA ---
             else if (cmd.event === "clear_media") { 
                 document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
                 stopDvd(); 
-                document.getElementById('yt-player').src = ""; 
+                document.getElementById('sc-player-container').innerHTML = ""; 
+                stopVisualizer();
             }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
