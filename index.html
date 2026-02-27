@@ -5,13 +5,6 @@
     <title>SRE Master Hub - OLIVER TECH</title>
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <style>
-        /* --- DYNAMIC COLOR VARIABLES --- */
-        :root {
-            --c1: 227, 0, 15;   /* Red Default */
-            --c2: 0, 40, 85;    /* Blue Default */
-            --c3: 255, 215, 0;  /* Yellow Default */
-        }
-
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
         /* --- CLEAN WHITE INTRO & KICK SCREEN --- */
@@ -62,7 +55,6 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         
         /* --- SOUNDCLOUD OVERLAY STYLING --- */
-        /* ADDED: Smooth transition for fade in/out */
         #sc-overlay { background: black; z-index: 99991; overflow: hidden; opacity: 0; transition: opacity 1s ease-in-out; pointer-events: none; }
         #sc-overlay.active { opacity: 1; pointer-events: auto; }
         
@@ -70,34 +62,28 @@
         #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
-        /* The Gradient Rim Wrapper */
+        /* UPDATED: Clean Thin Black Rim Wrapper */
         .art-wrapper {
-            padding: 10px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgb(var(--c1)), rgb(var(--c2)), rgb(var(--c3)), rgb(var(--c1)));
-            background-size: 300% 300%;
-            animation: grad-spin 6s ease infinite;
-            box-shadow: 0 15px 60px rgba(var(--c1), 0.5);
-        }
-        @keyframes grad-spin {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            padding: 2px;
+            border-radius: 14px;
+            background: #000;
+            border: 2px solid #000;
+            box-shadow: 0 15px 60px rgba(0,0,0,0.8);
         }
 
         #sc-art { width: 450px; height: 450px; object-fit: cover; border-radius: 12px; display: block; }
         
-        /* The Gradient Text Box */
+        /* UPDATED: Clean Dark Title Box */
         .title-box {
             margin-top: 40px;
             padding: 15px 50px;
             border-radius: 10px;
-            background: linear-gradient(90deg, rgba(var(--c1), 0.85), rgba(var(--c2), 0.85));
-            border: 2px solid rgba(var(--c3), 0.6);
+            background: rgba(10, 10, 10, 0.85);
+            border: 2px solid #333;
             backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        #sc-title { font-size: 45px; font-weight: 900; letter-spacing: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,0.9); text-align: center; max-width: 1200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #sc-title { font-size: 45px; font-weight: 900; letter-spacing: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,1); text-align: center; max-width: 1200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;}
         
         #sc-player-container { display: none; }
 
@@ -181,22 +167,40 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        // UPDATED: Added onChildAdded and onDisconnect
+        import { getDatabase, ref, onValue, set, update, get, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // --- STATE & IDENTITY ---
         let customTickerActive = false;
         let lastDrNews = "HENTER SENESTE NYT FRA DR...";
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
-        let bootTime = Date.now();
+        
+        const bootTime = Date.now();
         window.scrambleTimer = null;
         let isKicked = false;
+        
+        // Media Variables
         let scWidget = null; 
-        let trackDuration = 0; // Stores total ms of current song
+        let trackDuration = 0;
         let progressInterval = null;
+
+        // --- 1. HEARTBEAT & AUTO CLEANUP ---
+        const myScreenRef = ref(db, `remote/screens/${myId}`);
+        // Tells Firebase to delete this screen automatically if it closes or connection drops
+        onDisconnect(myScreenRef).remove();
+        
+        // Setup initial connection footprint
+        set(myScreenRef, { heartbeat: Date.now(), status: "ONLINE" });
+
+        // Update heartbeat (only if not kicked)
+        setInterval(() => { 
+            if(!isKicked) update(myScreenRef, { heartbeat: Date.now() }); 
+        }, 3000); // 3 seconds is plenty for stable UI updates
 
         // --- CLICK TO UNLOCK AUDIO ---
         document.getElementById('intro-screen').addEventListener('click', function() {
@@ -204,33 +208,7 @@
             setTimeout(() => this.style.display = 'none', 1000);
         });
 
-        // --- DYNAMIC COLOR EXTRACTION (Fallback if Admin doesn't send it) ---
-        function extractColors(imgEl) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = imgEl.width || 100;
-            canvas.height = imgEl.height || 100;
-            ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-            try {
-                const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
-                let c1 = getAvgColor(data, 0, data.length/3);
-                let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
-                let c3 = getAvgColor(data, (data.length/3)*2, data.length);
-                
-                document.documentElement.style.setProperty('--c1', c1);
-                document.documentElement.style.setProperty('--c2', c2);
-                document.documentElement.style.setProperty('--c3', c3);
-            } catch(e) { console.log("CORS blocked extraction. Using default colors."); }
-        }
-        function getAvgColor(data, start, end) {
-            let r=0, g=0, b=0, count=0;
-            for(let i=Math.floor(start); i<end; i+=16) { 
-                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
-            }
-            return `${Math.floor(r/count)}, ${Math.floor(g/count)}, ${Math.floor(b/count)}`;
-        }
-
-        // --- BACKGROUND FRAMEWORK ---
+        // --- BACKGROUND VISUALIZER FRAMEWORK ---
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
         const scBgImg = document.getElementById('sc-bg-img');
@@ -257,7 +235,6 @@
                 scCtx.clearRect(0, 0, scCanvas.width, scCanvas.height);
                 visTime += 0.05;
 
-                // Check if user requested the ALUBM BLUR background mode
                 if (currentBgMode === 'blur') {
                     scCanvas.style.display = 'none';
                     scBgImg.style.display = 'block';
@@ -280,15 +257,12 @@
                     for(let x = -gridSize; x <= gridSize; x++) {
                         for(let z = -gridSize; z <= gridSize; z++) {
                             const dist = Math.sqrt(x*x + z*z);
-                            
-                            // UPDATED: Smooth, calm waves without bass pulsing
                             let y = Math.sin(dist * 0.25 - visTime) * 2 + Math.cos(x * 0.2 + visTime * 0.8) * 1.5;
                             
                             let px = x * spacing, pz = z * spacing, py = y;
                             let rx = px * cosY - pz * sinY, rz = pz * cosY + px * sinY;
                             let ry = py * cosX - rz * sinX, rz2 = rz * cosX + py * sinX;
-                            const distance = 45;
-                            const zScale = distance + rz2;
+                            const zScale = 45 + rz2;
                             if(zScale <= 0) continue;
                             const scale = (Math.min(scCanvas.width, scCanvas.height) * 0.8) / zScale;
                             projected.push({ sx: scCanvas.width/2 + rx*scale, sy: scCanvas.height/2 + ry*scale + 100, z: rz2, char: chars[Math.abs(x*z) % chars.length] });
@@ -330,6 +304,7 @@
             if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
         }
 
+        // --- FETCHERS ---
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -349,6 +324,7 @@
         }
         fetchNews(); setInterval(fetchNews, 600000);
 
+        // --- OVERLAY LOGIC ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -381,6 +357,7 @@
             typeChar();
         }
 
+        // --- TRAIN RENDERER ---
         function renderTrains(trainArray) {
             const tbody = document.getElementById('train-table');
             tbody.innerHTML = '';
@@ -401,32 +378,35 @@
             });
         }
 
-        get(ref(db, 'remote/trains')).then((snapshot) => {
+        // --- INSTANT TRAIN LISTENER ---
+        onValue(ref(db, 'remote/trains'), (snapshot) => {
             if (snapshot.exists()) {
                 renderTrains(snapshot.val());
             } else {
                 renderTrains([
-                    { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:45", type: "RE", dest: "TUNG BYRDE VIA MODYBY", track: "3", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "11:00", type: "SPIL", dest: "SPORLØS PREMIERE", track: "1", status: "KLAR", color: "red", blink: true },
-                    { time: "11:30", type: "RE", dest: "HJEMBY", track: "1", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "12:15", type: "ICL", dest: "VIRKELIGHEDEN", track: "4", status: "TIL TIDEN", color: "white", blink: false }
+                    { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false }
                 ]);
             }
         });
 
-        const heartbeatInterval = setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
-
-        onValue(ref(db, 'remote/commands'), (snapshot) => {
+        // --- THE COMMAND QUEUE (LISTENER) ---
+        onChildAdded(ref(db, 'remote/commands'), (snapshot) => {
             if (isKicked) return;
-
             const cmd = snapshot.val();
-            if (!cmd || cmd.ts <= bootTime) return;
+
+            // Ignore commands that were sent before this specific screen booted up
+            if (!cmd || !cmd.ts || cmd.ts < bootTime) return;
+
+            // Target check
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
-            bootTime = cmd.ts;
+
+            executeCommand(cmd);
+        });
+
+        function executeCommand(cmd) {
             const body = document.getElementById('main-body');
 
+            // --- SYSTEM ---
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "soft_reset") {
                 document.querySelectorAll('.overlay').forEach(e => {
@@ -443,184 +423,23 @@
             }
             else if (cmd.event === "kick") {
                 isKicked = true;
-                clearInterval(heartbeatInterval); 
+                myScreenRef.remove(); 
                 document.getElementById('kick-screen').style.display = 'flex';
             }
-            else if (cmd.event === "sync_trains") renderTrains(JSON.parse(cmd.value));
-            else if (cmd.event === "terminal") playTerminal(cmd.value);
-            else if (cmd.event === "dvd") startDvd();
-            else if (cmd.event === "sc_bg") currentBgMode = cmd.value;
             
-            // --- MEDIA CONTROLS ---
-            else if (cmd.event === "sc_pause") { try { if(scWidget) scWidget.pause(); } catch(e){} }
-            else if (cmd.event === "sc_play") { try { if(scWidget) scWidget.play(); } catch(e){} }
-            else if (cmd.event === "sc_skip") { try { if(scWidget) scWidget.next(); } catch(e){} }
-            else if (cmd.event === "sc_shuffle") { try { if(scWidget) { scWidget.toggle(); } } catch(e){} }
-            else if (cmd.event === "sc_seek") { 
-                try { 
-                    if(scWidget && trackDuration > 0) { 
-                        scWidget.seekTo(trackDuration * parseFloat(cmd.value)); 
-                    } 
-                } catch(e){} 
-            }
-            
-            // --- UPDATED SOUNDCLOUD LOGIC ---
-            else if (cmd.event === "soundcloud") {
-                const overlay = document.getElementById('sc-overlay');
-                const container = document.getElementById('sc-player-container');
-                
-                if (!cmd.value || cmd.value === "") {
-                    // Smooth close
-                    overlay.classList.remove('active');
-                    setTimeout(() => {
-                        if (!overlay.classList.contains('active')) {
-                            overlay.style.display = 'none';
-                            container.innerHTML = "";
-                            stopVisualizer();
-                            clearInterval(progressInterval);
-                            set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
-                        }
-                    }, 1000);
-
-                } else {
-                    document.getElementById('sc-title').innerText = "LOADING AUDIO...";
-                    document.getElementById('sc-art').src = "";
-                    document.getElementById('sc-bg-img').src = "";
-                    
-                    // Smooth open
-                    overlay.style.display = 'block';
-                    setTimeout(() => overlay.classList.add('active'), 50);
-                    
-                    startVisualizer();
-                    
-                    // Parse the JSON payload from the Admin
-                    let payload;
-                    try {
-                        payload = JSON.parse(cmd.value);
-                    } catch(e) {
-                        payload = { url: cmd.value };
-                    }
-
-                    const startPlayer = (title, artUrl, trackUrl) => {
-                        document.getElementById('sc-title').innerText = title.toUpperCase();
-                        if(artUrl) {
-                            document.getElementById('sc-art').src = artUrl;
-                            document.getElementById('sc-bg-img').src = artUrl;
-                        }
-                        
-                        container.innerHTML = `<iframe id="sc-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&color=%23E3000F&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
-                        
-                        // Setup the player API
-                        setTimeout(() => {
-                            scWidget = SC.Widget(document.getElementById('sc-iframe'));
-                            
-                            // Get track duration when it plays
-                            scWidget.bind(SC.Widget.Events.PLAY, function() {
-                                scWidget.getDuration(function(dur) {
-                                    trackDuration = dur;
-                                });
-                            });
-
-                            // Auto-skip
-                            scWidget.bind(SC.Widget.Events.FINISH, function() {
-                                scWidget.next(); 
-                            });
-
-                            // Report time to Admin every second
-                            clearInterval(progressInterval);
-                            progressInterval = setInterval(() => {
-                                if (scWidget) {
-                                    scWidget.getPosition(function(pos) {
-                                        set(ref(db, 'remote/media_state'), { 
-                                            currentTime: pos, 
-                                            totalTime: trackDuration 
-                                        });
-                                    });
-                                }
-                            }, 1000);
-
-                        }, 500);
-                    };
-
-                    if (payload.title && payload.colors) {
-                        document.documentElement.style.setProperty('--c1', payload.colors.c1);
-                        document.documentElement.style.setProperty('--c2', payload.colors.c2);
-                        document.documentElement.style.setProperty('--c3', payload.colors.c3);
-                        startPlayer(payload.title, payload.art, payload.url);
-                    } else {
-                        fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(payload.url)}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
-                            let img = new Image();
-                            img.crossOrigin = "Anonymous";
-                            img.onload = () => { extractColors(img); };
-                            img.src = artUrl;
-                            startPlayer(data.title, artUrl, payload.url);
-                        }).catch(e => {
-                            document.getElementById('sc-title').innerText = "SOUNDCLOUD ERROR";
-                        });
-                    }
-                }
-            }
-            
-            else if (cmd.event === "ticker") {
-                if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
-                else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
-            }
-            else if (cmd.event === "msg_board") {
-                const overlay = document.getElementById('msg-board-overlay');
-                if (!cmd.value || cmd.value === "") { overlay.style.display = 'none'; }
-                else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
-            }
-            else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
-            else if (cmd.event === "status") { const el = document.getElementById('play-status'); if(el) el.innerText = cmd.value; }
+            // --- VISUAL TROLLS ---
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
             else if (cmd.event === "invert") body.classList.toggle('upside-down');
             else if (cmd.event === "panic") body.classList.toggle('glitch-red');
             else if (cmd.event === "disco") body.classList.toggle('disco');
             else if (cmd.event === "shake") body.classList.toggle('shake');
             else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
-            else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
-            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
-            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
-            else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "show_id") document.getElementById('screen-id-tag').style.display = 'block';
-            else if (cmd.event === "hide_id") document.getElementById('screen-id-tag').style.display = 'none';
-            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
-            else if (cmd.event === "manual_train") {
-                const data = JSON.parse(cmd.value);
-                const row = document.getElementById('train-' + data.id);
-                if (row) {
-                    const cell = row.querySelector('.status-msg');
-                    cell.innerText = data.msg.toUpperCase();
-                    cell.className = "status-msg " + data.color + (data.blink ? " blinking" : "");
-                }
-            }
-            else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
-            else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
-            else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
-            else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
-            
-            else if (cmd.event === "clear_media") { 
-                const overlay = document.getElementById('sc-overlay');
-                overlay.classList.remove('active');
-                setTimeout(() => {
-                    if(!overlay.classList.contains('active')) {
-                        overlay.style.display='none'; 
-                        document.getElementById('sc-player-container').innerHTML = ""; 
-                        stopVisualizer();
-                        clearInterval(progressInterval);
-                        set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
-                    }
-                }, 1000);
-                
-                document.querySelectorAll('.overlay').forEach(e => {
-                    if (e.id !== 'sc-overlay') e.style.display='none';
-                }); 
-                stopDvd(); 
+            else if (cmd.event === "clear_fx") { 
+                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); 
+                if(window.scrambleTimer) { 
+                    clearInterval(window.scrambleTimer); window.scrambleTimer = null; 
+                    document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); 
+                } 
             }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
@@ -631,8 +450,126 @@
                     }, 80);
                 }
             }
-        });
 
+            // --- OVERLAYS ---
+            else if (cmd.event === "terminal") playTerminal(cmd.value);
+            else if (cmd.event === "dvd") startDvd();
+            else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
+            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
+            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
+            else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
+            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
+            else if (cmd.event === "msg_board") {
+                const overlay = document.getElementById('msg-board-overlay');
+                if (!cmd.value || cmd.value === "") { overlay.style.display = 'none'; }
+                else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
+            }
+
+            // --- INFO & TEXT ---
+            else if (cmd.event === "ticker") {
+                if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
+                else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
+            }
+            else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
+            else if (cmd.event === "show_id") document.getElementById('screen-id-tag').style.display = 'block';
+            else if (cmd.event === "hide_id") document.getElementById('screen-id-tag').style.display = 'none';
+            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
+
+            // --- TRAIN MACROS ---
+            else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
+            else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
+            else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
+
+            // --- MEDIA HANDLING ---
+            else if (cmd.event === "sc_pause") { try { if(scWidget) scWidget.pause(); } catch(e){} }
+            else if (cmd.event === "sc_play") { try { if(scWidget) scWidget.play(); } catch(e){} }
+            else if (cmd.event === "sc_skip") { try { if(scWidget) scWidget.next(); } catch(e){} }
+            else if (cmd.event === "sc_shuffle") { try { if(scWidget) { scWidget.toggle(); } } catch(e){} }
+            else if (cmd.event === "sc_seek") { 
+                try { if(scWidget && trackDuration > 0) scWidget.seekTo(trackDuration * parseFloat(cmd.value)); } catch(e){} 
+            }
+            else if (cmd.event === "sc_bg") currentBgMode = cmd.value;
+            else if (cmd.event === "soundcloud") startSoundcloud(cmd.value);
+            else if (cmd.event === "clear_media") clearMedia();
+        }
+
+        function startSoundcloud(payloadString) {
+            const overlay = document.getElementById('sc-overlay');
+            const container = document.getElementById('sc-player-container');
+            
+            if (!payloadString) {
+                clearMedia();
+                return;
+            }
+
+            // Parse payload from admin
+            let payload;
+            try { payload = JSON.parse(payloadString); }
+            catch(e) { payload = { url: payloadString }; }
+
+            // Smooth Open
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.classList.add('active'), 50);
+            
+            // Set UI Data
+            document.getElementById('sc-title').innerText = payload.title ? payload.title.toUpperCase() : "LOADING AUDIO...";
+            
+            if(payload.art) {
+                document.getElementById('sc-art').src = payload.art;
+                document.getElementById('sc-bg-img').src = payload.art;
+            } else {
+                document.getElementById('sc-art').src = "";
+                document.getElementById('sc-bg-img').src = "";
+            }
+
+            startVisualizer();
+            
+            // Mount the iframe player
+            container.innerHTML = `<iframe id="sc-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(payload.url)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
+            
+            // Setup API
+            setTimeout(() => {
+                scWidget = SC.Widget(document.getElementById('sc-iframe'));
+                
+                scWidget.bind(SC.Widget.Events.PLAY, function() {
+                    scWidget.getDuration(function(dur) { trackDuration = dur; });
+                });
+
+                scWidget.bind(SC.Widget.Events.FINISH, function() { scWidget.next(); });
+
+                // Report Progress back to Database
+                clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                    if (scWidget) {
+                        scWidget.getPosition(function(pos) {
+                            set(ref(db, 'remote/media_state'), { currentTime: pos, totalTime: trackDuration });
+                        });
+                    }
+                }, 1000);
+            }, 500);
+        }
+
+        function clearMedia() {
+            const overlay = document.getElementById('sc-overlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                if(!overlay.classList.contains('active')) {
+                    overlay.style.display='none'; 
+                    document.getElementById('sc-player-container').innerHTML = ""; 
+                    stopVisualizer();
+                    clearInterval(progressInterval);
+                    set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
+                }
+            }, 1000);
+            
+            document.querySelectorAll('.overlay').forEach(e => {
+                if (e.id !== 'sc-overlay') e.style.display='none';
+            }); 
+            stopDvd();
+        }
+
+        // Live Clock
         setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
     </script>
 </body>

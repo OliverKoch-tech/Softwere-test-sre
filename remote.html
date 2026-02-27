@@ -37,11 +37,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- LOGIN SCREEN --- */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s;}
         .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; position: relative; z-index: 2; }
         .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-size: 14px; text-transform: none; }
-        .login-btn { width: 100%; padding: 12px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+        .google-btn { width: 100%; padding: 15px; background: #4285F4; color: #fff; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; transition: background 0.2s;}
+        .google-btn:hover { background: #357abd; }
 
         /* --- HEADER & LOGO --- */
         .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: rgba(255,255,255,0.9); position: relative; z-index: 1; }
@@ -104,8 +104,7 @@
         body.dark-mode { background: #111; color: #eee; }
         body.dark-mode #intro-screen, body.dark-mode #login-screen { background: #111; color: #eee; }
         body.dark-mode .login-box { background: #222; border-color: #555; }
-        body.dark-mode .login-box input { background: #333; color: #eee; border: none; }
-        body.dark-mode .login-btn { background: #eee; color: #111; }
+        body.dark-mode .login-box h1 { color: #eee; }
         body.dark-mode .master-header { background: rgba(17,17,17,0.9); border-bottom: 1px solid #333; }
         body.dark-mode .master-header h1 { color: #eee; }
         body.dark-mode .target-box, body.dark-mode .card { background: rgba(30,30,30,0.95); border-color: #444; color:#eee;}
@@ -116,7 +115,6 @@
         body.dark-mode .btn.black { background: #eee; color: #111; }
         body.dark-mode table.net-table th { border-bottom-color: #555; color: #bbb; }
         body.dark-mode table.net-table td { border-bottom-color: #333; }
-        body.dark-mode .login-box h1 { color: #eee; }
 
         /* --- CUSTOM RANGE SLIDER --- */
         input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; outline: none; border: none; margin: 0; padding: 0; }
@@ -138,9 +136,10 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>SYSTEM ACCESS</h1>
-            <input type="text" id="logUser" placeholder="USERNAME">
-            <input type="password" id="logPass" placeholder="PASSWORD">
-            <button class="login-btn" onclick="checkLogin()">AUTHENTICATE</button>
+            <button class="google-btn" onclick="signInWithGoogle()">
+                <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                SIGN IN WITH GOOGLE
+            </button>
         </div>
     </div>
 
@@ -279,7 +278,6 @@
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -321,12 +319,6 @@
         <div class="section-title">SYSTEM ADMINISTRATION</div>
         <div class="grid">
             <div class="card">
-                <h2>USER MANAGEMENT</h2>
-                <input type="text" id="newU" placeholder="Username">
-                <input type="password" id="newP" placeholder="Password">
-                <button class="btn black" onclick="addUser()">ADD ADMIN USER</button>
-            </div>
-            <div class="card">
                 <h2>WEATHER OVERRIDE</h2>
                 <input type="text" id="wInput" placeholder="Temp/Condition...">
                 <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
@@ -336,7 +328,6 @@
         <div style="text-align: center; padding: 30px 0 10px 0; font-size: 10px; color: #999; letter-spacing: 2px; font-weight: bold;">
             &copy; COPYRIGHT OLIVER KOCH AND OLIVER KOCH STUDIOS
         </div>
-
     </div>
 
     <script>
@@ -360,10 +351,8 @@
             const y = 1 - (i / (numPoints - 1)) * 2;
             const radiusAtY = Math.sqrt(1 - y * y);
             const theta = phi * i;
-            
             const x = Math.cos(theta) * radiusAtY;
             const z = Math.sin(theta) * radiusAtY;
-            
             points.push({ x, y, z, char: chars[Math.floor(Math.random() * chars.length)] });
         }
 
@@ -373,7 +362,6 @@
             ctx.font = "14px monospace";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            
             angle += 0.003; 
             
             const cosA = Math.cos(angle);
@@ -384,33 +372,23 @@
                 const p = points[i];
                 const rotX = p.x * cosA - p.z * sinA;
                 const rotZ = p.z * cosA + p.x * sinA;
-                const rotY = p.y;
-                
                 const distance = 3;
                 const z = rotZ + distance;
                 const scale = (Math.min(width, height) * 0.8) / z;
                 
                 const screenX = width / 2 + rotX * scale;
-                const screenY = height / 2 + rotY * scale;
-                
+                const screenY = height / 2 + p.y * scale;
                 projected.push({screenX, screenY, z: rotZ, char: p.char});
             }
             
             projected.sort((a, b) => b.z - a.z);
-            
             const isDarkMode = document.body.classList.contains('dark-mode');
             
             for (let i = 0; i < numPoints; i++) {
                 const p = projected[i];
                 const alpha = (p.z + 1) / 2; 
                 const opacity = 0.2 + (alpha * 0.8);
-                
-                if (isDarkMode) {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-                } else {
-                    ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-                }
-                
+                ctx.fillStyle = isDarkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`;
                 ctx.fillText(p.char, p.screenX, p.screenY);
             }
             requestAnimationFrame(drawGlobe);
@@ -420,16 +398,22 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, update, onValue, set, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // --- Auth State ---
+        
+        // --- GOOGLE AUTHENTICATION SETUP ---
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        // --- SECURITY WHITELIST ---
+        const ALLOWED_ADMIN = "oliverteilgaardkoch@gmail.com"; 
+        
         let isLoggedIn = false;
-        let usersDB = {};
-        let isSeeking = false; // Flag to stop slider jitter when dragging
+        let isSeeking = false; 
 
         // Intro Logic
         let introIdx = 0;
@@ -437,92 +421,32 @@
         const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
 
-        // Fetch Users from Firebase
-        get(ref(db, 'remote/users')).then((snapshot) => {
-            if (snapshot.exists()) {
-                usersDB = snapshot.val();
-            } else {
-                usersDB = { "Oliver": "3112" };
-                set(ref(db, 'remote/users'), usersDB);
-            }
-            
-            onValue(ref(db, 'remote/users'), (liveSnap) => {
-                if (liveSnap.exists()) {
-                    usersDB = liveSnap.val();
+        // LOGIN FUNCTION TRIGGER
+        window.signInWithGoogle = () => {
+            signInWithPopup(auth, provider).then(result => {
+                if(result.user.email !== ALLOWED_ADMIN) {
+                    alert(`ACCESS DENIED: ${result.user.email} is not authorized.`);
+                    signOut(auth);
                 }
+            }).catch(e => {
+                alert("LOGIN FAILED: " + e.message);
             });
+        };
+
+        // AUTH STATE LISTENER
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === ALLOWED_ADMIN) {
+                isLoggedIn = true;
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('login-screen').style.display = 'none', 500);
+            } else {
+                isLoggedIn = false;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-screen').style.opacity = '1';
+            }
         });
 
-        window.checkLogin = () => { 
-            const u = document.getElementById('logUser').value;
-            const p = document.getElementById('logPass').value;
-            
-            if (usersDB[u] && usersDB[u] === p) {
-                isLoggedIn = true;
-                document.getElementById('login-screen').style.display = 'none'; 
-            } else { 
-                alert("ACCESS DENIED: Incorrect Username or Password"); 
-            }
-        };
-
-        window.addUser = () => { 
-            if (!isLoggedIn) {
-                alert("You must be logged in to add users.");
-                return;
-            }
-            const u = document.getElementById('newU').value;
-            const p = document.getElementById('newP').value;
-            if (u && p) { 
-                update(ref(db, 'remote/users'), { [u]: p }); 
-                alert("USER ADDED TO DATABASE!"); 
-                document.getElementById('newU').value = ""; document.getElementById('newP').value = "";
-            } 
-        };
-
-        // --- IMPROVED VIBRANT COLOR EXTRACTION ---
-        // This version ignores mud/black/white and boosts saturation
-        function extractColors(imgEl) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = imgEl.width || 100;
-            canvas.height = imgEl.height || 100;
-            ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-            try {
-                const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
-                let c1 = getAvgColor(data, 0, data.length/3);
-                let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
-                let c3 = getAvgColor(data, (data.length/3)*2, data.length);
-                
-                document.documentElement.style.setProperty('--c1', c1);
-                document.documentElement.style.setProperty('--c2', c2);
-                document.documentElement.style.setProperty('--c3', c3);
-                return { c1, c2, c3 };
-            } catch(e) { 
-                console.log("CORS blocked extraction. Using default colors."); 
-                return { c1: "227, 0, 15", c2: "0, 40, 85", c3: "255, 215, 0" };
-            }
-        }
-
-        function getAvgColor(data, start, end) {
-            let r=0, g=0, b=0, count=0;
-            for(let i=Math.floor(start); i<end; i+=16) { 
-                let pr = data[i], pg = data[i+1], pb = data[i+2];
-                // Ignore pixels that are too dark (muddy) or too white (washed out)
-                let brightness = (pr * 299 + pg * 587 + pb * 114) / 1000;
-                if (brightness > 30 && brightness < 230) {
-                    r += pr; g += pg; b += pb; count++;
-                }
-            }
-            if (count === 0) return "100, 100, 100"; // Fallback if image is pure black/white
-
-            // Boost saturation slightly
-            let avgR = Math.floor((r/count) * 1.2);
-            let avgG = Math.floor((g/count) * 1.2);
-            let avgB = Math.floor((b/count) * 1.2);
-            return `${Math.min(255, avgR)}, ${Math.min(255, avgG)}, ${Math.min(255, avgB)}`;
-        }
-
-        // Command Sender 
+        // --- COMMAND SENDER (Uses push for reliable queuing) ---
         window.sendCommand = (event, val = "", overrideTarget = null) => {
             if (!isLoggedIn) {
                 alert("Session expired. Please log in.");
@@ -535,7 +459,9 @@
             }
 
             const target = overrideTarget || document.getElementById('target-screen').value;
-            update(ref(db, 'remote/commands'), { 
+            
+            // Push creates a unique entry, preventing command overrides
+            push(ref(db, 'remote/commands'), { 
                 event: event, 
                 value: val, 
                 target: target, 
@@ -543,18 +469,15 @@
             });
         };
 
-        // UI function for seeking
         window.seekTrack = (value) => {
             window.sendCommand('sc_seek', value);
-            setTimeout(() => { isSeeking = false; }, 1000); // Resume tracking after jump
+            setTimeout(() => { isSeeking = false; }, 1000); 
         };
 
-        // Listen for user grabbing the slider
         document.getElementById('sc-progress').addEventListener('mousedown', () => { isSeeking = true; });
         document.getElementById('sc-progress').addEventListener('touchstart', () => { isSeeking = true; });
 
-
-        // --- SOUNDCLOUD CASTER FUNCTION ---
+        // --- SOUNDCLOUD CASTER (Cleaned up, no CORS canvas errors) ---
         window.castSoundCloud = () => {
             const url = document.getElementById('scInput').value;
             const preview = document.getElementById('sc-admin-preview');
@@ -565,7 +488,7 @@
             }
             
             preview.style.display = 'flex';
-            document.getElementById('sc-admin-title').innerText = "FETCHING TRACK & COLORS...";
+            document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
             document.getElementById('sc-admin-art').src = "";
             document.getElementById('sc-time-current').innerText = "00:00";
             document.getElementById('sc-progress').value = 0;
@@ -575,27 +498,18 @@
             .then(data => {
                 let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
                 
-                let img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.onload = () => {
-                    document.getElementById('sc-admin-art').src = img.src;
-                    document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
+                document.getElementById('sc-admin-art').src = artUrl;
+                document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
 
-                    const extractedColors = extractColors(img);
-                    
-                    const payload = {
-                        url: url,
-                        title: data.title,
-                        art: artUrl,
-                        colors: extractedColors,
-                        autoPlay: true,
-                        playRelated: true
-                    };
-
-                    window.sendCommand('soundcloud', JSON.stringify(payload)); 
+                const payload = {
+                    url: url,
+                    title: data.title,
+                    art: artUrl,
+                    autoPlay: true,
+                    playRelated: true
                 };
-                img.src = artUrl;
-                
+
+                window.sendCommand('soundcloud', JSON.stringify(payload)); 
             }).catch(e => {
                 document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK / ERROR";
             });
@@ -605,11 +519,9 @@
             window.sendCommand('clear_media');
             document.getElementById('sc-admin-preview').style.display = 'none';
             document.getElementById('scInput').value = "";
-            document.documentElement.style.setProperty('--c1', '227, 0, 15');
-            document.documentElement.style.setProperty('--c2', '0, 40, 85');
-            document.documentElement.style.setProperty('--c3', '255, 215, 0');
         };
 
+        // --- TRAIN MANAGER ---
         let trainData = [];
         get(ref(db, 'remote/trains')).then((snapshot) => {
             if (snapshot.exists()) {
@@ -618,10 +530,7 @@
                 trainData = [
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
                     { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:45", type: "RE", dest: "TUNG BYRDE VIA MODYBY", track: "3", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "11:00", type: "SPIL", dest: "SPORLØS PREMIERE", track: "1", status: "KLAR", color: "red", blink: true },
-                    { time: "11:30", type: "RE", dest: "HJEMBY", track: "1", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "12:15", type: "ICL", dest: "VIRKELIGHEDEN", track: "4", status: "TIL TIDEN", color: "white", blink: false }
+                    { time: "11:00", type: "SPIL", dest: "SPORLØS PREMIERE", track: "1", status: "KLAR", color: "red", blink: true }
                 ];
             }
             renderTrainManager();
@@ -636,7 +545,7 @@
                 row.style.marginBottom = "10px";
                 row.innerHTML = `
                     <input type="text" id="t-time-${index}" value="${train.time}" placeholder="Time" style="flex:0.8; margin:0;">
-                    <input type="text" id="t-type-${index}" value="${train.type}" placeholder="Type (IC, RE...)" style="flex:1; margin:0;">
+                    <input type="text" id="t-type-${index}" value="${train.type}" placeholder="Type" style="flex:1; margin:0;">
                     <input type="text" id="t-dest-${index}" value="${train.dest}" placeholder="Destination" style="flex:2; margin:0;">
                     <input type="text" id="t-track-${index}" value="${train.track}" placeholder="Track" style="flex:0.5; margin:0; text-align:center;">
                     <input type="text" id="t-status-${index}" value="${train.status}" placeholder="Status" style="flex:1.5; margin:0;">
@@ -680,8 +589,8 @@
                 train.color = document.getElementById(`t-color-${index}`).value;
                 train.blink = document.getElementById(`t-blink-${index}`).checked;
             });
+            // Only use set() here. Removed the redundant sendCommand.
             set(ref(db, 'remote/trains'), trainData);
-            window.sendCommand('sync_trains', JSON.stringify(trainData));
             alert("BOARD UPDATED!");
         };
 
