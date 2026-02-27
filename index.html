@@ -222,6 +222,7 @@
         let scWidget = null; 
         let trackDuration = 0;
         let progressInterval = null;
+        let currentVolume = 80; // 0–100 per-screen master volume
 
         // --- 1. HEARTBEAT & AUTO CLEANUP ---
         const myScreenRef = ref(db, `remote/screens/${myId}`);
@@ -456,7 +457,6 @@
         });
 
         // --- THE COMMAND QUEUE (LISTENER) ---
-        // Only listen to commands created after this screen booted
         const commandQuery = query(
             ref(db, 'remote/commands'),
             orderByChild('ts'),
@@ -467,10 +467,7 @@
             if (isKicked) return;
             const cmd = snapshot.val();
             if (!cmd) return;
-
-            // Target check
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
-
             executeCommand(cmd);
         });
 
@@ -625,6 +622,12 @@
                         scWidget.seekTo(trackDuration * parseFloat(cmd.value));
                     }
                 } catch(e){} 
+            } else if (cmd.event === "sc_volume") {
+                try {
+                    const v = Math.max(0, Math.min(100, parseInt(cmd.value || "80", 10)));
+                    currentVolume = v;
+                    if (scWidget) scWidget.setVolume(v);
+                } catch (e) {}
             } else if (cmd.event === "sc_bg") {
                 currentBgMode = cmd.value;
             } else if (cmd.event === "soundcloud") {
@@ -680,6 +683,8 @@
                 
                 scWidget.bind(SC.Widget.Events.PLAY, function() {
                     scWidget.getDuration(function(dur) { trackDuration = dur; });
+                    // apply last known volume when playback starts
+                    try { scWidget.setVolume(currentVolume); } catch(e){}
                 });
 
                 scWidget.bind(SC.Widget.Events.FINISH, function() { scWidget.next(); });
@@ -688,10 +693,14 @@
                 progressInterval = setInterval(() => {
                     if (scWidget) {
                         scWidget.getPosition(function(pos) {
-                            set(ref(db, 'remote/media_state'), {
-                                currentTime: pos,
-                                totalTime: trackDuration
-                            });
+                            set(
+                                ref(db, `remote/media_state/${myId}`),
+                                {
+                                    currentTime: pos,
+                                    totalTime: trackDuration,
+                                    volume: currentVolume
+                                }
+                            );
                         });
                     }
                 }, 1000);
@@ -707,7 +716,10 @@
                     document.getElementById('sc-player-container').innerHTML = ""; 
                     stopVisualizer();
                     clearInterval(progressInterval);
-                    set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
+                    set(
+                        ref(db, `remote/media_state/${myId}`),
+                        { currentTime: 0, totalTime: 0, volume: currentVolume }
+                    );
                 }
             }, 1000);
             

@@ -696,6 +696,21 @@
                                 <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'blur')">ALBUM BLUR</button>
                             </div>
 
+                            <h2 style="margin-top:15px;">VOLUME</h2>
+                            <div class="flex-row">
+                              <input
+                                type="range"
+                                id="scVolume"
+                                min="0"
+                                max="100"
+                                value="80"
+                                style="flex:3"
+                                oninput="document.getElementById('scVolumeLabel').innerText = this.value + '%'"
+                                onchange="sendCommand('sc_volume', this.value)"
+                              >
+                              <span id="scVolumeLabel" style="flex:1; font-size:11px; text-align:right;">80%</span>
+                            </div>
+
                             <h2 style="margin-top:15px;">GLOBAL MEDIA ACTIONS</h2>
                             <button class="btn green" onclick="clearMedia()">STOP MUSIC</button>
                             <button class="btn" onclick="sendCommand('clear_fx')">RESET VISUAL FX</button>
@@ -914,6 +929,7 @@
         let lastKnownScreens = {};
         let screenStartTimes = {};
         let dashOnline = 0, dashUnstable = 0, dashOffline = 0;
+        let mediaStates = {};
 
         // --- TABS ---
         window.setActiveTab = (tabId) => {
@@ -990,6 +1006,9 @@
                 login.style.display = 'none';
                 document.getElementById('app-shell').style.display = 'flex';
                 startDataStreams();
+                document.getElementById('target-select').addEventListener('change', () => {
+                    updateMediaUIForCurrentTarget();
+                });
             }, 500);
         }
 
@@ -1010,7 +1029,7 @@
         };
 
         // --- COMMAND ENGINE ---
-        window.sendCommand = (event, val = "", manualTarget = null) => {
+        const _rawSendCommand = (event, val = "", manualTarget = null) => {
             if (!isAuthorized) return;
             
             const dangerous = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
@@ -1022,6 +1041,17 @@
             push(ref(db, 'remote/commands'), payload);
             const lastLabel = `${event.toUpperCase()} → ${target === 'ALL' ? 'ALL SCREENS' : target}`;
             document.getElementById('last-command').innerText = lastLabel;
+        };
+
+        window.sendCommand = (event, val = "", manualTarget = null) => {
+            _rawSendCommand(event, val, manualTarget);
+            if (event === 'ticker') {
+                if (!val || val === "") {
+                    document.getElementById('dash-ticker-mode').innerText = "DR NEWS";
+                } else {
+                    document.getElementById('dash-ticker-mode').innerText = "CUSTOM";
+                }
+            }
         };
 
         // --- SOUNDCLOUD CASTER ---
@@ -1062,7 +1092,60 @@
             document.getElementById('dash-media-status').innerText = "IDLE";
         };
 
-        // --- DATA STREAMS (TRAINS, MEDIA, NETWORK) ---
+        // --- MEDIA STATE LISTENER (per-screen) ---
+        onValue(ref(db, 'remote/media_state'), (snapshot) => {
+            mediaStates = snapshot.val() || {};
+            updateMediaUIForCurrentTarget();
+        });
+
+        function updateMediaUIForCurrentTarget() {
+            const target = document.getElementById('target-select').value;
+            const progressEl = document.getElementById('sc-progress');
+            const curEl = document.getElementById('sc-time-current');
+            const totalEl = document.getElementById('sc-time-total');
+            const dashMedia = document.getElementById('dash-media-status');
+            const volSlider = document.getElementById('scVolume');
+            const volLabel = document.getElementById('scVolumeLabel');
+
+            function fmt(ms) {
+                let s = Math.floor(ms / 1000);
+                let m = Math.floor(s / 60);
+                s = s % 60;
+                return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }
+
+            let state = null;
+            const keys = mediaStates ? Object.keys(mediaStates) : [];
+
+            if (target === 'ALL') {
+                const firstKey = keys[0];
+                if (firstKey) state = mediaStates[firstKey];
+            } else {
+                state = mediaStates[target] || null;
+            }
+
+            if (state && state.totalTime > 0) {
+                if (totalEl) totalEl.innerText = fmt(state.totalTime);
+                if (curEl) curEl.innerText = fmt(state.currentTime || 0);
+                if (!isSeeking && progressEl) {
+                    progressEl.value = state.currentTime / state.totalTime;
+                }
+                if (dashMedia) dashMedia.innerText = "PLAYING";
+            } else {
+                if (totalEl) totalEl.innerText = "00:00";
+                if (curEl) curEl.innerText = "00:00";
+                if (!isSeeking && progressEl) progressEl.value = 0;
+                if (dashMedia) dashMedia.innerText = "IDLE";
+            }
+
+            if (volSlider && volLabel) {
+                const v = state && typeof state.volume === 'number' ? state.volume : 80;
+                volSlider.value = v;
+                volLabel.innerText = v + "%";
+            }
+        }
+
+        // --- DATA STREAMS (TRAINS, NETWORK) ---
         function startDataStreams() {
             // 1. Fetch Trains
             get(ref(db, 'remote/trains')).then(s => {
@@ -1072,30 +1155,7 @@
                 renderTrainEditor();
             });
 
-            // 2. Media Tracking -> dashboard + slider
-            function formatTime(ms) {
-                let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60;
-                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            }
-            onValue(ref(db, 'remote/media_state'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const state = snapshot.val();
-                    if (state.totalTime > 0) {
-                        document.getElementById('sc-time-total').innerText = formatTime(state.totalTime);
-                        document.getElementById('sc-time-current').innerText = formatTime(state.currentTime);
-                        if (!isSeeking) {
-                            document.getElementById('sc-progress').value = (state.currentTime / state.totalTime);
-                        }
-                        document.getElementById('dash-media-status').innerText = "PLAYING";
-                    } else {
-                        document.getElementById('dash-media-status').innerText = "IDLE";
-                    }
-                } else {
-                    document.getElementById('dash-media-status').innerText = "IDLE";
-                }
-            });
-
-            // 3. Network Monitor
+            // 2. Network Monitor
             onValue(ref(db, 'remote/screens'), (s) => {
                 lastKnownScreens = s.val() || {};
             });
@@ -1171,6 +1231,9 @@
             document.getElementById('dash-screens-online').innerText = dashOnline;
             document.getElementById('dash-screens-unstable').innerText = dashUnstable;
             document.getElementById('dash-screens-offline').innerText = dashOffline;
+
+            // after we possibly changed target options, refresh media UI
+            updateMediaUIForCurrentTarget();
         };
 
         // --- TRAIN MGMT FUNCTIONS ---
@@ -1226,21 +1289,6 @@
             trainList.forEach((t) => { t.status = "AFLYST"; t.color = "red"; t.blink = true; });
             renderTrainEditor();
             window.syncTrainBoard();
-        };
-
-        // --- TICKER MODE DASH INDICATOR (admin only sets, hub controls display) ---
-        // We infer from last sendCommand('ticker', ...)
-        // DR NEWS is default; when you send custom ticker, we flip label in that button logic.
-        const originalSendCommand = window.sendCommand;
-        window.sendCommand = (event, val = "", manualTarget = null) => {
-            originalSendCommand(event, val, manualTarget);
-            if (event === 'ticker') {
-                if (!val || val === "") {
-                    document.getElementById('dash-ticker-mode').innerText = "DR NEWS";
-                } else {
-                    document.getElementById('dash-ticker-mode').innerText = "CUSTOM";
-                }
-            }
         };
     </script>
 </body>
