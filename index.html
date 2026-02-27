@@ -167,7 +167,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // UPDATED: Added onChildAdded and onDisconnect
+        // ADDED onChildAdded AND onDisconnect for correct syncing
         import { getDatabase, ref, onValue, set, update, get, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
@@ -191,7 +191,7 @@
 
         // --- 1. HEARTBEAT & AUTO CLEANUP ---
         const myScreenRef = ref(db, `remote/screens/${myId}`);
-        // Tells Firebase to delete this screen automatically if it closes or connection drops
+        // Tells Firebase to delete this screen automatically if the browser closes
         onDisconnect(myScreenRef).remove();
         
         // Setup initial connection footprint
@@ -200,7 +200,7 @@
         // Update heartbeat (only if not kicked)
         setInterval(() => { 
             if(!isKicked) update(myScreenRef, { heartbeat: Date.now() }); 
-        }, 3000); // 3 seconds is plenty for stable UI updates
+        }, 3000); // 3 seconds is perfect for stable UI updates
 
         // --- CLICK TO UNLOCK AUDIO ---
         document.getElementById('intro-screen').addEventListener('click', function() {
