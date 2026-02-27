@@ -711,6 +711,26 @@
                               <span id="scVolumeLabel" style="flex:1; font-size:11px; text-align:right;">80%</span>
                             </div>
 
+                            <h2 style="margin-top:15px;">NEWS / TICKER OVERRIDE</h2>
+                            <input
+                              type="text"
+                              id="tickInput"
+                              placeholder="Override news feed..."
+                            >
+                            <button
+                              class="btn black"
+                              onclick="sendCommand('ticker', document.getElementById('tickInput').value)"
+                            >
+                              SEND HEADLINE
+                            </button>
+                            <button
+                              class="btn"
+                              style="margin-top:6px"
+                              onclick="sendCommand('ticker', '')"
+                            >
+                              REVERT TO DR NEWS
+                            </button>
+
                             <h2 style="margin-top:15px;">GLOBAL MEDIA ACTIONS</h2>
                             <button class="btn green" onclick="clearMedia()">STOP MUSIC</button>
                             <button class="btn" onclick="sendCommand('clear_fx')">RESET VISUAL FX</button>
@@ -969,7 +989,6 @@
         window.checkCloudCredentials = () => {
             const u = document.getElementById('logUser').value.trim();
             const p = document.getElementById('logPass').value.trim();
-            
             if (usersDB[u] && String(usersDB[u]) === String(p)) {
                 document.getElementById('auth-stage-1').style.display = 'none';
                 document.getElementById('auth-stage-2').style.display = 'block';
@@ -980,7 +999,7 @@
             }
         };
 
-        // --- STAGE 2: VERIFY MASTER CODE (string vs string) ---
+        // --- STAGE 2: VERIFY MASTER CODE ---
         window.verifySecretCode = async () => {
             const input = document.getElementById('accessCode').value.trim();
             try {
@@ -997,7 +1016,6 @@
             }
         };
 
-        // --- UNLOCK UI & START DATA STREAMS ---
         function unlockUI() {
             isAuthorized = true;
             const login = document.getElementById('login-screen');
@@ -1031,7 +1049,6 @@
         // --- COMMAND ENGINE ---
         const _rawSendCommand = (event, val = "", manualTarget = null) => {
             if (!isAuthorized) return;
-            
             const dangerous = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
             if (dangerous.includes(event) && !confirm(`WARNING: TRIGGER [${event.toUpperCase()}]?`)) return;
 
@@ -1232,7 +1249,6 @@
             document.getElementById('dash-screens-unstable').innerText = dashUnstable;
             document.getElementById('dash-screens-offline').innerText = dashOffline;
 
-            // after we possibly changed target options, refresh media UI
             updateMediaUIForCurrentTarget();
         };
 
