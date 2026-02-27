@@ -11,86 +11,435 @@
             --c3: 255, 215, 0;  /* Yellow Default */
         }
 
-        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; transition: background 0.3s; }
+        * { box-sizing: border-box; }
+
+        body {
+            background: #fdfdfd;
+            color: #000;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-transform: uppercase;
+            overflow: hidden;
+            position: relative;
+            transition: background 0.3s, color 0.3s;
+        }
         
         /* --- GLOBE BACKGROUND --- */
         #globe-canvas {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 0; pointer-events: none; opacity: 0.15;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            transition: opacity 0.3s;
         }
 
         /* --- INTRO & LOGIN SCREENS --- */
         #intro-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; color: #000;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #ffffff;
+            z-index: 9999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+            color: #000;
+            cursor: pointer;
         }
         #intro-screen img { max-width: 200px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
+        #intro-loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #000;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         #login-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; color: #000;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+            color: #000;
         }
-        .login-box { border: 3px solid #000; padding: 40px; width: 360px; text-align: center; background: #fff; box-shadow: 0 15px 50px rgba(0,0,0,0.1); position: relative; z-index: 10000000; }
+        .login-box {
+            border: 3px solid #000;
+            padding: 40px;
+            width: 360px;
+            text-align: center;
+            background: #fff;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10000000;
+        }
         .login-box h1 { font-size: 18px; letter-spacing: 4px; margin-bottom: 25px; }
         
-        .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; outline: none; font-size: 14px; text-transform: none; text-align: center; box-sizing: border-box; font-weight: bold; }
-        .auth-input:focus { border-color: #000; }
+        .auth-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            outline: none;
+            font-size: 14px;
+            text-transform: none;
+            text-align: center;
+            box-sizing: border-box;
+            font-weight: bold;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .auth-input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
         
-        .code-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 3px solid #000; font-size: 28px; text-align: center; letter-spacing: 15px; outline: none; font-family: monospace; background: #f9f9f9; box-sizing: border-box; }
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 3px solid #000;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 15px;
+            outline: none;
+            font-family: monospace;
+            background: #f9f9f9;
+            box-sizing: border-box;
+        }
 
-        /* --- MAIN UI LAYOUT --- */
-        .master-header { text-align: center; padding: 30px 0; border-bottom: 1px solid #eee; background: rgba(255,255,255,0.9); position: relative; z-index: 1; }
-        .master-header img { height: 100px; margin-bottom: 10px; }
-        .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
+        /* --- LAYOUT SHELL --- */
+        .app-shell {
+            position: relative;
+            z-index: 1;
+            display: none; /* show after unlock */
+            height: 100vh;
+            display: flex;
+        }
 
-        .container { max-width: 1300px; margin: 0 auto; padding: 25px; position: relative; z-index: 1; display: none; } /* HIDDEN UNTIL LOGGED IN */
-        .card { background: rgba(255,255,255,0.95); border: 1px solid #eee; padding: 25px; backdrop-filter: blur(5px); margin-bottom: 20px; transition: 0.2s; }
-        .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
-        
-        .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; background: rgba(255,255,255,0.8); display: inline-block; padding-right: 15px;}
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
+        .sidebar {
+            width: 220px;
+            background: rgba(255,255,255,0.95);
+            border-right: 1px solid #eee;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .sidebar-logo img {
+            height: 40px;
+            object-fit: contain;
+        }
+        .sidebar-logo-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            font-weight: 900;
+        }
+        .sidebar-logo-sub {
+            font-size: 10px;
+            color: #999;
+            letter-spacing: 2px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            color: #555;
+            transition: 0.15s;
+        }
+        .nav-item-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .nav-item.active {
+            border-color: #000;
+            background: #000;
+            color: #fff;
+        }
+        .nav-item:hover:not(.active) {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        .sidebar-footer {
+            font-size: 9px;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: calc(100vw - 220px);
+            overflow: hidden;
+        }
+
+        .top-bar {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            background: rgba(255,255,255,0.9);
+        }
+        .top-bar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .top-bar-title {
+            font-size: 12px;
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+        .top-bar-sub {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 2px;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .target-select-label {
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .content-scroll {
+            flex: 1;
+            overflow: auto;
+            padding: 20px 25px 30px 25px;
+            position: relative;
+        }
+
+        .tab-view {
+            display: none;
+        }
+        .tab-view.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #eee;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 18px;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+        }
+        .card:hover {
+            border-color: #000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+
+        .section-title {
+            font-size: 11px;
+            letter-spacing: 4px;
+            font-weight: 900;
+            margin: 0 0 15px 0;
+        }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+        h2 {
+            font-size: 10px;
+            color: #999;
+            margin: 0 0 12px 0;
+            letter-spacing: 2px;
+        }
 
         /* --- BUTTONS & INPUTS --- */
-        .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; text-transform: uppercase; }
-        .btn:hover { background: #000; color: #fff; }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.15s;
+            text-transform: uppercase;
+            border-radius: 3px;
+        }
+        .btn:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-0.5px);
+        }
         .btn.black { background: #000; color: #fff; }
         .btn.red { border-color: #E3000F; color: #E3000F; }
         .btn.red:hover { background: #E3000F; color: #fff; }
         .btn.green { border-color: #2ecc71; color: #2ecc71; }
         .btn.green:hover { background: #2ecc71; color: #fff; }
+        .btn.small {
+            padding: 6px 10px;
+            font-size: 10px;
+            width: auto;
+        }
         
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; font-size: 12px; box-sizing: border-box; outline: none; background: rgba(255,255,255,0.9); font-family: sans-serif; }
+        input, select, textarea {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #eee;
+            margin-bottom: 8px;
+            font-size: 12px;
+            outline: none;
+            background: rgba(255,255,255,0.9);
+            font-family: sans-serif;
+            text-transform: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+        }
         .flex-row { display: flex; gap: 10px; align-items: center; }
 
         /* --- NETWORK TABLE --- */
         table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-        table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; text-align: left; color: #999; }
-        table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
-        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+        table.net-table th {
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            text-align: left;
+            color: #999;
+        }
+        table.net-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
 
         /* --- SOUNDCLOUD CLEAN BLACK RIM --- */
-        .admin-art-wrapper { padding: 2px; border-radius: 6px; background: #000; border: 2px solid #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .admin-art-wrapper {
+            padding: 2px;
+            border-radius: 6px;
+            background: #000;
+            border: 2px solid #000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
 
         /* --- DARK MODE --- */
         body.dark-mode { background: #111; color: #eee; }
-        body.dark-mode .master-header { background: rgba(17,17,17,0.9); border-bottom: 1px solid #333; }
-        body.dark-mode .master-header h1 { color: #eee; }
-        body.dark-mode .card { background: rgba(30,30,30,0.95); border-color: #444; color: #eee; }
-        body.dark-mode .section-title { background: rgba(17,17,17,0.8); color: #fff; border-left-color: #fff; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #333; color: #eee; border-color: #555; }
-        body.dark-mode .btn { background: #333; color: #eee; border-color: #555; }
-        body.dark-mode .btn:hover { background: #eee; color: #111; }
-        body.dark-mode .btn.black { background: #eee; color: #111; }
-        body.dark-mode table.net-table th { border-bottom-color: #555; color: #bbb; }
+        body.dark-mode .sidebar { background: #111; border-right-color: #333; }
+        body.dark-mode .sidebar-logo-sub { color: #777; }
+        body.dark-mode .nav-item { color: #ccc; }
+        body.dark-mode .nav-item:hover:not(.active) {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        body.dark-mode .nav-item.active { background: #fff; color: #000; border-color: #fff; }
+
+        body.dark-mode .top-bar {
+            background: rgba(17,17,17,0.95);
+            border-bottom-color: #333;
+        }
+        body.dark-mode .card {
+            background: rgba(30,30,30,0.95);
+            border-color: #444;
+        }
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background: #333;
+            color: #eee;
+            border-color: #555;
+        }
+        body.dark-mode .btn {
+            background: #333;
+            color: #eee;
+            border-color: #555;
+        }
+        body.dark-mode .btn:hover {
+            background: #eee;
+            color: #111;
+        }
+        body.dark-mode .btn.black {
+            background: #eee;
+            color: #111;
+        }
+        body.dark-mode table.net-table th {
+            border-bottom-color: #555;
+            color: #bbb;
+        }
         body.dark-mode table.net-table td { border-bottom-color: #333; }
 
-        /* CUSTOM RANGE SLIDER */
-        input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; outline: none; border: none; margin: 0; padding: 0; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; border: 2px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.2);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            border: 2px solid #000;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            text-align: center;
+            padding: 15px 0 5px 0;
+            font-size: 9px;
+            color: #999;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -101,13 +450,27 @@
         <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
-        <div style="font-family: monospace; font-size: 12px; color: #666;">Connecting to Cloud Vault...</div>
+        <div style="font-family: monospace; font-size: 12px; color: #666; text-transform:none;">
+            CLICK TO ENTER CONTROL PANEL
+        </div>
     </div>
     <script>
-        setTimeout(() => {
+        (function() {
             const intro = document.getElementById('intro-screen');
-            if(intro) { intro.style.opacity = '0'; setTimeout(() => intro.style.display = 'none', 500); }
-        }, 2500);
+            let dismissed = false;
+
+            function hideIntro() {
+                if (dismissed) return;
+                dismissed = true;
+                if (intro) {
+                    intro.style.opacity = '0';
+                    setTimeout(() => intro.style.display = 'none', 500);
+                }
+            }
+
+            intro.addEventListener('click', hideIntro);
+            setTimeout(hideIntro, 2500);
+        })();
     </script>
 
     <div id="login-screen">
@@ -115,15 +478,20 @@
             <h1>SYSTEM ACCESS</h1>
             
             <div id="auth-stage-1">
-                <p style="font-size: 10px; margin-bottom: 20px; color: #666; letter-spacing: 2px; font-weight: bold;">ENTER CLOUD CREDENTIALS</p>
+                <p style="font-size: 10px; margin-bottom: 20px; color: #666; letter-spacing: 2px; font-weight: bold;">
+                    ENTER CLOUD CREDENTIALS
+                </p>
                 <input type="text" id="logUser" class="auth-input" placeholder="USERNAME (e.g. Admin)">
                 <input type="password" id="logPass" class="auth-input" placeholder="PASSWORD">
-                <button class="btn black" style="padding: 15px; font-size: 13px;" onclick="checkCloudCredentials()">AUTHENTICATE</button>
+                <button class="btn black" style="padding: 15px; font-size: 13px;" onclick="checkCloudCredentials()">
+                    AUTHENTICATE
+                </button>
             </div>
 
             <div id="auth-stage-2" style="display: none;">
-                <p style="font-size: 11px; margin-bottom: 20px; color: #E3000F; font-weight: 900; letter-spacing: 2px;">CREDENTIALS ACCEPTED.<br>ENTER SECURE VAULT CODE.</p>
-                <!-- Numeric-hint access code -->
+                <p style="font-size: 11px; margin-bottom: 20px; color: #E3000F; font-weight: 900; letter-spacing: 2px;">
+                    CREDENTIALS ACCEPTED.<br>ENTER SECURE VAULT CODE.
+                </p>
                 <input
                   type="password"
                   id="accessCode"
@@ -133,239 +501,400 @@
                   inputmode="numeric"
                   pattern="\d*"
                 />
-                <button class="btn black" style="padding:15px; font-size: 13px;" onclick="verifySecretCode()">UNLOCK COMMAND CENTER</button>
+                <button class="btn black" style="padding:15px; font-size: 13px;" onclick="verifySecretCode()">
+                    UNLOCK COMMAND CENTER
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="master-header">
-        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-        <h1>SRE Master Hub Admin</h1>
-    </div>
-
-    <div class="container" id="main-ui">
-        
-        <div class="card" style="display:flex; justify-content: space-between; align-items: center; border: 2px solid #000; padding: 15px 25px;">
-            <div class="flex-row">
-                <span style="font-size: 11px; font-weight: 900;">COMMAND TARGET:</span>
-                <select id="target-select" style="margin:0; width: 250px;"><option value="ALL">BROADCAST TO ALL SCREENS</option></select>
-                <button class="btn black" style="margin:0; width:auto;" onclick="sendCommand('toggle_id')">TOGGLE SCREEN IDs</button>
+    <!-- APP SHELL -->
+    <div class="app-shell" id="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                <div class="sidebar-logo-title">SRE MASTER HUB</div>
+                <div class="sidebar-logo-sub">CONTROL PANEL</div>
             </div>
-            <div class="flex-row">
-                <button class="btn" style="margin:0; width:auto;" onclick="document.body.classList.toggle('dark-mode')">DARK MODE</button>
-                <button class="btn" style="margin:0; width:auto;" onclick="toggleGlobePerformance()">PERF MODE</button>
-                <button class="btn red" style="margin:0; width:auto;" onclick="location.reload()">LOCK SYSTEM</button>
-            </div>
-        </div>
-
-        <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
-        <div class="card" style="border: 2px solid #1f6feb;">
-            <table class="net-table">
-                <thead><tr><th>SCREEN ID</th><th>STATUS</th><th>LATENCY</th><th>UPTIME</th><th>ACTIONS</th></tr></thead>
-                <tbody id="network-body"></tbody>
-            </table>
-        </div>
-
-        <div class="section-title">NUCLEAR CONTROL CENTER</div>
-        <div class="grid">
-            <div class="card" style="border-top: 5px solid #2ecc71;">
-                <h2>RESETS & CLEARS</h2>
-                <button class="btn green" onclick="clearMedia()">STOP ALL OVERLAYS & AUDIO</button>
-                <button class="btn green" onclick="sendCommand('clear_fx')">REMOVE VISUAL FX</button>
-                <button class="btn green" onclick="sendCommand('ticker', '')">REVERT TO DR NEWS</button>
-                <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS</button>
-            </div>
-            <div class="card" style="border-top: 5px solid #E3000F;">
-                <h2>EMERGENCY OVERRIDE</h2>
-                <button class="btn red" onclick="sendCommand('soft_reset')">SOFT REBOOT (KEEPS AUDIO)</button>
-                <button class="btn black" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
-                <button class="btn black" onclick="sendCommand('blackout')">FORCE TOTAL BLACKOUT</button>
-                <button class="btn black" onclick="sendCommand('kick', 'ALL')">KICK ALL SCREENS</button>
-            </div>
-        </div>
-
-        <div class="section-title">TRAIN BOARD MANAGEMENT</div>
-        <div class="card">
-            <h2>ADD, DELETE, AND EDIT LIVE TRAINS</h2>
-            <div id="train-editor"></div>
-            <div class="flex-row" style="margin-top:20px;">
-                <button class="btn black" style="width:auto;" onclick="addNewTrain()">+ ADD NEW TRAIN</button>
-                <button class="btn green" style="width:auto; border:none;" onclick="syncTrainBoard()">SAVE & PUSH TO SCREENS</button>
-                <button class="btn red" style="width:auto; border:none; margin-left:auto;" onclick="cancelAllTrains()">CANCEL ALL TRAINS</button>
-            </div>
-        </div>
-
-        <div class="section-title">GLOBAL SRE CONTROLS</div>
-        <div class="grid">
-            <div class="card">
-                <h2>TICKER & BROADCAST</h2>
-                <input type="text" id="tickInput" placeholder="Override news feed...">
-                <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tickInput').value)">SEND HEADLINE</button>
-                <button class="btn red" style="margin-top:10px" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
-                <button class="btn" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
-            </div>
-            
-            <div class="card">
-                <h2>GLOBAL TRAIN STATUS</h2>
-                <div class="flex-row">
-                    <input type="number" id="dInput" placeholder="Min" style="flex:1">
-                    <button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <div class="nav-item active" data-tab-target="dashboard" onclick="setActiveTab('dashboard')">
+                    <div class="nav-item-icon">🏠</div>
+                    <div>DASHBOARD</div>
                 </div>
-                <button class="btn green" onclick="sendCommand('boarding')">SET ALL TO BOARDING</button>
-                <button class="btn red" onclick="sendCommand('msg_board', '')">CLOSE ALERT BOX</button>
-            </div>
-        </div>
-
-        <div class="section-title">MEDIA & HACK INJECTION</div>
-        <div class="grid">
-            <div class="card">
-                <h2>SOUNDCLOUD CASTER</h2>
-                <input type="text" id="scInput" placeholder="SoundCloud URL (e.g. https://soundcloud.com/...)">
-                <button class="btn black" onclick="castSoundCloud()">CAST AUDIO TO SCREENS</button>
-                
-                <h2 style="margin-top: 15px;">BACKGROUND VISUALIZER</h2>
-                <div class="flex-row">
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'topo')">TOPO WAVES</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'globe')">3D GLOBE</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'blur')">ALBUM BLUR</button>
+                <div class="nav-item" data-tab-target="network" onclick="setActiveTab('network')">
+                    <div class="nav-item-icon">🌐</div>
+                    <div>NETWORK</div>
                 </div>
-                
-                <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column;">
-                    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
-                        <div class="admin-art-wrapper">
-                            <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
+                <div class="nav-item" data-tab-target="media" onclick="setActiveTab('media')">
+                    <div class="nav-item-icon">🎵</div>
+                    <div>MEDIA</div>
+                </div>
+                <div class="nav-item" data-tab-target="trains" onclick="setActiveTab('trains')">
+                    <div class="nav-item-icon">🚆</div>
+                    <div>TRAINS</div>
+                </div>
+                <div class="nav-item" data-tab-target="fx" onclick="setActiveTab('fx')">
+                    <div class="nav-item-icon">⚡</div>
+                    <div>VISUAL FX</div>
+                </div>
+                <div class="nav-item" data-tab-target="system" onclick="setActiveTab('system')">
+                    <div class="nav-item-icon">⚙️</div>
+                    <div>SYSTEM</div>
+                </div>
+                <div class="nav-item" data-tab-target="users" onclick="setActiveTab('users')">
+                    <div class="nav-item-icon">👤</div>
+                    <div>USERS</div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                OLIVER KOCH STUDIOS &copy;
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="top-bar-title" id="top-bar-title">DASHBOARD</div>
+                    <div class="top-bar-sub">SRE MASTER HUB ADMIN</div>
+                </div>
+                <div class="top-bar-right">
+                    <div>
+                        <div class="target-select-label">COMMAND TARGET</div>
+                        <select id="target-select" style="margin:0; width: 240px;">
+                            <option value="ALL">BROADCAST TO ALL SCREENS</option>
+                        </select>
+                    </div>
+                    <button class="btn small" onclick="document.body.classList.toggle('dark-mode')">
+                        DARK MODE
+                    </button>
+                    <button class="btn small" onclick="toggleGlobePerformance()">
+                        PERF MODE
+                    </button>
+                    <button class="btn red small" onclick="location.reload()">
+                        LOCK SYSTEM
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-scroll">
+                <!-- DASHBOARD TAB -->
+                <div class="tab-view active" data-tab="dashboard">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="section-title">SYSTEM OVERVIEW</div>
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <div style="flex:1;">
+                                    <div style="font-size:10px; color:#999;">SCREENS ONLINE</div>
+                                    <div id="dash-screens-online" style="font-size:18px; font-weight:900;">0</div>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:10px; color:#999;">UNSTABLE</div>
+                                    <div id="dash-screens-unstable" style="font-size:18px; font-weight:900;">0</div>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:10px; color:#999;">OFFLINE</div>
+                                    <div id="dash-screens-offline" style="font-size:18px; font-weight:900;">0</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div style="font-size:10px; color:#999;">MEDIA STATUS</div>
+                                <div id="dash-media-status" style="font-size:12px; font-weight:700;">IDLE</div>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div style="font-size:10px; color:#999;">TICKER MODE</div>
+                                <div id="dash-ticker-mode" style="font-size:12px; font-weight:700;">DR NEWS</div>
+                            </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-                            <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING</span>
-                            <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
+
+                        <div class="card">
+                            <div class="section-title">QUICK ACTIONS</div>
+                            <button class="btn green" onclick="clearMedia(); sendCommand('clear_fx')">
+                                STOP ALL MEDIA & FX
+                            </button>
+                            <button class="btn" onclick="sendCommand('toggle_id')">
+                                TOGGLE SCREEN IDs
+                            </button>
+                            <button class="btn black" onclick="sendCommand('reset_trains')">
+                                NORMALIZE ALL TRAINS
+                            </button>
+                            <button class="btn red" onclick="sendCommand('soft_reset')">
+                                SOFT RESET ALL
+                            </button>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; width: 100%;">
-                        <span id="sc-time-current" style="font-size: 10px; font-family: monospace; color: #aaa;">00:00</span>
-                        <input type="range" id="sc-progress" min="0" max="1" step="0.01" value="0" style="flex: 1;" onchange="seekTrack(this.value)">
-                        <span id="sc-time-total" style="font-size: 10px; font-family: monospace; color: #aaa;">00:00</span>
+                </div>
+
+                <!-- NETWORK TAB -->
+                <div class="tab-view" data-tab="network">
+                    <div class="card">
+                        <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:10px; color:#777;">
+                            <div>SCREENS & LATENCY</div>
+                            <div>
+                                FILTER:
+                                <select id="network-filter" style="width:auto; display:inline-block;" onchange="renderNetworkTable()">
+                                    <option value="all">ALL</option>
+                                    <option value="online">ONLINE</option>
+                                    <option value="unstable">UNSTABLE</option>
+                                    <option value="offline">OFFLINE</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table class="net-table">
+                            <thead>
+                                <tr>
+                                    <th>SCREEN ID</th>
+                                    <th>STATUS</th>
+                                    <th>LATENCY</th>
+                                    <th>UPTIME</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="network-body"></tbody>
+                        </table>
                     </div>
-                    <div class="flex-row" style="gap: 5px;">
-                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_pause')">PAUSE</button>
-                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_play')">PLAY</button>
-                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_skip')">SKIP >></button>
-                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
+                </div>
+
+                <!-- MEDIA TAB -->
+                <div class="tab-view" data-tab="media">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="section-title">SOUNDCLOUD CASTER</div>
+                            <input type="text" id="scInput" placeholder="SoundCloud URL (e.g. https://soundcloud.com/...)">
+                            <button class="btn black" onclick="castSoundCloud()">CAST AUDIO TO SCREENS</button>
+                            
+                            <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column;">
+                                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                                    <div class="admin-art-wrapper">
+                                        <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+                                        <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING</span>
+                                        <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; width: 100%;">
+                                    <span id="sc-time-current" style="font-size: 10px; font-family: monospace; color: #aaa;">00:00</span>
+                                    <input type="range" id="sc-progress" min="0" max="1" step="0.01" value="0" style="flex: 1;" onchange="seekTrack(this.value)">
+                                    <span id="sc-time-total" style="font-size: 10px; font-family: monospace; color: #aaa;">00:00</span>
+                                </div>
+                                <div class="flex-row" style="gap: 5px;">
+                                    <button class="btn black" style="margin:0;" onclick="sendCommand('sc_pause')">PAUSE</button>
+                                    <button class="btn black" style="margin:0;" onclick="sendCommand('sc_play')">PLAY</button>
+                                    <button class="btn black" style="margin:0;" onclick="sendCommand('sc_skip')">SKIP >></button>
+                                    <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">MEDIA & VISUAL CONTROL</div>
+                            <h2>BACKGROUND VISUALIZER</h2>
+                            <div class="flex-row">
+                                <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'topo')">TOPO WAVES</button>
+                                <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'globe')">3D GLOBE</button>
+                                <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'blur')">ALBUM BLUR</button>
+                            </div>
+
+                            <h2 style="margin-top:15px;">GLOBAL MEDIA ACTIONS</h2>
+                            <button class="btn green" onclick="clearMedia()">STOP MUSIC</button>
+                            <button class="btn" onclick="sendCommand('clear_fx')">RESET VISUAL FX</button>
+                            <button class="btn black" onclick="clearMedia(); sendCommand('clear_fx')">
+                                FULL MEDIA RESET
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <h2>VISUAL CHAOS</h2>
-                <div class="flex-row">
-                    <button class="btn" style="flex:1" onclick="sendCommand('mirror')">MIRROR</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('invert')">INVERT</button>
+                <!-- TRAINS TAB -->
+                <div class="tab-view" data-tab="trains">
+                    <div class="card">
+                        <div class="section-title">TRAIN BOARD MANAGEMENT</div>
+                        <h2>ADD, DELETE, AND EDIT LIVE TRAINS</h2>
+                        <div id="train-editor"></div>
+                        <div class="flex-row" style="margin-top:20px;">
+                            <button class="btn black" style="width:auto;" onclick="addNewTrain()">+ ADD NEW TRAIN</button>
+                            <button class="btn green" style="width:auto; border:none;" onclick="syncTrainBoard()">SAVE & PUSH TO SCREENS</button>
+                            <button class="btn red" style="width:auto; border:none; margin-left:auto;" onclick="cancelAllTrains()">CANCEL ALL TRAINS</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">GLOBAL TRAIN MACROS</div>
+                        <div class="grid">
+                            <div>
+                                <h2>GLOBAL DELAY</h2>
+                                <div class="flex-row">
+                                    <input type="number" id="dInput" placeholder="Min" style="flex:1">
+                                    <button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+                                </div>
+                            </div>
+                            <div>
+                                <h2>STATUS PRESETS</h2>
+                                <button class="btn green" onclick="sendCommand('boarding')">SET ALL TO BOARDING</button>
+                                <button class="btn" onclick="sendCommand('reset_trains')">RESET TO ON TIME</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-row">
-                    <button class="btn" style="flex:1" onclick="sendCommand('shake')">SHAKE</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('disco')">DISCO</button>
+
+                <!-- FX TAB -->
+                <div class="tab-view" data-tab="fx">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="section-title">VISUAL FX</div>
+                            <div class="flex-row">
+                                <button class="btn" style="flex:1" onclick="sendCommand('mirror')">MIRROR</button>
+                                <button class="btn" style="flex:1" onclick="sendCommand('invert')">INVERT</button>
+                            </div>
+                            <div class="flex-row">
+                                <button class="btn" style="flex:1" onclick="sendCommand('shake')">SHAKE</button>
+                                <button class="btn" style="flex:1" onclick="sendCommand('disco')">DISCO</button>
+                            </div>
+                            <button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE BOARD DATA</button>
+                            <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
+                            <button class="btn green" onclick="sendCommand('clear_fx')">CLEAR ALL FX</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">OVERLAYS & ALERTS</div>
+                            <h2>AI TERMINAL & DVD</h2>
+                            <textarea id="termInput" rows="3" placeholder="Terminal text (use \n for new lines)..."></textarea>
+                            <button class="btn black" onclick="sendCommand('terminal', document.getElementById('termInput').value || '> SYSTEM OVERRIDE...')">INJECT TERMINAL</button>
+                            <button class="btn" onclick="sendCommand('dvd')">DVD BOUNCE MODE</button>
+                            <button class="btn black" onclick="sendCommand('hacker')">MATRIX OVERLAY</button>
+
+                            <h2 style="margin-top: 15px;">FULL SCREEN ALERT</h2>
+                            <textarea id="mInput" rows="2" placeholder="Warning Text..."></textarea>
+                            <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT BOX</button>
+                            <button class="btn" onclick="sendCommand('msg_board', '')">CLOSE ALERT BOX</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">JUMPSCARES & FAILS</div>
+                            <div class="flex-row">
+                                <button class="btn red" onclick="sendCommand('roblox')">ROBLOX JUMP</button>
+                                <button class="btn red" onclick="sendCommand('meme')">MEME JUMP</button>
+                            </div>
+                            <button class="btn red" onclick="sendCommand('bluescreen')">FORCE BSOD</button>
+                            <button class="btn red" onclick="sendCommand('winupdate')">FAKE WIN UPDATE</button>
+                            <button class="btn black" onclick="sendCommand('blackout')">FORCE TOTAL BLACKOUT</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE BOARD DATA</button>
-                <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
 
-                <h2 style="margin-top: 15px;">JUMPSCARES & FAILS</h2>
-                <div class="flex-row">
-                    <button class="btn red" onclick="sendCommand('roblox')">ROBLOX JUMP</button>
-                    <button class="btn red" onclick="sendCommand('meme')">MEME JUMP</button>
+                <!-- SYSTEM TAB -->
+                <div class="tab-view" data-tab="system">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="section-title">SYSTEM CONTROL</div>
+                            <button class="btn green" onclick="sendCommand('soft_reset')">SOFT REBOOT (KEEPS AUDIO)</button>
+                            <button class="btn black" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
+                            <button class="btn black" onclick="sendCommand('kick', 'ALL')">KICK ALL SCREENS</button>
+                        </div>
+                        <div class="card">
+                            <div class="section-title">STATUS & INFO</div>
+                            <div style="font-size:10px; color:#999; margin-bottom:8px;">FIREBASE ENDPOINT</div>
+                            <div style="font-size:11px; word-break:break-all;">
+                                https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/
+                            </div>
+                            <div style="margin-top:12px; font-size:10px; color:#999;">LAST COMMAND SENT</div>
+                            <div id="last-command" style="font-size:11px; font-weight:700;">NONE</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn red" onclick="sendCommand('bluescreen')">FORCE BSOD</button>
-                <button class="btn red" onclick="sendCommand('winupdate')">FAKE WIN UPDATE</button>
-            </div>
-            
-            <div class="card">
-                <h2>AI TERMINAL & DVD</h2>
-                <textarea id="termInput" rows="3" placeholder="Terminal text (use \n for new lines)..."></textarea>
-                <button class="btn black" onclick="sendCommand('terminal', document.getElementById('termInput').value || '> SYSTEM OVERRIDE...')">INJECT TERMINAL</button>
-                <button class="btn" onclick="sendCommand('dvd')">DVD BOUNCE MODE</button>
-                <button class="btn black" onclick="sendCommand('hacker')">MATRIX OVERLAY</button>
 
-                <h2 style="margin-top: 15px;">FULL SCREEN ALERT</h2>
-                <textarea id="mInput" rows="2" placeholder="Warning Text..."></textarea>
-                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT BOX</button>
-            </div>
-        </div>
+                <!-- USERS TAB -->
+                <div class="tab-view" data-tab="users">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="section-title">CLOUD USER MANAGEMENT</div>
+                            <input type="text" id="newU" placeholder="New Username">
+                            <input type="password" id="newP" placeholder="New Password">
+                            <button class="btn black" onclick="addCloudUser()">ADD USER TO CLOUD VAULT</button>
+                        </div>
+                        <div class="card">
+                            <div class="section-title">WEATHER OVERRIDE</div>
+                            <input type="text" id="wInput" placeholder="Temp/Condition...">
+                            <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="section-title">SYSTEM ADMINISTRATION</div>
-        <div class="grid">
-            <div class="card">
-                <h2>CLOUD USER MANAGEMENT</h2>
-                <input type="text" id="newU" placeholder="New Username">
-                <input type="password" id="newP" placeholder="New Password">
-                <button class="btn black" onclick="addCloudUser()">ADD USER TO CLOUD VAULT</button>
+                <div class="footer">
+                    &copy; OLIVER KOCH AND OLIVER KOCH STUDIOS
+                </div>
             </div>
-            <div class="card">
-                <h2>WEATHER OVERRIDE</h2>
-                <input type="text" id="wInput" placeholder="Temp/Condition...">
-                <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
-            </div>
-        </div>
-
-        <div style="text-align: center; padding: 40px 0 20px 0; font-size: 10px; color: #999; letter-spacing: 2px; font-weight: bold;">
-            &copy; COPYRIGHT OLIVER KOCH AND OLIVER KOCH STUDIOS
-        </div>
+        </main>
     </div>
 
-    <!-- Performance-tuned globe -->
+    <!-- Performance-tuned, smoother globe -->
     <script>
         const canvas = document.getElementById('globe-canvas');
         const ctx = canvas.getContext('2d');
-        let w, h, points = [], angle = 0;
+        let gw, gh, gPoints = [], gAngle = 0;
         let globeEnabled = true;
 
-        function resize() {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
+        function resizeGlobe() {
+            gw = canvas.width = window.innerWidth;
+            gh = canvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', resize);
-        resize();
+        window.addEventListener('resize', resizeGlobe);
+        resizeGlobe();
 
-        const phi = Math.PI * (3 - Math.sqrt(5));
-        const POINT_COUNT = 300; // lighter than 800
+        const gPhi = Math.PI * (3 - Math.sqrt(5));
+        const G_POINT_COUNT = 200; // lighter, smoother
 
-        for (let i = 0; i < POINT_COUNT; i++) {
-            const y = 1 - (i / (POINT_COUNT - 1)) * 2;
+        for (let i = 0; i < G_POINT_COUNT; i++) {
+            const y = 1 - (i / (G_POINT_COUNT - 1)) * 2;
             const radius = Math.sqrt(1 - y * y);
-            const theta = phi * i;
-            points.push({ x: Math.cos(theta)*radius, y, z: Math.sin(theta)*radius, char: "X?#@&$"[i%6] });
+            const theta = gPhi * i;
+            gPoints.push({
+                x: Math.cos(theta) * radius,
+                y,
+                z: Math.sin(theta) * radius,
+                char: "•×+*"[i % 4]
+            });
         }
 
-        function draw() {
-            if (!globeEnabled) {
-                requestAnimationFrame(draw);
-                return;
+        function drawGlobe() {
+            ctx.clearRect(0, 0, gw, gh);
+
+            if (globeEnabled) {
+                ctx.font = "13px monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                gAngle += 0.0025;
+                const cosA = Math.cos(gAngle), sinA = Math.sin(gAngle);
+
+                const isDark = document.body.classList.contains('dark-mode');
+                const cx = gw / 2;
+                const cy = gh / 2;
+                const baseScale = Math.min(gw, gh) * 0.7;
+
+                for (let i = 0; i < gPoints.length; i++) {
+                    const p = gPoints[i];
+                    const rx = p.x * cosA - p.z * sinA;
+                    const rz = p.z * cosA + p.x * sinA;
+                    const scale = baseScale / (rz + 3.2);
+                    const x = cx + rx * scale;
+                    const y = cy + p.y * scale;
+                    const alpha = 0.15 + ((rz + 1) / 4) * 0.45;
+                    ctx.fillStyle = isDark
+                        ? `rgba(255,255,255,${alpha})`
+                        : `rgba(0,0,0,${alpha})`;
+                    ctx.fillText(p.char, x, y);
+                }
             }
 
-            ctx.clearRect(0,0,w,h);
-            ctx.font = "14px monospace";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            angle += 0.003;
-            const cosA = Math.cos(angle), sinA = Math.sin(angle);
-            const projected = points.map(p => {
-                const rx = p.x * cosA - p.z * sinA, rz = p.z * cosA + p.x * sinA;
-                const scale = (Math.min(w,h)*0.8) / (rz + 3);
-                return { x: w/2 + rx*scale, y: h/2 + p.y*scale, z: rz, char: p.char };
-            }).sort((a,b) => b.z - a.z);
-            
-            const isDark = document.body.classList.contains('dark-mode');
-            projected.forEach(p => {
-                const alpha = (p.z + 1) / 2;
-                const opacity = 0.2 + (alpha * 0.8);
-                ctx.fillStyle = isDark ? `rgba(255,255,255,${opacity})` : `rgba(0,0,0,${opacity})`;
-                ctx.fillText(p.char, p.x, p.y);
-            });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(drawGlobe);
         }
-        draw();
+        requestAnimationFrame(drawGlobe);
 
         window.toggleGlobePerformance = () => {
             globeEnabled = !globeEnabled;
-            canvas.style.display = globeEnabled ? 'block' : 'none';
+            canvas.style.opacity = globeEnabled ? 0.18 : 0;
         };
     </script>
 
@@ -382,15 +911,41 @@
         let isSeeking = false;
         let trainList = [];
         let usersDB = {};
+        let lastKnownScreens = {};
+        let screenStartTimes = {};
+        let dashOnline = 0, dashUnstable = 0, dashOffline = 0;
+
+        // --- TABS ---
+        window.setActiveTab = (tabId) => {
+            document.querySelectorAll('.nav-item').forEach(i => {
+                i.classList.toggle('active', i.dataset.tabTarget === tabId);
+            });
+            document.querySelectorAll('.tab-view').forEach(v => {
+                v.classList.toggle('active', v.dataset.tab === tabId);
+            });
+            document.getElementById('top-bar-title').innerText = tabId.toUpperCase();
+        };
 
         // --- STAGE 1: FETCH CLOUD USERS ---
         get(ref(db, 'remote/users')).then((snapshot) => {
             if (snapshot.exists()) {
                 usersDB = snapshot.val();
             } else {
-                // Failsafe: Create default Admin if vault is empty
                 usersDB = { "Admin": "1234" };
                 set(ref(db, 'remote/users'), usersDB);
+            }
+        });
+
+        // --- LOGIN UX: Enter key shortcuts ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const s1 = document.getElementById('auth-stage-1');
+                const s2 = document.getElementById('auth-stage-2');
+                if (s2 && s2.style.display !== 'none') {
+                    verifySecretCode();
+                } else if (s1 && s1.style.display !== 'none') {
+                    checkCloudCredentials();
+                }
             }
         });
 
@@ -402,6 +957,7 @@
             if (usersDB[u] && String(usersDB[u]) === String(p)) {
                 document.getElementById('auth-stage-1').style.display = 'none';
                 document.getElementById('auth-stage-2').style.display = 'block';
+                document.getElementById('accessCode').focus();
             } else {
                 console.log("Database sees:", usersDB);
                 alert("ACCESS DENIED: INCORRECT USERNAME OR PASSWORD.");
@@ -417,7 +973,7 @@
                     unlockUI();
                 } else {
                     alert("ACCESS DENIED: INCORRECT SECURE VAULT CODE.");
-                    location.reload(); // Kick them out
+                    location.reload();
                 }
             } catch (err) {
                 console.error(err);
@@ -428,11 +984,12 @@
         // --- UNLOCK UI & START DATA STREAMS ---
         function unlockUI() {
             isAuthorized = true;
-            document.getElementById('login-screen').style.opacity = '0';
+            const login = document.getElementById('login-screen');
+            login.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-ui').style.display = 'block'; 
-                startDataStreams(); 
+                login.style.display = 'none';
+                document.getElementById('app-shell').style.display = 'flex';
+                startDataStreams();
             }, 500);
         }
 
@@ -460,7 +1017,11 @@
             if (dangerous.includes(event) && !confirm(`WARNING: TRIGGER [${event.toUpperCase()}]?`)) return;
 
             const target = manualTarget || document.getElementById('target-select').value;
-            push(ref(db, 'remote/commands'), { event, value: val, target, ts: Date.now() });
+            const payload = { event, value: val, target, ts: Date.now() };
+
+            push(ref(db, 'remote/commands'), payload);
+            const lastLabel = `${event.toUpperCase()} → ${target === 'ALL' ? 'ALL SCREENS' : target}`;
+            document.getElementById('last-command').innerText = lastLabel;
         };
 
         // --- SOUNDCLOUD CASTER ---
@@ -498,11 +1059,11 @@
             window.sendCommand('clear_media');
             document.getElementById('sc-admin-preview').style.display = 'none';
             document.getElementById('scInput').value = "";
+            document.getElementById('dash-media-status').innerText = "IDLE";
         };
 
         // --- DATA STREAMS (TRAINS, MEDIA, NETWORK) ---
         function startDataStreams() {
-            
             // 1. Fetch Trains
             get(ref(db, 'remote/trains')).then(s => {
                 trainList = s.exists() ? s.val() : [
@@ -511,7 +1072,7 @@
                 renderTrainEditor();
             });
 
-            // 2. Media Tracking
+            // 2. Media Tracking -> dashboard + slider
             function formatTime(ms) {
                 let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60;
                 return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
@@ -522,79 +1083,105 @@
                     if (state.totalTime > 0) {
                         document.getElementById('sc-time-total').innerText = formatTime(state.totalTime);
                         document.getElementById('sc-time-current').innerText = formatTime(state.currentTime);
-                        if (!isSeeking) { document.getElementById('sc-progress').value = (state.currentTime / state.totalTime); }
+                        if (!isSeeking) {
+                            document.getElementById('sc-progress').value = (state.currentTime / state.totalTime);
+                        }
+                        document.getElementById('dash-media-status').innerText = "PLAYING";
+                    } else {
+                        document.getElementById('dash-media-status').innerText = "IDLE";
                     }
+                } else {
+                    document.getElementById('dash-media-status').innerText = "IDLE";
                 }
             });
 
             // 3. Network Monitor
-            let lastKnownScreens = {};
-            let screenStartTimes = {};
-            onValue(ref(db, 'remote/screens'), (s) => { lastKnownScreens = s.val() || {}; });
+            onValue(ref(db, 'remote/screens'), (s) => {
+                lastKnownScreens = s.val() || {};
+            });
 
             setInterval(() => {
-                const tbody = document.getElementById('network-body');
-                const select = document.getElementById('target-select');
-                const now = Date.now();
-                const currentTarget = select.value;
-                
-                select.innerHTML = '<option value="ALL">BROADCAST TO ALL SCREENS</option>';
-                tbody.innerHTML = '';
-
-                let hasActive = false;
-
-                Object.keys(lastKnownScreens).forEach(id => {
-                    const ping = now - lastKnownScreens[id].heartbeat;
-                    const online = ping < 10000;
-                    const unstable = ping >= 3000 && ping < 10000;
-
-                    if (online) {
-                        hasActive = true;
-                        if (!screenStartTimes[id]) screenStartTimes[id] = now;
-                        select.innerHTML += `<option value="${id}">${id}</option>`;
-                    } else {
-                        delete screenStartTimes[id];
-                    }
-
-                    let uptimeStr = "00:00:00";
-                    if (online && screenStartTimes[id]) {
-                        const diff = now - screenStartTimes[id];
-                        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                        const s2 = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                        uptimeStr = `${h}:${m}:${s2}`;
-                    }
-
-                    let dot = '#E3000F'; let text = 'LOST CONNECTION'; 
-                    if (online && !unstable) { dot = '#2ecc71'; text = 'STABLE CONNECTION'; }
-                    else if (unstable) { dot = '#FFD700'; text = 'UNSTABLE CONNECTION'; }
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><strong>${id}</strong></td>
-                            <td><span class="status-dot" style="background:${dot}"></span><span style="color:${dot}; font-weight:bold;">${text}</span></td>
-                            <td>${online ? ping + ' ms' : 'N/A'}</td>
-                            <td style="font-family:monospace; font-weight:bold;">${uptimeStr}</td>
-                            <td><button class="btn black" style="margin:0; width:auto; padding:5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button></td>
-                        </tr>
-                    `;
-                });
-
-                if (!hasActive) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">NO SCREENS DETECTED</td></tr>';
-                if (Array.from(select.options).some(o => o.value === currentTarget)) select.value = currentTarget;
-
-            }, 2000); // was 1000, throttled to 2s
+                renderNetworkTable();
+            }, 2000);
         }
+
+        // --- NETWORK RENDERER ---
+        window.renderNetworkTable = () => {
+            const tbody = document.getElementById('network-body');
+            const select = document.getElementById('target-select');
+            const now = Date.now();
+            const currentTarget = select.value;
+            const filter = document.getElementById('network-filter').value;
+
+            select.innerHTML = '<option value="ALL">BROADCAST TO ALL SCREENS</option>';
+            tbody.innerHTML = '';
+
+            let hasActive = false;
+            dashOnline = 0; dashUnstable = 0; dashOffline = 0;
+
+            Object.keys(lastKnownScreens).forEach(id => {
+                const data = lastKnownScreens[id];
+                const ping = now - data.heartbeat;
+                const online = ping < 10000;
+                const unstable = ping >= 3000 && ping < 10000;
+
+                if (online) {
+                    hasActive = true;
+                    if (!screenStartTimes[id]) screenStartTimes[id] = now;
+                    select.innerHTML += `<option value="${id}">${id}</option>`;
+                    if (unstable) dashUnstable++; else dashOnline++;
+                } else {
+                    dashOffline++;
+                    delete screenStartTimes[id];
+                }
+
+                let uptimeStr = "00:00:00";
+                if (online && screenStartTimes[id]) {
+                    const diff = now - screenStartTimes[id];
+                    const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                    const s2 = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                    uptimeStr = `${h}:${m}:${s2}`;
+                }
+
+                let dot = '#E3000F'; let text = 'LOST CONNECTION'; 
+                let statusKey = 'offline';
+                if (online && !unstable) { dot = '#2ecc71'; text = 'STABLE CONNECTION'; statusKey = 'online'; }
+                else if (unstable) { dot = '#FFD700'; text = 'UNSTABLE CONNECTION'; statusKey = 'unstable'; }
+
+                if (filter !== 'all' && filter !== statusKey) return;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${id}</strong></td>
+                        <td><span class="status-dot" style="background:${dot}"></span><span style="color:${dot}; font-weight:bold;">${text}</span></td>
+                        <td>${online ? ping + ' ms' : 'N/A'}</td>
+                        <td style="font-family:monospace; font-weight:bold;">${uptimeStr}</td>
+                        <td><button class="btn black" style="margin:0; width:auto; padding:5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button></td>
+                    </tr>
+                `;
+            });
+
+            if (!hasActive && Object.keys(lastKnownScreens).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">NO SCREENS DETECTED</td></tr>';
+            }
+
+            if (Array.from(select.options).some(o => o.value === currentTarget)) select.value = currentTarget;
+
+            document.getElementById('dash-screens-online').innerText = dashOnline;
+            document.getElementById('dash-screens-unstable').innerText = dashUnstable;
+            document.getElementById('dash-screens-offline').innerText = dashOffline;
+        };
 
         // --- TRAIN MGMT FUNCTIONS ---
         window.renderTrainEditor = () => {
             const el = document.getElementById('train-editor');
             el.innerHTML = trainList.map((t, i) => `
-                <div class="flex-row" style="margin-bottom:8px;">
+                <div class="flex-row" style="margin-bottom:6px;">
                     <input type="text" id="t-time-${i}" value="${t.time}" style="flex:0.6" placeholder="00:00">
                     <input type="text" id="t-type-${i}" value="${t.type}" style="flex:0.8" placeholder="Type">
                     <input type="text" id="t-dest-${i}" value="${t.dest}" style="flex:2" placeholder="Destination">
-                    <input type="text" id="t-track-${i}" value="${t.track}" style="flex:0.5" placeholder="Sp" style="text-align:center;">
+                    <input type="text" id="t-track-${i}" value="${t.track}" style="flex:0.5" placeholder="Sp">
                     <input type="text" id="t-stat-${i}" value="${t.status}" style="flex:1.5" placeholder="Status">
                     <select id="t-col-${i}" style="flex:1">
                         <option value="white" ${t.color==='white'?'selected':''}>WHITE</option>
@@ -602,7 +1189,9 @@
                         <option value="yellow" ${t.color==='yellow'?'selected':''}>YELLOW</option>
                         <option value="green" ${t.color==='green'?'selected':''}>GREEN</option>
                     </select>
-                    <label style="flex:0.5; font-size:10px; cursor:pointer; white-space:nowrap;"><input type="checkbox" id="t-blk-${i}" ${t.blink?'checked':''}> BLINK</label>
+                    <label style="flex:0.6; font-size:10px; cursor:pointer; white-space:nowrap;">
+                        <input type="checkbox" id="t-blk-${i}" ${t.blink?'checked':''}> BLINK
+                    </label>
                     <button class="btn red" style="width:auto; margin:0; flex:0.3;" onclick="removeTrain(${i})">X</button>
                 </div>
             `).join('');
@@ -637,6 +1226,21 @@
             trainList.forEach((t) => { t.status = "AFLYST"; t.color = "red"; t.blink = true; });
             renderTrainEditor();
             window.syncTrainBoard();
+        };
+
+        // --- TICKER MODE DASH INDICATOR (admin only sets, hub controls display) ---
+        // We infer from last sendCommand('ticker', ...)
+        // DR NEWS is default; when you send custom ticker, we flip label in that button logic.
+        const originalSendCommand = window.sendCommand;
+        window.sendCommand = (event, val = "", manualTarget = null) => {
+            originalSendCommand(event, val, manualTarget);
+            if (event === 'ticker') {
+                if (!val || val === "") {
+                    document.getElementById('dash-ticker-mode').innerText = "DR NEWS";
+                } else {
+                    document.getElementById('dash-ticker-mode').innerText = "CUSTOM";
+                }
+            }
         };
     </script>
 </body>
