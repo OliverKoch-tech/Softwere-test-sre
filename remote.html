@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <title>MASTER ADMIN - SRE Hub</title>
     <style>
-        /* --- DYNAMIC COLOR VARIABLES --- */
         :root {
-            --c1: 227, 0, 15;   /* Red Default */
-            --c2: 0, 40, 85;    /* Blue Default */
-            --c3: 255, 215, 0;  /* Yellow Default */
+            --c1: 227, 0, 15;
+            --c2: 0, 40, 85;
+            --c3: 255, 215, 0;
         }
 
         * { box-sizing: border-box; }
@@ -25,7 +24,6 @@
             transition: background 0.3s, color 0.3s;
         }
         
-        /* --- GLOBE BACKGROUND --- */
         #globe-canvas {
             position: fixed;
             top: 0; left: 0;
@@ -36,7 +34,6 @@
             transition: opacity 0.3s;
         }
 
-        /* --- INTRO & LOGIN SCREENS --- */
         #intro-screen { 
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
@@ -119,11 +116,10 @@
             box-sizing: border-box;
         }
 
-        /* --- LAYOUT SHELL --- */
         .app-shell {
             position: relative;
             z-index: 1;
-            display: none; /* show after unlock */
+            display: none;
             height: 100vh;
             display: flex;
         }
@@ -243,7 +239,6 @@
             font-weight: 700;
         }
 
-        /* --- MAIN CONTENT AREA --- */
         .content-scroll {
             flex: 1;
             overflow: auto;
@@ -251,12 +246,8 @@
             position: relative;
         }
 
-        .tab-view {
-            display: none;
-        }
-        .tab-view.active {
-            display: block;
-        }
+        .tab-view { display: none; }
+        .tab-view.active { display: block; }
 
         .card {
             background: rgba(255,255,255,0.95);
@@ -287,7 +278,6 @@
             letter-spacing: 2px;
         }
 
-        /* --- BUTTONS & INPUTS --- */
         .btn {
             width: 100%;
             padding: 10px;
@@ -336,7 +326,6 @@
         }
         .flex-row { display: flex; gap: 10px; align-items: center; }
 
-        /* --- NETWORK TABLE --- */
         table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
         table.net-table th {
             border-bottom: 2px solid #000;
@@ -356,7 +345,6 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
 
-        /* --- SOUNDCLOUD CLEAN BLACK RIM --- */
         .admin-art-wrapper {
             padding: 2px;
             border-radius: 6px;
@@ -365,7 +353,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        /* --- DARK MODE --- */
         body.dark-mode { background: #111; color: #eee; }
         body.dark-mode .sidebar { background: #111; border-right-color: #333; }
         body.dark-mode .sidebar-logo-sub { color: #777; }
@@ -431,7 +418,6 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
 
-        /* --- FOOTER --- */
         .footer {
             text-align: center;
             padding: 15px 0 5px 0;
@@ -508,7 +494,6 @@
         </div>
     </div>
 
-    <!-- APP SHELL -->
     <div class="app-shell" id="app-shell">
         <aside class="sidebar">
             <div class="sidebar-logo">
@@ -577,7 +562,6 @@
             </div>
 
             <div class="content-scroll">
-                <!-- DASHBOARD TAB -->
                 <div class="tab-view active" data-tab="dashboard">
                     <div class="grid">
                         <div class="card">
@@ -624,7 +608,6 @@
                     </div>
                 </div>
 
-                <!-- NETWORK TAB -->
                 <div class="tab-view" data-tab="network">
                     <div class="card">
                         <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
@@ -655,7 +638,6 @@
                     </div>
                 </div>
 
-                <!-- MEDIA TAB -->
                 <div class="tab-view" data-tab="media">
                     <div class="grid">
                         <div class="card">
@@ -741,7 +723,6 @@
                     </div>
                 </div>
 
-                <!-- TRAINS TAB -->
                 <div class="tab-view" data-tab="trains">
                     <div class="card">
                         <div class="section-title">TRAIN BOARD MANAGEMENT</div>
@@ -773,7 +754,6 @@
                     </div>
                 </div>
 
-                <!-- FX TAB -->
                 <div class="tab-view" data-tab="fx">
                     <div class="grid">
                         <div class="card">
@@ -818,7 +798,6 @@
                     </div>
                 </div>
 
-                <!-- SYSTEM TAB -->
                 <div class="tab-view" data-tab="system">
                     <div class="grid">
                         <div class="card">
@@ -839,7 +818,6 @@
                     </div>
                 </div>
 
-                <!-- USERS TAB -->
                 <div class="tab-view" data-tab="users">
                     <div class="grid">
                         <div class="card">
@@ -863,7 +841,6 @@
         </main>
     </div>
 
-    <!-- Performance-tuned, smoother globe -->
     <script>
         const canvas = document.getElementById('globe-canvas');
         const ctx = canvas.getContext('2d');
@@ -878,7 +855,8 @@
         resizeGlobe();
 
         const gPhi = Math.PI * (3 - Math.sqrt(5));
-        const G_POINT_COUNT = 200; // lighter, smoother
+        const G_POINT_COUNT = 200;
+        const gChars = "•×+*".split('');
 
         for (let i = 0; i < G_POINT_COUNT; i++) {
             const y = 1 - (i / (G_POINT_COUNT - 1)) * 2;
@@ -888,7 +866,7 @@
                 x: Math.cos(theta) * radius,
                 y,
                 z: Math.sin(theta) * radius,
-                char: "•×+*"[i % 4]
+                char: gChars[i % gChars.length]
             });
         }
 
@@ -933,7 +911,6 @@
         };
     </script>
 
-    <!-- Firebase + app logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -951,7 +928,6 @@
         let dashOnline = 0, dashUnstable = 0, dashOffline = 0;
         let mediaStates = {};
 
-        // --- TABS ---
         window.setActiveTab = (tabId) => {
             document.querySelectorAll('.nav-item').forEach(i => {
                 i.classList.toggle('active', i.dataset.tabTarget === tabId);
@@ -962,7 +938,6 @@
             document.getElementById('top-bar-title').innerText = tabId.toUpperCase();
         };
 
-        // --- STAGE 1: FETCH CLOUD USERS ---
         get(ref(db, 'remote/users')).then((snapshot) => {
             if (snapshot.exists()) {
                 usersDB = snapshot.val();
@@ -972,7 +947,6 @@
             }
         });
 
-        // --- LOGIN UX: Enter key shortcuts ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const s1 = document.getElementById('auth-stage-1');
@@ -985,7 +959,6 @@
             }
         });
 
-        // --- STAGE 1: CREDENTIALS CHECK ---
         window.checkCloudCredentials = () => {
             const u = document.getElementById('logUser').value.trim();
             const p = document.getElementById('logPass').value.trim();
@@ -999,7 +972,6 @@
             }
         };
 
-        // --- STAGE 2: VERIFY MASTER CODE ---
         window.verifySecretCode = async () => {
             const input = document.getElementById('accessCode').value.trim();
             try {
@@ -1030,7 +1002,6 @@
             }, 500);
         }
 
-        // --- CLOUD USER MANAGEMENT ---
         window.addCloudUser = () => {
             if (!isAuthorized) return;
             const u = document.getElementById('newU').value.trim();
@@ -1046,7 +1017,6 @@
             }
         };
 
-        // --- COMMAND ENGINE ---
         const _rawSendCommand = (event, val = "", manualTarget = null) => {
             if (!isAuthorized) return;
             const dangerous = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
@@ -1071,7 +1041,6 @@
             }
         };
 
-        // --- SOUNDCLOUD CASTER ---
         window.seekTrack = (value) => {
             window.sendCommand('sc_seek', value);
             setTimeout(() => { isSeeking = false; }, 1000); 
@@ -1083,6 +1052,19 @@
             const url = document.getElementById('scInput').value;
             const preview = document.getElementById('sc-admin-preview');
             if (!url) return;
+
+            const target = document.getElementById('target-select').value;
+
+            if (target === 'ALL') {
+                sendCommand('clear_media');
+                sendCommand('sc_volume', 100);
+                const volSlider = document.getElementById('scVolume');
+                const volLabel = document.getElementById('scVolumeLabel');
+                if (volSlider && volLabel) {
+                    volSlider.value = 100;
+                    volLabel.innerText = '100%';
+                }
+            }
 
             preview.style.display = 'flex';
             document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
@@ -1109,7 +1091,6 @@
             document.getElementById('dash-media-status').innerText = "IDLE";
         };
 
-        // --- MEDIA STATE LISTENER (per-screen) ---
         onValue(ref(db, 'remote/media_state'), (snapshot) => {
             mediaStates = snapshot.val() || {};
             updateMediaUIForCurrentTarget();
@@ -1135,6 +1116,30 @@
             const keys = mediaStates ? Object.keys(mediaStates) : [];
 
             if (target === 'ALL') {
+                if (keys.length > 1) {
+                    const volumes = keys.map(k =>
+                        mediaStates[k] && typeof mediaStates[k].volume === 'number'
+                            ? mediaStates[k].volume
+                            : 80
+                    );
+                    const allSameVol = volumes.every(v => v === volumes[0]);
+
+                    if (!allSameVol) {
+                        sendCommand('clear_media');
+                        sendCommand('sc_volume', 100);
+
+                        if (volSlider && volLabel) {
+                            volSlider.value = 100;
+                            volLabel.innerText = '100%';
+                        }
+                        if (totalEl) totalEl.innerText = '00:00';
+                        if (curEl) curEl.innerText = '00:00';
+                        if (!isSeeking && progressEl) progressEl.value = 0;
+                        if (dashMedia) dashMedia.innerText = 'IDLE';
+                        return;
+                    }
+                }
+
                 const firstKey = keys[0];
                 if (firstKey) state = mediaStates[firstKey];
             } else {
@@ -1162,9 +1167,7 @@
             }
         }
 
-        // --- DATA STREAMS (TRAINS, NETWORK) ---
         function startDataStreams() {
-            // 1. Fetch Trains
             get(ref(db, 'remote/trains')).then(s => {
                 trainList = s.exists() ? s.val() : [
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false }
@@ -1172,7 +1175,6 @@
                 renderTrainEditor();
             });
 
-            // 2. Network Monitor
             onValue(ref(db, 'remote/screens'), (s) => {
                 lastKnownScreens = s.val() || {};
             });
@@ -1182,7 +1184,6 @@
             }, 2000);
         }
 
-        // --- NETWORK RENDERER ---
         window.renderNetworkTable = () => {
             const tbody = document.getElementById('network-body');
             const select = document.getElementById('target-select');
@@ -1252,7 +1253,6 @@
             updateMediaUIForCurrentTarget();
         };
 
-        // --- TRAIN MGMT FUNCTIONS ---
         window.renderTrainEditor = () => {
             const el = document.getElementById('train-editor');
             el.innerHTML = trainList.map((t, i) => `

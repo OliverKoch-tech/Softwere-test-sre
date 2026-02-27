@@ -208,7 +208,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // STATE & IDENTITY
         let customTickerActive = false;
         let lastDrNews = "HENTER SENESTE NYT FRA DR...";
         const myId = "SKÆRM-" + Math.floor(Math.random() * 9000 + 1000);
@@ -218,13 +217,11 @@
         window.scrambleTimer = null;
         let isKicked = false;
         
-        // Media
         let scWidget = null; 
         let trackDuration = 0;
         let progressInterval = null;
-        let currentVolume = 80; // 0–100 per screen
+        let currentVolume = 100; // default 100%
 
-        // HEARTBEAT
         const myScreenRef = ref(db, `remote/screens/${myId}`);
         onDisconnect(myScreenRef).remove();
         set(myScreenRef, { heartbeat: Date.now(), status: "ONLINE" });
@@ -233,13 +230,11 @@
             if (!isKicked) update(myScreenRef, { heartbeat: Date.now() }); 
         }, 3000);
 
-        // INTRO CLICK
         document.getElementById('intro-screen').addEventListener('click', function() {
             this.style.opacity = '0';
             setTimeout(() => this.style.display = 'none', 1000);
         });
 
-        // VISUALIZER
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
         const scBgImg = document.getElementById('sc-bg-img');
@@ -249,7 +244,7 @@
 
         const globePoints = [];
         const phi = Math.PI * (3 - Math.sqrt(5));
-        const chars = "•×+*".split(''); // node style, like admin
+        const chars = "•×+*".split('');
 
         for (let i = 0; i < 600; i++) {
             const y = 1 - (i / 599) * 2;
@@ -346,7 +341,6 @@
             if (scAnimFrame) cancelAnimationFrame(scAnimFrame);
         }
 
-        // FETCHERS
         async function fetchWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
@@ -370,7 +364,6 @@
         fetchNews();
         setInterval(fetchNews, 600000);
 
-        // OVERLAY LOGIC
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
         function startDvd() {
             document.getElementById('dvd-overlay').style.display = 'block';
@@ -425,7 +418,6 @@
             typeChar();
         }
 
-        // TRAIN RENDERER
         function renderTrains(trainArray) {
             const tbody = document.getElementById('train-table');
             tbody.innerHTML = '';
@@ -456,7 +448,6 @@
             }
         });
 
-        // COMMAND LISTENER
         const commandQuery = query(
             ref(db, 'remote/commands'),
             orderByChild('ts'),
@@ -474,7 +465,6 @@
         function executeCommand(cmd) {
             const body = document.getElementById('main-body');
 
-            // SYSTEM
             if (cmd.event === "reset") {
                 location.reload();
             } else if (cmd.event === "soft_reset") {
@@ -520,7 +510,6 @@
                 kick.style.pointerEvents = 'auto';
             }
             
-            // VISUAL FX
             else if (cmd.event === "mirror") {
                 body.classList.toggle('mirror');
             } else if (cmd.event === "invert") {
@@ -557,7 +546,6 @@
                 }
             }
 
-            // OVERLAYS
             else if (cmd.event === "terminal") {
                 playTerminal(cmd.value);
             } else if (cmd.event === "dvd") {
@@ -590,7 +578,6 @@
                 }
             }
 
-            // TEXT / INFO
             else if (cmd.event === "ticker") {
                 if (!cmd.value || cmd.value === "") {
                     customTickerActive = false;
@@ -611,7 +598,6 @@
                 tag.style.display = (tag.style.display === 'none') ? 'block' : 'none';
             }
 
-            // TRAINS
             else if (cmd.event === "delay") {
                 document.querySelectorAll('.status-msg').forEach(el => {
                     el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN";
@@ -629,7 +615,6 @@
                 });
             }
 
-            // MEDIA
             else if (cmd.event === "sc_pause") {
                 try { if (scWidget) scWidget.pause(); } catch(e){}
             } else if (cmd.event === "sc_play") {
@@ -646,7 +631,7 @@
                 } catch(e){} 
             } else if (cmd.event === "sc_volume") {
                 try {
-                    const v = Math.max(0, Math.min(100, parseInt(cmd.value || "80", 10)));
+                    const v = Math.max(0, Math.min(100, parseInt(cmd.value || "100", 10)));
                     currentVolume = v;
                     if (scWidget) scWidget.setVolume(v);
                 } catch (e) {}
@@ -750,7 +735,6 @@
             stopDvd();
         }
 
-        // CLOCK
         setInterval(() => {
             document.getElementById('clock').innerText =
                 new Date().toLocaleTimeString('da-DK', {
