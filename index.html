@@ -26,22 +26,42 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS --- */
-        .mirror { transform: scaleX(-1); } .upside-down { transform: rotate(180deg); } .glitch-red { animation: panic 0.1s infinite; }
-        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } .disco { animation: disco 0.3s infinite; } 
+        .mirror { transform: scaleX(-1); } 
+        .upside-down { transform: rotate(180deg); } 
+        .glitch-red { animation: panic 0.1s infinite; }
+        .deep-fried { filter: contrast(400%) saturate(600%) hue-rotate(320deg); } 
+        .disco { animation: disco 0.3s infinite; } 
         .shake { animation: shake 0.4s infinite; }
+
         @keyframes panic { 0% { background: #050505; } 50% { background: #600; } }
-        @keyframes disco { 0% { background: #E3000F; } 33% { background: #002855; } 66% { background: #2ecc71; } 100% { background: #FFD700; } }
-        @keyframes shake { 0% { transform: translate(3px, 2px) rotate(0deg); } 20% { transform: translate(-3px, -2px) rotate(-1deg); } 40% { transform: translate(-3px, 2px) rotate(1deg); } 60% { transform: translate(3px, -2px) rotate(0deg); } 80% { transform: translate(1px, 2px) rotate(-1deg); } 100% { transform: translate(-1px, -2px) rotate(1deg); } }
+        @keyframes disco { 
+            0% { background: #E3000F; } 
+            33% { background: #002855; } 
+            66% { background: #2ecc71; } 
+            100% { background: #FFD700; } 
+        }
+        @keyframes shake {
+            0% { transform: translate(3px, 2px) rotate(0deg); } 
+            20% { transform: translate(-3px, -2px) rotate(-1deg); } 
+            40% { transform: translate(-3px, 2px) rotate(1deg); } 
+            60% { transform: translate(3px, -2px) rotate(0deg); } 
+            80% { transform: translate(1px, 2px) rotate(-1deg); } 
+            100% { transform: translate(-1px, -2px) rotate(1deg); } 
+        }
         
         /* --- LAYOUT --- */
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid #E3000F; padding-bottom: 15px; margin-bottom: 20px; align-items: flex-end; }
         .time { color: #FFD700; font-size: 55px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         table { width: 100%; border-collapse: collapse; } 
         td { padding: 15px 0; border-bottom: 1px solid #1a1a1a; font-size: 32px; font-weight: bold; transition: color 0.2s; }
-        .yellow { color: #FFD700; } .red { color: #ff3333; } .white { color: #ffffff; } .green { color: #2ecc71; }
+        .yellow { color: #FFD700; } 
+        .red { color: #ff3333; } 
+        .white { color: #ffffff; } 
+        .green { color: #2ecc71; }
         .ic-box { background: #E3000F; padding: 2px 8px; color: white; border-radius: 3px; } 
         .re-box { background: #002855; padding: 2px 8px; color: white; border-radius: 3px; }
-        .blinking { animation: blinker 1s linear infinite; } @keyframes blinker { 50% { opacity: 0; } }
+        .blinking { animation: blinker 1s linear infinite; } 
+        @keyframes blinker { 50% { opacity: 0; } }
         
         .header-right { text-align: right; display: flex; align-items: center; gap: 25px; }
         .sre-logo { height: 135px; object-fit: contain; }
@@ -62,7 +82,6 @@
         #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
-        /* UPDATED: Clean Thin Black Rim Wrapper */
         .art-wrapper {
             padding: 2px;
             border-radius: 14px;
@@ -73,7 +92,6 @@
 
         #sc-art { width: 450px; height: 450px; object-fit: cover; border-radius: 12px; display: block; }
         
-        /* UPDATED: Clean Dark Title Box */
         .title-box {
             margin-top: 40px;
             padding: 15px 50px;
@@ -136,11 +154,17 @@
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
     <div id="terminal-overlay" class="overlay"><div id="terminal-text"></div></div>
     <div id="screen-id-tag">ID: --</div>
-    <div id="msg-board-overlay" class="overlay"><div id="msg-board-title">VIGTIG MEDDELELSE</div><div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white; text-transform: none;"></div></div>
+    <div id="msg-board-overlay" class="overlay">
+        <div id="msg-board-title">VIGTIG MEDDELELSE</div>
+        <div id="msg-board-text" style="font-size:60px; font-weight:bold; color:white; text-transform: none;"></div>
+    </div>
     <div id="blackout" class="overlay"></div>
     <div id="hacker-matrix" class="overlay">> SYSTEM COMPROMISED...<br>> INJECTING PAYLOAD...<br>> OVERRIDING SRE MAINFRAME...</div>
     <div id="jumpscare" class="overlay"></div>
-    <div id="bsod" class="overlay"><h1 style="font-size: 100px;">:(</h1><p style="font-size: 24px;">Din PC løb ind i et problem og skal genstarte...</p></div>
+    <div id="bsod" class="overlay">
+        <h1 style="font-size: 100px;">:(</h1>
+        <p style="font-size: 24px;">Din PC løb ind i et problem og skal genstarte...</p>
+    </div>
     <div id="win-update" class="overlay">
         <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
         <div style="font-size: 32px;">Arbejder på opdateringer... 15% fuldført.<br>Sluk ikke computeren.</div>
@@ -158,8 +182,7 @@
     </div>
     
     <table>
-        <tbody id="train-table">
-        </tbody>
+        <tbody id="train-table"></tbody>
     </table>
     
     <img src="logo.png" class="footer-logo">
@@ -167,8 +190,19 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // ADDED onChildAdded AND onDisconnect for correct syncing
-        import { getDatabase, ref, onValue, set, update, get, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import {
+            getDatabase,
+            ref,
+            onValue,
+            set,
+            update,
+            get,
+            onChildAdded,
+            onDisconnect,
+            query,
+            orderByChild,
+            startAt
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
@@ -184,23 +218,19 @@
         window.scrambleTimer = null;
         let isKicked = false;
         
-        // Media Variables
+        // Media
         let scWidget = null; 
         let trackDuration = 0;
         let progressInterval = null;
 
         // --- 1. HEARTBEAT & AUTO CLEANUP ---
         const myScreenRef = ref(db, `remote/screens/${myId}`);
-        // Tells Firebase to delete this screen automatically if the browser closes
         onDisconnect(myScreenRef).remove();
-        
-        // Setup initial connection footprint
         set(myScreenRef, { heartbeat: Date.now(), status: "ONLINE" });
 
-        // Update heartbeat (only if not kicked)
         setInterval(() => { 
-            if(!isKicked) update(myScreenRef, { heartbeat: Date.now() }); 
-        }, 3000); // 3 seconds is perfect for stable UI updates
+            if (!isKicked) update(myScreenRef, { heartbeat: Date.now() }); 
+        }, 3000);
 
         // --- CLICK TO UNLOCK AUDIO ---
         document.getElementById('intro-screen').addEventListener('click', function() {
@@ -208,7 +238,7 @@
             setTimeout(() => this.style.display = 'none', 1000);
         });
 
-        // --- BACKGROUND VISUALIZER FRAMEWORK ---
+        // --- BACKGROUND VISUALIZER (SoundCloud) ---
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
         const scBgImg = document.getElementById('sc-bg-img');
@@ -227,7 +257,7 @@
         }
 
         function startVisualizer() {
-            if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
+            if (scAnimFrame) cancelAnimationFrame(scAnimFrame);
             
             function draw() {
                 scCanvas.width = window.innerWidth;
@@ -254,8 +284,8 @@
                     const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
                     const projected = [];
 
-                    for(let x = -gridSize; x <= gridSize; x++) {
-                        for(let z = -gridSize; z <= gridSize; z++) {
+                    for (let x = -gridSize; x <= gridSize; x++) {
+                        for (let z = -gridSize; z <= gridSize; z++) {
                             const dist = Math.sqrt(x*x + z*z);
                             let y = Math.sin(dist * 0.25 - visTime) * 2 + Math.cos(x * 0.2 + visTime * 0.8) * 1.5;
                             
@@ -263,9 +293,14 @@
                             let rx = px * cosY - pz * sinY, rz = pz * cosY + px * sinY;
                             let ry = py * cosX - rz * sinX, rz2 = rz * cosX + py * sinX;
                             const zScale = 45 + rz2;
-                            if(zScale <= 0) continue;
+                            if (zScale <= 0) continue;
                             const scale = (Math.min(scCanvas.width, scCanvas.height) * 0.8) / zScale;
-                            projected.push({ sx: scCanvas.width/2 + rx*scale, sy: scCanvas.height/2 + ry*scale + 100, z: rz2, char: chars[Math.abs(x*z) % chars.length] });
+                            projected.push({
+                                sx: scCanvas.width/2 + rx*scale,
+                                sy: scCanvas.height/2 + ry*scale + 100,
+                                z: rz2,
+                                char: chars[Math.abs(x*z) % chars.length]
+                            });
                         }
                     }
                     projected.sort((a,b) => b.z - a.z); 
@@ -278,14 +313,19 @@
                 } else if (currentBgMode === 'globe') {
                     scCtx.font = "16px monospace";
                     scCtx.textAlign = "center";
-                    const cosA = Math.cos(visTime*0.2), sinA = Math.sin(visTime*0.2);
+                    const cosA = Math.cos(visTime * 0.2), sinA = Math.sin(visTime * 0.2);
                     const projected = [];
                     globePoints.forEach(p => {
                         const rotX = p.x * cosA - p.z * sinA;
                         const rotZ = p.z * cosA + p.x * sinA;
                         const zScale = rotZ + 3;
                         const scale = (Math.min(scCanvas.width, scCanvas.height) * 1.1) / zScale;
-                        projected.push({ sx: scCanvas.width/2 + rotX*scale, sy: scCanvas.height/2 + p.y*scale, z: rotZ, char: p.char });
+                        projected.push({
+                            sx: scCanvas.width/2 + rotX*scale,
+                            sy: scCanvas.height/2 + p.y*scale,
+                            z: rotZ,
+                            char: p.char
+                        });
                     });
                     projected.sort((a,b) => b.z - a.z);
                     projected.forEach(p => {
@@ -301,7 +341,7 @@
         }
 
         function stopVisualizer() {
-            if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
+            if (scAnimFrame) cancelAnimationFrame(scAnimFrame);
         }
 
         // --- FETCHERS ---
@@ -309,7 +349,8 @@
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=54.91&longitude=11.85&current_weather=true');
                 const d = await res.json();
-                document.querySelector('.weather-text').innerText = `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`;
+                document.querySelector('.weather-text').innerText =
+                    `ØSTER KIPPINGE: ${Math.round(d.current_weather.temperature)}°C`;
             } catch(e) {}
         }
         fetchWeather();
@@ -318,11 +359,14 @@
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.dr.dk/nyheder/service/feeds/allenyheder');
                 const d = await res.json();
-                lastDrNews = "+++ SENESTE NYT: " + d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ") + " +++";
+                lastDrNews = "+++ SENESTE NYT: " +
+                    d.items.slice(0, 8).map(i => i.title.toUpperCase()).join("  +++  ") +
+                    " +++";
                 if (!customTickerActive) document.getElementById('ticker-msg').innerText = lastDrNews;
             } catch(e) {}
         }
-        fetchNews(); setInterval(fetchNews, 600000);
+        fetchNews();
+        setInterval(fetchNews, 600000);
 
         // --- OVERLAY LOGIC ---
         let dvdInterval, dvdX = 50, dvdY = 50, dvdDx = 4, dvdDy = 4, dvdHue = 0;
@@ -331,27 +375,49 @@
             clearInterval(dvdInterval);
             dvdInterval = setInterval(() => {
                 const logo = document.getElementById('dvd-logo');
-                if (dvdX + 150 >= window.innerWidth || dvdX <= 0) { dvdDx = -dvdDx; dvdHue = (dvdHue + 75) % 360; logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`; }
-                if (dvdY + 150 >= window.innerHeight || dvdY <= 0) { dvdDy = -dvdDy; dvdHue = (dvdHue + 75) % 360; logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`; }
-                dvdX += dvdDx; dvdY += dvdDy;
+                if (dvdX + 150 >= window.innerWidth || dvdX <= 0) {
+                    dvdDx = -dvdDx;
+                    dvdHue = (dvdHue + 75) % 360;
+                    logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`;
+                }
+                if (dvdY + 150 >= window.innerHeight || dvdY <= 0) {
+                    dvdDy = -dvdDy;
+                    dvdHue = (dvdHue + 75) % 360;
+                    logo.style.filter = `invert(30%) sepia(100%) saturate(5000%) hue-rotate(${dvdHue}deg)`;
+                }
+                dvdX += dvdDx;
+                dvdY += dvdDy;
                 logo.style.transform = `translate(${dvdX}px, ${dvdY}px)`;
             }, 16);
         }
-        function stopDvd() { clearInterval(dvdInterval); document.getElementById('dvd-overlay').style.display = 'none'; }
+        function stopDvd() {
+            clearInterval(dvdInterval);
+            document.getElementById('dvd-overlay').style.display = 'none';
+        }
 
         let typeTimeout;
         function playTerminal(text) {
             document.getElementById('terminal-overlay').style.display = 'block';
             const el = document.getElementById('terminal-text');
-            el.innerHTML = ''; clearTimeout(typeTimeout);
-            let i = 0; text = text.replace(/\\n/g, '<br>');
+            el.innerHTML = '';
+            clearTimeout(typeTimeout);
+            let i = 0;
+            text = text.replace(/\\n/g, '<br>');
             function typeChar() {
                 if (i < text.length) {
                     if (text.charAt(i) === '<') {
-                        let tag = ""; while (text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
-                        tag += '>'; el.innerHTML = el.innerHTML.replace('█', '') + tag + '█';
-                    } else { el.innerHTML = el.innerHTML.replace('█', '') + text.charAt(i) + '█'; }
-                    i++; typeTimeout = setTimeout(typeChar, 40);
+                        let tag = "";
+                        while (text.charAt(i) !== '>' && i < text.length) {
+                            tag += text.charAt(i);
+                            i++;
+                        }
+                        tag += '>';
+                        el.innerHTML = el.innerHTML.replace('█', '') + tag + '█';
+                    } else {
+                        el.innerHTML = el.innerHTML.replace('█', '') + text.charAt(i) + '█';
+                    }
+                    i++;
+                    typeTimeout = setTimeout(typeChar, 40);
                 }
             }
             typeChar();
@@ -390,12 +456,17 @@
         });
 
         // --- THE COMMAND QUEUE (LISTENER) ---
-        onChildAdded(ref(db, 'remote/commands'), (snapshot) => {
+        // Only listen to commands created after this screen booted
+        const commandQuery = query(
+            ref(db, 'remote/commands'),
+            orderByChild('ts'),
+            startAt(bootTime)
+        );
+
+        onChildAdded(commandQuery, (snapshot) => {
             if (isKicked) return;
             const cmd = snapshot.val();
-
-            // Ignore commands that were sent before this specific screen booted up
-            if (!cmd || !cmd.ts || cmd.ts < bootTime) return;
+            if (!cmd) return;
 
             // Target check
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
@@ -407,91 +478,160 @@
             const body = document.getElementById('main-body');
 
             // --- SYSTEM ---
-            if (cmd.event === "reset") location.reload();
-            else if (cmd.event === "soft_reset") {
+            if (cmd.event === "reset") {
+                location.reload();
+            } else if (cmd.event === "soft_reset") {
                 document.querySelectorAll('.overlay').forEach(e => {
                     e.classList.remove('active');
-                    setTimeout(() => { if(!e.classList.contains('active')) e.style.display='none'; }, 1000);
+                    setTimeout(() => { if (!e.classList.contains('active')) e.style.display='none'; }, 1000);
                 });
                 body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried');
-                if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; }
+                if (window.scrambleTimer) {
+                    clearInterval(window.scrambleTimer);
+                    window.scrambleTimer = null;
+                }
                 stopDvd();
                 stopVisualizer();
                 document.getElementById('sc-player-container').innerHTML = ""; 
                 clearInterval(progressInterval);
-                get(ref(db, 'remote/trains')).then((s) => { if(s.exists()) renderTrains(s.val()); });
-            }
-            else if (cmd.event === "kick") {
+                get(ref(db, 'remote/trains')).then((s) => { if (s.exists()) renderTrains(s.val()); });
+            } else if (cmd.event === "kick") {
                 isKicked = true;
                 myScreenRef.remove(); 
                 document.getElementById('kick-screen').style.display = 'flex';
             }
             
             // --- VISUAL TROLLS ---
-            else if (cmd.event === "mirror") body.classList.toggle('mirror');
-            else if (cmd.event === "invert") body.classList.toggle('upside-down');
-            else if (cmd.event === "panic") body.classList.toggle('glitch-red');
-            else if (cmd.event === "disco") body.classList.toggle('disco');
-            else if (cmd.event === "shake") body.classList.toggle('shake');
-            else if (cmd.event === "deepfried") body.classList.toggle('deep-fried');
-            else if (cmd.event === "clear_fx") { 
+            else if (cmd.event === "mirror") {
+                body.classList.toggle('mirror');
+            } else if (cmd.event === "invert") {
+                body.classList.toggle('upside-down');
+            } else if (cmd.event === "panic") {
+                body.classList.toggle('glitch-red');
+            } else if (cmd.event === "disco") {
+                body.classList.toggle('disco');
+            } else if (cmd.event === "shake") {
+                body.classList.toggle('shake');
+            } else if (cmd.event === "deepfried") {
+                body.classList.toggle('deep-fried');
+            } else if (cmd.event === "clear_fx") { 
                 body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); 
-                if(window.scrambleTimer) { 
-                    clearInterval(window.scrambleTimer); window.scrambleTimer = null; 
-                    document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); 
+                if (window.scrambleTimer) { 
+                    clearInterval(window.scrambleTimer);
+                    window.scrambleTimer = null; 
+                    document.querySelectorAll('td[data-orig]').forEach(td => {
+                        td.innerHTML = td.dataset.orig;
+                    });
                 } 
-            }
-            else if (cmd.event === "scramble") {
-                if(!window.scrambleTimer) {
+            } else if (cmd.event === "scramble") {
+                if (!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
-                    tds.forEach(td => { if(!td.dataset.orig) td.dataset.orig = td.innerHTML; });
+                    tds.forEach(td => { if (!td.dataset.orig) td.dataset.orig = td.innerHTML; });
                     window.scrambleTimer = setInterval(() => {
-                        tds.forEach(td => { if(td.querySelector('span')) return; td.innerText = Array.from(td.innerText).map(c => Math.random() > 0.85 ? "X?#@&$"[Math.floor(Math.random()*6)] : c).join(''); });
-                    }, 80);
+                        tds.forEach(td => {
+                            if (td.querySelector('span')) return;
+                            td.innerText = Array.from(td.innerText).map(c =>
+                                Math.random() > 0.9 ? "X?#@&$"[Math.floor(Math.random() * 6)] : c
+                            ).join('');
+                        });
+                    }, 180);
                 }
             }
 
             // --- OVERLAYS ---
-            else if (cmd.event === "terminal") playTerminal(cmd.value);
-            else if (cmd.event === "dvd") startDvd();
-            else if (cmd.event === "blackout") document.getElementById('blackout').style.display = 'block';
-            else if (cmd.event === "hacker") document.getElementById('hacker-matrix').style.display = 'block';
-            else if (cmd.event === "bluescreen") document.getElementById('bsod').style.display = 'block';
-            else if (cmd.event === "winupdate") document.getElementById('win-update').style.display = 'flex';
-            else if (cmd.event === "roblox") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('roblox.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "meme") { const el=document.getElementById('jumpscare'); el.style.backgroundImage="url('meme.jpg')"; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); }
-            else if (cmd.event === "msg_board") {
+            else if (cmd.event === "terminal") {
+                playTerminal(cmd.value);
+            } else if (cmd.event === "dvd") {
+                startDvd();
+            } else if (cmd.event === "blackout") {
+                document.getElementById('blackout').style.display = 'block';
+            } else if (cmd.event === "hacker") {
+                document.getElementById('hacker-matrix').style.display = 'block';
+            } else if (cmd.event === "bluescreen") {
+                document.getElementById('bsod').style.display = 'block';
+            } else if (cmd.event === "winupdate") {
+                document.getElementById('win-update').style.display = 'flex';
+            } else if (cmd.event === "roblox") {
+                const el = document.getElementById('jumpscare');
+                el.style.backgroundImage = "url('roblox.jpg')";
+                el.style.display = 'block';
+                setTimeout(() => el.style.display='none', 3000);
+            } else if (cmd.event === "meme") {
+                const el = document.getElementById('jumpscare');
+                el.style.backgroundImage = "url('meme.jpg')";
+                el.style.display = 'block';
+                setTimeout(() => el.style.display='none', 3000);
+            } else if (cmd.event === "msg_board") {
                 const overlay = document.getElementById('msg-board-overlay');
-                if (!cmd.value || cmd.value === "") { overlay.style.display = 'none'; }
-                else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
+                if (!cmd.value || cmd.value === "") {
+                    overlay.style.display = 'none';
+                } else {
+                    document.getElementById('msg-board-text').innerHTML = cmd.value;
+                    overlay.style.display = 'flex';
+                }
             }
 
             // --- INFO & TEXT ---
             else if (cmd.event === "ticker") {
-                if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
-                else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
+                if (!cmd.value || cmd.value === "") {
+                    customTickerActive = false;
+                    document.getElementById('ticker-msg').innerText = lastDrNews;
+                } else {
+                    customTickerActive = true;
+                    document.getElementById('ticker-msg').innerText =
+                        "*** " + cmd.value.toUpperCase() + " ***";
+                }
+            } else if (cmd.event === "weather") {
+                document.querySelector('.weather-text').innerText = cmd.value;
+            } else if (cmd.event === "show_id") {
+                document.getElementById('screen-id-tag').style.display = 'block';
+            } else if (cmd.event === "hide_id") {
+                document.getElementById('screen-id-tag').style.display = 'none';
+            } else if (cmd.event === "toggle_id") {
+                const tag = document.getElementById('screen-id-tag');
+                tag.style.display = (tag.style.display === 'none') ? 'block' : 'none';
             }
-            else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
-            else if (cmd.event === "show_id") document.getElementById('screen-id-tag').style.display = 'block';
-            else if (cmd.event === "hide_id") document.getElementById('screen-id-tag').style.display = 'none';
-            else if (cmd.event === "toggle_id") { const tag = document.getElementById('screen-id-tag'); tag.style.display = (tag.style.display === 'none') ? 'block' : 'none'; }
 
             // --- TRAIN MACROS ---
-            else if (cmd.event === "delay") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN"; el.className = "red blinking status-msg"; }); }
-            else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
-            else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
+            else if (cmd.event === "delay") {
+                document.querySelectorAll('.status-msg').forEach(el => {
+                    el.innerText = "FORSINKET " + (cmd.value || "99") + " MIN";
+                    el.className = "red blinking status-msg";
+                });
+            } else if (cmd.event === "boarding") {
+                document.querySelectorAll('.status-msg').forEach(el => {
+                    el.innerText = "GÅ TIL SPOR";
+                    el.className = "green blinking status-msg";
+                });
+            } else if (cmd.event === "reset_trains") {
+                document.querySelectorAll('.status-msg').forEach(el => {
+                    el.innerText = "TIL TIDEN";
+                    el.className = "white status-msg";
+                });
+            }
 
             // --- MEDIA HANDLING ---
-            else if (cmd.event === "sc_pause") { try { if(scWidget) scWidget.pause(); } catch(e){} }
-            else if (cmd.event === "sc_play") { try { if(scWidget) scWidget.play(); } catch(e){} }
-            else if (cmd.event === "sc_skip") { try { if(scWidget) scWidget.next(); } catch(e){} }
-            else if (cmd.event === "sc_shuffle") { try { if(scWidget) { scWidget.toggle(); } } catch(e){} }
-            else if (cmd.event === "sc_seek") { 
-                try { if(scWidget && trackDuration > 0) scWidget.seekTo(trackDuration * parseFloat(cmd.value)); } catch(e){} 
+            else if (cmd.event === "sc_pause") {
+                try { if (scWidget) scWidget.pause(); } catch(e){}
+            } else if (cmd.event === "sc_play") {
+                try { if (scWidget) scWidget.play(); } catch(e){}
+            } else if (cmd.event === "sc_skip") {
+                try { if (scWidget) scWidget.next(); } catch(e){}
+            } else if (cmd.event === "sc_shuffle") {
+                try { if (scWidget) { scWidget.toggle(); } } catch(e){}
+            } else if (cmd.event === "sc_seek") { 
+                try { 
+                    if (scWidget && trackDuration > 0) {
+                        scWidget.seekTo(trackDuration * parseFloat(cmd.value));
+                    }
+                } catch(e){} 
+            } else if (cmd.event === "sc_bg") {
+                currentBgMode = cmd.value;
+            } else if (cmd.event === "soundcloud") {
+                startSoundcloud(cmd.value);
+            } else if (cmd.event === "clear_media") {
+                clearMedia();
             }
-            else if (cmd.event === "sc_bg") currentBgMode = cmd.value;
-            else if (cmd.event === "soundcloud") startSoundcloud(cmd.value);
-            else if (cmd.event === "clear_media") clearMedia();
         }
 
         function startSoundcloud(payloadString) {
@@ -503,19 +643,17 @@
                 return;
             }
 
-            // Parse payload from admin
             let payload;
             try { payload = JSON.parse(payloadString); }
             catch(e) { payload = { url: payloadString }; }
 
-            // Smooth Open
             overlay.style.display = 'block';
             setTimeout(() => overlay.classList.add('active'), 50);
             
-            // Set UI Data
-            document.getElementById('sc-title').innerText = payload.title ? payload.title.toUpperCase() : "LOADING AUDIO...";
+            document.getElementById('sc-title').innerText =
+                payload.title ? payload.title.toUpperCase() : "LOADING AUDIO...";
             
-            if(payload.art) {
+            if (payload.art) {
                 document.getElementById('sc-art').src = payload.art;
                 document.getElementById('sc-bg-img').src = payload.art;
             } else {
@@ -525,10 +663,18 @@
 
             startVisualizer();
             
-            // Mount the iframe player
-            container.innerHTML = `<iframe id="sc-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(payload.url)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
+            container.innerHTML = `
+                <iframe
+                    id="sc-iframe"
+                    width="100%"
+                    height="166"
+                    scrolling="no"
+                    frameborder="no"
+                    allow="autoplay"
+                    src="https://w.soundcloud.com/player/?url=${encodeURIComponent(payload.url)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+                </iframe>
+            `;
             
-            // Setup API
             setTimeout(() => {
                 scWidget = SC.Widget(document.getElementById('sc-iframe'));
                 
@@ -538,12 +684,14 @@
 
                 scWidget.bind(SC.Widget.Events.FINISH, function() { scWidget.next(); });
 
-                // Report Progress back to Database
                 clearInterval(progressInterval);
                 progressInterval = setInterval(() => {
                     if (scWidget) {
                         scWidget.getPosition(function(pos) {
-                            set(ref(db, 'remote/media_state'), { currentTime: pos, totalTime: trackDuration });
+                            set(ref(db, 'remote/media_state'), {
+                                currentTime: pos,
+                                totalTime: trackDuration
+                            });
                         });
                     }
                 }, 1000);
@@ -554,7 +702,7 @@
             const overlay = document.getElementById('sc-overlay');
             overlay.classList.remove('active');
             setTimeout(() => {
-                if(!overlay.classList.contains('active')) {
+                if (!overlay.classList.contains('active')) {
                     overlay.style.display='none'; 
                     document.getElementById('sc-player-container').innerHTML = ""; 
                     stopVisualizer();
@@ -570,7 +718,14 @@
         }
 
         // Live Clock
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('da-DK', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
+        setInterval(() => {
+            document.getElementById('clock').innerText =
+                new Date().toLocaleTimeString('da-DK', {
+                    hour:'2-digit',
+                    minute:'2-digit',
+                    second:'2-digit'
+                });
+        }, 1000);
     </script>
 </body>
 </html>

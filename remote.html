@@ -123,16 +123,16 @@
 
             <div id="auth-stage-2" style="display: none;">
                 <p style="font-size: 11px; margin-bottom: 20px; color: #E3000F; font-weight: 900; letter-spacing: 2px;">CREDENTIALS ACCEPTED.<br>ENTER SECURE VAULT CODE.</p>
-                <!-- UPDATED: numeric hints added -->
+                <!-- Numeric-hint access code -->
                 <input
-                    type="password"
-                    id="accessCode"
-                    class="code-input"
-                    maxlength="6"
-                    placeholder="******"
-                    inputmode="numeric"
-                    pattern="\d*"
-                >
+                  type="password"
+                  id="accessCode"
+                  class="code-input"
+                  maxlength="6"
+                  placeholder="******"
+                  inputmode="numeric"
+                  pattern="\d*"
+                />
                 <button class="btn black" style="padding:15px; font-size: 13px;" onclick="verifySecretCode()">UNLOCK COMMAND CENTER</button>
             </div>
         </div>
@@ -153,6 +153,7 @@
             </div>
             <div class="flex-row">
                 <button class="btn" style="margin:0; width:auto;" onclick="document.body.classList.toggle('dark-mode')">DARK MODE</button>
+                <button class="btn" style="margin:0; width:auto;" onclick="toggleGlobePerformance()">PERF MODE</button>
                 <button class="btn red" style="margin:0; width:auto;" onclick="location.reload()">LOCK SYSTEM</button>
             </div>
         </div>
@@ -308,22 +309,41 @@
         </div>
     </div>
 
+    <!-- Performance-tuned globe -->
     <script>
         const canvas = document.getElementById('globe-canvas');
         const ctx = canvas.getContext('2d');
         let w, h, points = [], angle = 0;
-        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
+        let globeEnabled = true;
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
         const phi = Math.PI * (3 - Math.sqrt(5));
-        for (let i = 0; i < 800; i++) {
-            const y = 1 - (i / 799) * 2;
+        const POINT_COUNT = 300; // lighter than 800
+
+        for (let i = 0; i < POINT_COUNT; i++) {
+            const y = 1 - (i / (POINT_COUNT - 1)) * 2;
             const radius = Math.sqrt(1 - y * y);
             const theta = phi * i;
             points.push({ x: Math.cos(theta)*radius, y, z: Math.sin(theta)*radius, char: "X?#@&$"[i%6] });
         }
+
         function draw() {
+            if (!globeEnabled) {
+                requestAnimationFrame(draw);
+                return;
+            }
+
             ctx.clearRect(0,0,w,h);
-            ctx.font = "14px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.font = "14px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
             angle += 0.003;
             const cosA = Math.cos(angle), sinA = Math.sin(angle);
             const projected = points.map(p => {
@@ -342,8 +362,14 @@
             requestAnimationFrame(draw);
         }
         draw();
+
+        window.toggleGlobePerformance = () => {
+            globeEnabled = !globeEnabled;
+            canvas.style.display = globeEnabled ? 'block' : 'none';
+        };
     </script>
 
+    <!-- Firebase + app logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -368,13 +394,12 @@
             }
         });
 
-        // Stage 1: Credentials check (already using string compare)
+        // --- STAGE 1: CREDENTIALS CHECK ---
         window.checkCloudCredentials = () => {
             const u = document.getElementById('logUser').value.trim();
             const p = document.getElementById('logPass').value.trim();
             
             if (usersDB[u] && String(usersDB[u]) === String(p)) {
-                // Match! Move to Code Stage
                 document.getElementById('auth-stage-1').style.display = 'none';
                 document.getElementById('auth-stage-2').style.display = 'block';
             } else {
@@ -383,7 +408,7 @@
             }
         };
 
-        // --- STAGE 2: VERIFY MASTER CODE (string vs string, like password) ---
+        // --- STAGE 2: VERIFY MASTER CODE (string vs string) ---
         window.verifySecretCode = async () => {
             const input = document.getElementById('accessCode').value.trim();
             try {
@@ -421,7 +446,6 @@
                 alert("NEW USER ADDED TO SECURE VAULT!");
                 document.getElementById('newU').value = "";
                 document.getElementById('newP').value = "";
-                // Update local copy
                 usersDB[u] = p;
             } else {
                 alert("Please enter a username and password.");
@@ -559,7 +583,7 @@
                 if (!hasActive) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">NO SCREENS DETECTED</td></tr>';
                 if (Array.from(select.options).some(o => o.value === currentTarget)) select.value = currentTarget;
 
-            }, 1000);
+            }, 2000); // was 1000, throttled to 2s
         }
 
         // --- TRAIN MGMT FUNCTIONS ---
