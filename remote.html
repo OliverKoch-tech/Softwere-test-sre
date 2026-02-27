@@ -117,6 +117,10 @@
         body.dark-mode table.net-table th { border-bottom-color: #555; color: #bbb; }
         body.dark-mode table.net-table td { border-bottom-color: #333; }
         body.dark-mode .login-box h1 { color: #eee; }
+
+        /* --- CUSTOM RANGE SLIDER --- */
+        input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; outline: none; border: none; margin: 0; padding: 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; border: 2px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -248,7 +252,7 @@
                 <div class="flex-row">
                     <button class="btn" onclick="sendCommand('sc_bg', 'topo')">TOPO WAVES</button>
                     <button class="btn" onclick="sendCommand('sc_bg', 'globe')">3D GLOBE</button>
-                    <button class="btn" onclick="sendCommand('sc_bg', 'ascii_album')">ASCII ALBUM</button>
+                    <button class="btn" onclick="sendCommand('sc_bg', 'blur')">ALBUM BLUR</button>
                 </div>
 
                 <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
@@ -256,15 +260,23 @@
                         <div class="admin-art-wrapper">
                             <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
                         </div>
-                        <div style="display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
                             <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING TO SCREENS</span>
                             <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
                         </div>
                     </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; width: 100%;">
+                        <span id="sc-time-current" style="font-size: 10px; font-family: monospace; color: #aaa; width: 35px; text-align: right;">00:00</span>
+                        <input type="range" id="sc-progress" min="0" max="1" step="0.01" value="0" style="flex: 1;" onchange="seekTrack(this.value)">
+                        <span id="sc-time-total" style="font-size: 10px; font-family: monospace; color: #aaa; width: 35px;">00:00</span>
+                    </div>
+
                     <div class="flex-row" style="gap: 5px;">
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_pause')">PAUSE</button>
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_play')">PLAY</button>
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_skip')">SKIP >></button>
+                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
                     </div>
                 </div>
 
@@ -386,7 +398,6 @@
             
             projected.sort((a, b) => b.z - a.z);
             
-            // --- GLOBE COLOR LOGIC ---
             const isDarkMode = document.body.classList.contains('dark-mode');
             
             for (let i = 0; i < numPoints; i++) {
@@ -418,6 +429,7 @@
         // --- Auth State ---
         let isLoggedIn = false;
         let usersDB = {};
+        let isSeeking = false; // Flag to stop slider jitter when dragging
 
         // Intro Logic
         let introIdx = 0;
@@ -467,7 +479,8 @@
             } 
         };
 
-        // --- COLOR EXTRACTION FOR ADMIN PANEL RIM (UPDATED) ---
+        // --- IMPROVED VIBRANT COLOR EXTRACTION ---
+        // This version ignores mud/black/white and boosts saturation
         function extractColors(imgEl) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -480,12 +493,9 @@
                 let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
                 let c3 = getAvgColor(data, (data.length/3)*2, data.length);
                 
-                // Update Admin UI
                 document.documentElement.style.setProperty('--c1', c1);
                 document.documentElement.style.setProperty('--c2', c2);
                 document.documentElement.style.setProperty('--c3', c3);
-
-                // Return the colors to package them for the screens
                 return { c1, c2, c3 };
             } catch(e) { 
                 console.log("CORS blocked extraction. Using default colors."); 
@@ -496,9 +506,20 @@
         function getAvgColor(data, start, end) {
             let r=0, g=0, b=0, count=0;
             for(let i=Math.floor(start); i<end; i+=16) { 
-                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+                let pr = data[i], pg = data[i+1], pb = data[i+2];
+                // Ignore pixels that are too dark (muddy) or too white (washed out)
+                let brightness = (pr * 299 + pg * 587 + pb * 114) / 1000;
+                if (brightness > 30 && brightness < 230) {
+                    r += pr; g += pg; b += pb; count++;
+                }
             }
-            return `${Math.floor(r/count)}, ${Math.floor(g/count)}, ${Math.floor(b/count)}`;
+            if (count === 0) return "100, 100, 100"; // Fallback if image is pure black/white
+
+            // Boost saturation slightly
+            let avgR = Math.floor((r/count) * 1.2);
+            let avgG = Math.floor((g/count) * 1.2);
+            let avgB = Math.floor((b/count) * 1.2);
+            return `${Math.min(255, avgR)}, ${Math.min(255, avgG)}, ${Math.min(255, avgB)}`;
         }
 
         // Command Sender 
@@ -522,7 +543,18 @@
             });
         };
 
-        // --- SOUNDCLOUD CASTER FUNCTION (UPDATED) ---
+        // UI function for seeking
+        window.seekTrack = (value) => {
+            window.sendCommand('sc_seek', value);
+            setTimeout(() => { isSeeking = false; }, 1000); // Resume tracking after jump
+        };
+
+        // Listen for user grabbing the slider
+        document.getElementById('sc-progress').addEventListener('mousedown', () => { isSeeking = true; });
+        document.getElementById('sc-progress').addEventListener('touchstart', () => { isSeeking = true; });
+
+
+        // --- SOUNDCLOUD CASTER FUNCTION ---
         window.castSoundCloud = () => {
             const url = document.getElementById('scInput').value;
             const preview = document.getElementById('sc-admin-preview');
@@ -535,6 +567,8 @@
             preview.style.display = 'flex';
             document.getElementById('sc-admin-title').innerText = "FETCHING TRACK & COLORS...";
             document.getElementById('sc-admin-art').src = "";
+            document.getElementById('sc-time-current').innerText = "00:00";
+            document.getElementById('sc-progress').value = 0;
             
             fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`)
             .then(res => res.json())
@@ -547,10 +581,8 @@
                     document.getElementById('sc-admin-art').src = img.src;
                     document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
 
-                    // Extract colors
                     const extractedColors = extractColors(img);
                     
-                    // Build JSON payload
                     const payload = {
                         url: url,
                         title: data.title,
@@ -560,7 +592,6 @@
                         playRelated: true
                     };
 
-                    // Send stringified JSON to the screens
                     window.sendCommand('soundcloud', JSON.stringify(payload)); 
                 };
                 img.src = artUrl;
@@ -570,10 +601,8 @@
             });
         };
 
-        // --- CLEAR MEDIA UPDATED ---
         window.clearMedia = () => {
             window.sendCommand('clear_media');
-            // Hide the admin preview and reset colors
             document.getElementById('sc-admin-preview').style.display = 'none';
             document.getElementById('scInput').value = "";
             document.documentElement.style.setProperty('--c1', '227, 0, 15');
@@ -671,6 +700,30 @@
             document.getElementById('tInput').value = ""; 
             window.sendCommand('ticker', ""); 
         };
+
+
+        // --- LIVE MEDIA TRACKING ---
+        function formatTime(ms) {
+            let s = Math.floor(ms / 1000);
+            let m = Math.floor(s / 60);
+            s = s % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        onValue(ref(db, 'remote/media_state'), (snapshot) => {
+            if (snapshot.exists()) {
+                const state = snapshot.val();
+                if (state.totalTime > 0) {
+                    document.getElementById('sc-time-total').innerText = formatTime(state.totalTime);
+                    document.getElementById('sc-time-current').innerText = formatTime(state.currentTime);
+                    
+                    if (!isSeeking) {
+                        document.getElementById('sc-progress').value = (state.currentTime / state.totalTime);
+                    }
+                }
+            }
+        });
+
 
         // --- LIVE NETWORK MONITORING ---
         let lastKnownScreens = {};
