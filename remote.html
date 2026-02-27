@@ -4,65 +4,93 @@
     <meta charset="UTF-8">
     <title>MASTER ADMIN - SRE Hub</title>
     <style>
-        :root { --c1: 227, 0, 15; --c2: 0, 40, 85; --c3: 255, 215, 0; }
+        /* --- DYNAMIC COLOR VARIABLES --- */
+        :root {
+            --c1: 227, 0, 15;   /* Red Default */
+            --c2: 0, 40, 85;    /* Blue Default */
+            --c3: 255, 215, 0;  /* Yellow Default */
+        }
+
         body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; transition: background 0.3s; }
         
-        #globe-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.15; }
+        /* --- GLOBE BACKGROUND --- */
+        #globe-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none; opacity: 0.15;
+        }
 
-        /* --- INTRO & AUTH SCREENS --- */
+        /* --- INTRO & LOGIN SCREENS --- */
         #intro-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #ffffff; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; color: #000;
         }
+        #intro-screen img { max-width: 200px; margin-bottom: 30px; }
+        #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
+        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         #login-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 9999998; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; color: #000;
         }
         .login-box { border: 3px solid #000; padding: 40px; width: 360px; text-align: center; background: #fff; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
-        .google-btn { 
-            width: 100%; padding: 15px; background: #4285F4; color: white; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; 
-        }
-        .code-input {
-            width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #000; font-size: 24px; text-align: center; letter-spacing: 10px; outline: none; font-family: monospace; background: #f9f9f9; box-sizing: border-box;
-        }
+        .login-box h1 { font-size: 18px; letter-spacing: 4px; margin-bottom: 25px; }
+        
+        .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; outline: none; font-size: 14px; text-transform: none; text-align: center; box-sizing: border-box; font-weight: bold; }
+        .auth-input:focus { border-color: #000; }
+        
+        .code-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 3px solid #000; font-size: 28px; text-align: center; letter-spacing: 15px; outline: none; font-family: monospace; background: #f9f9f9; box-sizing: border-box; }
 
         /* --- MAIN UI LAYOUT --- */
         .master-header { text-align: center; padding: 30px 0; border-bottom: 1px solid #eee; background: rgba(255,255,255,0.9); position: relative; z-index: 1; }
         .master-header img { height: 100px; margin-bottom: 10px; }
-        
+        .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
+
         .container { max-width: 1300px; margin: 0 auto; padding: 25px; position: relative; z-index: 1; display: none; } /* HIDDEN UNTIL LOGGED IN */
         .card { background: rgba(255,255,255,0.95); border: 1px solid #eee; padding: 25px; backdrop-filter: blur(5px); margin-bottom: 20px; transition: 0.2s; }
-        .section-title { font-size: 11px; letter-spacing: 5px; font-weight: 900; margin: 30px 0 15px 0; border-left: 5px solid #000; padding-left: 15px; }
+        .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
+        
+        .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; background: rgba(255,255,255,0.8); display: inline-block; padding-right: 15px;}
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
 
         /* --- BUTTONS & INPUTS --- */
-        .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #000; background: #fff; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.2s; }
+        .btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; text-transform: uppercase; }
         .btn:hover { background: #000; color: #fff; }
         .btn.black { background: #000; color: #fff; }
         .btn.red { border-color: #E3000F; color: #E3000F; }
         .btn.red:hover { background: #E3000F; color: #fff; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; font-size: 12px; box-sizing: border-box; outline: none; }
+        .btn.green { border-color: #2ecc71; color: #2ecc71; }
+        .btn.green:hover { background: #2ecc71; color: #fff; }
+        
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; font-size: 12px; box-sizing: border-box; outline: none; background: rgba(255,255,255,0.9); font-family: sans-serif; }
         .flex-row { display: flex; gap: 10px; align-items: center; }
 
         /* --- NETWORK TABLE --- */
-        table.net-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; text-align: left; color: #888; }
+        table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; text-align: left; color: #999; }
         table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 
         /* --- SOUNDCLOUD CLEAN BLACK RIM --- */
         .admin-art-wrapper { padding: 2px; border-radius: 6px; background: #000; border: 2px solid #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         /* --- DARK MODE --- */
-        body.dark-mode { background: #0a0a0a; color: #eee; }
-        body.dark-mode .master-header { background: #0a0a0a; border-bottom-color: #333; }
-        body.dark-mode .card { background: #151515; border-color: #333; }
-        body.dark-mode .section-title { color: #fff; border-left-color: #fff; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #222; color: #fff; border-color: #444; }
-        body.dark-mode .btn { background: #222; color: #fff; border-color: #444; }
+        body.dark-mode { background: #111; color: #eee; }
+        body.dark-mode .master-header { background: rgba(17,17,17,0.9); border-bottom: 1px solid #333; }
+        body.dark-mode .master-header h1 { color: #eee; }
+        body.dark-mode .card { background: rgba(30,30,30,0.95); border-color: #444; color: #eee; }
+        body.dark-mode .section-title { background: rgba(17,17,17,0.8); color: #fff; border-left-color: #fff; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #333; color: #eee; border-color: #555; }
+        body.dark-mode .btn { background: #333; color: #eee; border-color: #555; }
         body.dark-mode .btn:hover { background: #eee; color: #111; }
-        body.dark-mode table.net-table th { border-bottom-color: #444; }
-        body.dark-mode table.net-table td { border-bottom-color: #222; }
+        body.dark-mode .btn.black { background: #eee; color: #111; }
+        body.dark-mode table.net-table th { border-bottom-color: #555; color: #bbb; }
+        body.dark-mode table.net-table td { border-bottom-color: #333; }
+
+        /* CUSTOM RANGE SLIDER */
+        input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; outline: none; border: none; margin: 0; padding: 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; border: 2px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -70,27 +98,33 @@
     <canvas id="globe-canvas"></canvas>
 
     <div id="intro-screen">
-        <img src="logo.png" style="max-width:200px; margin-bottom:20px;" onerror="this.style.display='none'">
-        <h1 style="font-size: 20px; letter-spacing: 5px; font-weight: 900;">ADMIN INITIALIZING</h1>
-        <div style="border:4px solid #f3f3f3; border-top:4px solid #000; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin:20px;"></div>
+        <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h1>ADMIN INITIALIZING</h1>
+        <div id="intro-loader"></div>
+        <div style="font-family: monospace; font-size: 12px; color: #666;">Connecting to Cloud Vault...</div>
     </div>
+    <script>
+        setTimeout(() => {
+            const intro = document.getElementById('intro-screen');
+            if(intro) { intro.style.opacity = '0'; setTimeout(() => intro.style.display = 'none', 500); }
+        }, 2500);
+    </script>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1 style="font-size: 18px; letter-spacing: 4px; margin-bottom: 25px;">SYSTEM ACCESS</h1>
+            <h1>SYSTEM ACCESS</h1>
             
             <div id="auth-stage-1">
-                <p style="font-size: 10px; margin-bottom: 20px; color: #666;">AUTHORIZE VIA GOOGLE</p>
-                <button class="google-btn" onclick="signInWithGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                    LOGIN WITH GOOGLE
-                </button>
+                <p style="font-size: 10px; margin-bottom: 20px; color: #666; letter-spacing: 2px; font-weight: bold;">ENTER CLOUD CREDENTIALS</p>
+                <input type="text" id="logUser" class="auth-input" placeholder="USERNAME (e.g. Admin)">
+                <input type="password" id="logPass" class="auth-input" placeholder="PASSWORD">
+                <button class="btn black" style="padding: 15px; font-size: 13px;" onclick="checkCloudCredentials()">AUTHENTICATE</button>
             </div>
 
             <div id="auth-stage-2" style="display: none;">
-                <p id="user-display" style="font-size: 11px; margin-bottom: 10px; font-weight: 900; color:#E3000F;"></p>
-                <input type="password" id="fallbackCode" class="code-input" maxlength="6" placeholder="******">
-                <button class="btn black" style="padding:15px;" onclick="verifyFailsafeCode()">VERIFY FIREBASE CODE</button>
+                <p style="font-size: 11px; margin-bottom: 20px; color: #E3000F; font-weight: 900; letter-spacing: 2px;">CREDENTIALS ACCEPTED.<br>ENTER SECURE VAULT CODE.</p>
+                <input type="password" id="accessCode" class="code-input" maxlength="6" placeholder="******">
+                <button class="btn black" style="padding:15px; font-size: 13px;" onclick="verifySecretCode()">UNLOCK COMMAND CENTER</button>
             </div>
         </div>
     </div>
@@ -102,48 +136,73 @@
 
     <div class="container" id="main-ui">
         
-        <div class="card" style="display:flex; justify-content: space-between; align-items: center; border: 2px solid #000;">
+        <div class="card" style="display:flex; justify-content: space-between; align-items: center; border: 2px solid #000; padding: 15px 25px;">
             <div class="flex-row">
-                <span style="font-size: 11px; font-weight: 900;">ACTIVE TARGET:</span>
-                <select id="target-select" style="margin:0; width: 200px;"><option value="ALL">BROADCAST TO ALL</option></select>
-                <button class="btn black" style="margin:0; width:auto;" onclick="sendCommand('toggle_id')">TOGGLE IDs</button>
+                <span style="font-size: 11px; font-weight: 900;">COMMAND TARGET:</span>
+                <select id="target-select" style="margin:0; width: 250px;"><option value="ALL">BROADCAST TO ALL SCREENS</option></select>
+                <button class="btn black" style="margin:0; width:auto;" onclick="sendCommand('toggle_id')">TOGGLE SCREEN IDs</button>
             </div>
             <div class="flex-row">
                 <button class="btn" style="margin:0; width:auto;" onclick="document.body.classList.toggle('dark-mode')">DARK MODE</button>
-                <button class="btn red" style="margin:0; width:auto;" onclick="logOut()">LOGOUT / LOCK</button>
+                <button class="btn red" style="margin:0; width:auto;" onclick="location.reload()">LOCK SYSTEM</button>
             </div>
         </div>
 
-        <div class="section-title">NETWORK OVERWATCH</div>
-        <div class="card">
+        <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
+        <div class="card" style="border: 2px solid #1f6feb;">
             <table class="net-table">
-                <thead><tr><th>NODE ID</th><th>CONNECTION</th><th>LATENCY</th><th>STATUS</th><th>REMOTES</th></tr></thead>
+                <thead><tr><th>SCREEN ID</th><th>STATUS</th><th>LATENCY</th><th>UPTIME</th><th>ACTIONS</th></tr></thead>
                 <tbody id="network-body"></tbody>
             </table>
         </div>
 
-        <div class="section-title">MISSION CONTROL</div>
+        <div class="section-title">NUCLEAR CONTROL CENTER</div>
         <div class="grid">
             <div class="card" style="border-top: 5px solid #2ecc71;">
-                <h2>CORE RESETS</h2>
-                <button class="btn black" onclick="sendCommand('clear_media')">STOP ALL AUDIO & MEDIA</button>
-                <button class="btn" onclick="sendCommand('clear_fx')">WIPE VISUAL GLITCHES</button>
-                <button class="btn" onclick="sendCommand('reset_trains')">NORMALIZE TRAIN BOARD</button>
+                <h2>RESETS & CLEARS</h2>
+                <button class="btn green" onclick="clearMedia()">STOP ALL OVERLAYS & AUDIO</button>
+                <button class="btn green" onclick="sendCommand('clear_fx')">REMOVE VISUAL FX</button>
+                <button class="btn green" onclick="sendCommand('ticker', '')">REVERT TO DR NEWS</button>
+                <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS</button>
             </div>
             <div class="card" style="border-top: 5px solid #E3000F;">
-                <h2>SYSTEM OVERRIDE</h2>
-                <button class="btn red" onclick="sendCommand('soft_reset')">SOFT HUB REBOOT (KEEPS AUDIO)</button>
-                <button class="btn red" onclick="sendCommand('reset')">HARD SYSTEM RESET</button>
-                <button class="btn red" onclick="sendCommand('blackout')">FORCE TOTAL BLACKOUT</button>
+                <h2>EMERGENCY OVERRIDE</h2>
+                <button class="btn red" onclick="sendCommand('soft_reset')">SOFT REBOOT (KEEPS AUDIO)</button>
+                <button class="btn black" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
+                <button class="btn black" onclick="sendCommand('blackout')">FORCE TOTAL BLACKOUT</button>
+                <button class="btn black" onclick="sendCommand('kick', 'ALL')">KICK ALL SCREENS</button>
             </div>
         </div>
 
-        <div class="section-title">TRAIN DATA MANAGEMENT</div>
+        <div class="section-title">TRAIN BOARD MANAGEMENT</div>
         <div class="card">
+            <h2>ADD, DELETE, AND EDIT LIVE TRAINS</h2>
             <div id="train-editor"></div>
             <div class="flex-row" style="margin-top:20px;">
-                <button class="btn black" style="width:auto;" onclick="addNewTrain()">+ ADD DEPARTURE</button>
-                <button class="btn" style="background:#2ecc71; color:#fff; border:none; width:auto;" onclick="syncTrainBoard()">SAVE & PUSH TO HUB</button>
+                <button class="btn black" style="width:auto;" onclick="addNewTrain()">+ ADD NEW TRAIN</button>
+                <button class="btn green" style="width:auto; border:none;" onclick="syncTrainBoard()">SAVE & PUSH TO SCREENS</button>
+                <button class="btn red" style="width:auto; border:none; margin-left:auto;" onclick="cancelAllTrains()">CANCEL ALL TRAINS</button>
+            </div>
+        </div>
+
+        <div class="section-title">GLOBAL SRE CONTROLS</div>
+        <div class="grid">
+            <div class="card">
+                <h2>TICKER & BROADCAST</h2>
+                <input type="text" id="tickInput" placeholder="Override news feed...">
+                <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tickInput').value)">SEND HEADLINE</button>
+                <button class="btn red" style="margin-top:10px" onclick="sendCommand('status', 'PREMIERE NU')">SET LIVE STATUS</button>
+                <button class="btn" onclick="sendCommand('status', 'KLAR')">RESET STATUS</button>
+            </div>
+            
+            <div class="card">
+                <h2>GLOBAL TRAIN STATUS</h2>
+                <div class="flex-row">
+                    <input type="number" id="dInput" placeholder="Min" style="flex:1">
+                    <button class="btn red" style="flex:2" onclick="sendCommand('delay', document.getElementById('dInput').value)">DELAY ALL</button>
+                </div>
+                <button class="btn green" onclick="sendCommand('boarding')">SET ALL TO BOARDING</button>
+                <button class="btn red" onclick="sendCommand('msg_board', '')">CLOSE ALERT BOX</button>
             </div>
         </div>
 
@@ -151,12 +210,14 @@
         <div class="grid">
             <div class="card">
                 <h2>SOUNDCLOUD CASTER</h2>
-                <input type="text" id="scInput" placeholder="URL: https://soundcloud.com/...">
-                <button class="btn black" onclick="castSoundCloud()">INITIALIZE STREAM</button>
-                <div class="flex-row" style="margin-top:5px;">
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'topo')">TOPO</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'globe')">GLOBE</button>
-                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'blur')">BLUR</button>
+                <input type="text" id="scInput" placeholder="SoundCloud URL (e.g. https://soundcloud.com/...)">
+                <button class="btn black" onclick="castSoundCloud()">CAST AUDIO TO SCREENS</button>
+                
+                <h2 style="margin-top: 15px;">BACKGROUND VISUALIZER</h2>
+                <div class="flex-row">
+                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'topo')">TOPO WAVES</button>
+                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'globe')">3D GLOBE</button>
+                    <button class="btn" style="flex:1" onclick="sendCommand('sc_bg', 'blur')">ALBUM BLUR</button>
                 </div>
                 
                 <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column;">
@@ -165,7 +226,7 @@
                             <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
                         </div>
                         <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
-                            <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">CASTING TO SCREENS</span>
+                            <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING</span>
                             <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
                         </div>
                     </div>
@@ -178,20 +239,11 @@
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_pause')">PAUSE</button>
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_play')">PLAY</button>
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_skip')">SKIP >></button>
+                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <h2>AI TERMINAL & TICKER</h2>
-                <textarea id="termInput" rows="3" placeholder="Terminal text..."></textarea>
-                <button class="btn black" onclick="sendCommand('terminal', document.getElementById('termInput').value)">INJECT TERMINAL</button>
-                <h2 style="margin-top: 15px;">NEWS TICKER OVERRIDE</h2>
-                <input type="text" id="tickInput" placeholder="Ticker headline...">
-                <button class="btn black" onclick="sendCommand('ticker', document.getElementById('tickInput').value)">UPDATE TICKER</button>
-                <button class="btn" onclick="sendCommand('ticker', '')">RESTORE DR NEWS</button>
-            </div>
-            
             <div class="card">
                 <h2>VISUAL CHAOS</h2>
                 <div class="flex-row">
@@ -202,23 +254,49 @@
                     <button class="btn" style="flex:1" onclick="sendCommand('shake')">SHAKE</button>
                     <button class="btn" style="flex:1" onclick="sendCommand('disco')">DISCO</button>
                 </div>
-                <button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE DATA</button>
-                <button class="btn red" onclick="sendCommand('roblox')">ROBLOX ATTACK</button>
-                <button class="btn red" onclick="sendCommand('bluescreen')">TRIGGER BSOD</button>
-                
-                <h2 style="margin-top:15px;">FULL SCREEN ALERTS</h2>
-                <input type="text" id="mInput" placeholder="Warning Text...">
-                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT</button>
+                <button class="btn black" onclick="sendCommand('scramble')">SCRAMBLE BOARD DATA</button>
+                <button class="btn" onclick="sendCommand('deepfried')">DEEP FRIED MODE</button>
+
+                <h2 style="margin-top: 15px;">JUMPSCARES & FAILS</h2>
+                <div class="flex-row">
+                    <button class="btn red" onclick="sendCommand('roblox')">ROBLOX JUMP</button>
+                    <button class="btn red" onclick="sendCommand('meme')">MEME JUMP</button>
+                </div>
+                <button class="btn red" onclick="sendCommand('bluescreen')">FORCE BSOD</button>
+                <button class="btn red" onclick="sendCommand('winupdate')">FAKE WIN UPDATE</button>
+            </div>
+            
+            <div class="card">
+                <h2>AI TERMINAL & DVD</h2>
+                <textarea id="termInput" rows="3" placeholder="Terminal text (use \n for new lines)..."></textarea>
+                <button class="btn black" onclick="sendCommand('terminal', document.getElementById('termInput').value || '> SYSTEM OVERRIDE...')">INJECT TERMINAL</button>
+                <button class="btn" onclick="sendCommand('dvd')">DVD BOUNCE MODE</button>
+                <button class="btn black" onclick="sendCommand('hacker')">MATRIX OVERLAY</button>
+
+                <h2 style="margin-top: 15px;">FULL SCREEN ALERT</h2>
+                <textarea id="mInput" rows="2" placeholder="Warning Text..."></textarea>
+                <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND ALERT BOX</button>
             </div>
         </div>
-        
+
         <div class="section-title">SYSTEM ADMINISTRATION</div>
-        <div class="card">
-            <h2>WEATHER OVERRIDE</h2>
-            <input type="text" id="wInput" placeholder="Temp/Condition...">
-            <button class="btn black" style="width: auto;" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+        <div class="grid">
+            <div class="card">
+                <h2>CLOUD USER MANAGEMENT</h2>
+                <input type="text" id="newU" placeholder="New Username">
+                <input type="password" id="newP" placeholder="New Password">
+                <button class="btn black" onclick="addCloudUser()">ADD USER TO CLOUD VAULT</button>
+            </div>
+            <div class="card">
+                <h2>WEATHER OVERRIDE</h2>
+                <input type="text" id="wInput" placeholder="Temp/Condition...">
+                <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
+            </div>
         </div>
 
+        <div style="text-align: center; padding: 40px 0 20px 0; font-size: 10px; color: #999; letter-spacing: 2px; font-weight: bold;">
+            &copy; COPYRIGHT OLIVER KOCH AND OLIVER KOCH STUDIOS
+        </div>
     </div>
 
     <script>
@@ -236,7 +314,7 @@
         }
         function draw() {
             ctx.clearRect(0,0,w,h);
-            ctx.font = "12px monospace"; ctx.textAlign = "center";
+            ctx.font = "14px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
             angle += 0.003;
             const cosA = Math.cos(angle), sinA = Math.sin(angle);
             const projected = points.map(p => {
@@ -247,7 +325,9 @@
             
             const isDark = document.body.classList.contains('dark-mode');
             projected.forEach(p => {
-                ctx.fillStyle = isDark ? `rgba(255,255,255,${(p.z+1.5)/3})` : `rgba(0,0,0,${(p.z+1.5)/3})`;
+                const alpha = (p.z + 1) / 2;
+                const opacity = 0.2 + (alpha * 0.8);
+                ctx.fillStyle = isDark ? `rgba(255,255,255,${opacity})` : `rgba(0,0,0,${opacity})`;
                 ctx.fillText(p.char, p.x, p.y);
             });
             requestAnimationFrame(draw);
@@ -258,77 +338,58 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, update, onValue, set, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        const MASTER = "oliverteilgaardkoch@gmail.com";
         
         let isAuthorized = false;
         let isSeeking = false;
         let trainList = [];
+        let usersDB = {};
 
-        // REMOVE INTRO FAILSAFE
-        setTimeout(() => {
-            const intro = document.getElementById('intro-screen');
-            if(intro) { intro.style.opacity = '0'; setTimeout(() => intro.style.display = 'none', 500); }
-        }, 3000);
-
-        // --- DUAL LOGIN LOGIC ---
-        
-        window.signInWithGoogle = () => {
-            signInWithPopup(auth, provider).catch(e => {
-                console.error(e);
-                alert("Google Login Error. Ensure popups are allowed.");
-            });
-        };
-
-        // Firebase Auth State Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if (user.email === MASTER) {
-                    unlockUI(); // Oliver logs in instantly
-                } else {
-                    // Friend logged in: Hide Google button, ask for secret code
-                    document.getElementById('auth-stage-1').style.display = 'none';
-                    document.getElementById('auth-stage-2').style.display = 'block';
-                    document.getElementById('user-display').innerText = "RESTRICTED ACCESS: " + user.displayName.toUpperCase();
-                }
+        // --- STAGE 1: FETCH CLOUD USERS ---
+        get(ref(db, 'remote/users')).then((snapshot) => {
+            if (snapshot.exists()) {
+                usersDB = snapshot.val();
             } else {
-                // Not logged in
-                isAuthorized = false;
-                document.getElementById('main-ui').style.display = 'none';
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('login-screen').style.opacity = '1';
-                document.getElementById('auth-stage-1').style.display = 'block';
-                document.getElementById('auth-stage-2').style.display = 'none';
-                document.getElementById('fallbackCode').value = '';
+                // Failsafe: Create default Admin if vault is empty
+                usersDB = { "Admin": "1234" };
+                set(ref(db, 'remote/users'), usersDB);
             }
         });
 
-        // Verifies the code typed by a friend against Firebase
-        window.verifyFailsafeCode = async () => {
-            const input = document.getElementById('fallbackCode').value;
+        window.checkCloudCredentials = () => {
+            const u = document.getElementById('logUser').value;
+            const p = document.getElementById('logPass').value;
+            
+            if (usersDB[u] && usersDB[u] === p) {
+                // Match! Move to Code Stage
+                document.getElementById('auth-stage-1').style.display = 'none';
+                document.getElementById('auth-stage-2').style.display = 'block';
+            } else {
+                alert("ACCESS DENIED: INCORRECT USERNAME OR PASSWORD.");
+            }
+        };
+
+        // --- STAGE 2: VERIFY MASTER CODE ---
+        window.verifySecretCode = async () => {
+            const input = document.getElementById('accessCode').value;
             try {
                 const snap = await get(ref(db, 'remote/config/access_code'));
                 if (snap.exists() && input === snap.val().toString()) {
                     unlockUI();
                 } else {
-                    alert("ACCESS DENIED: INCORRECT CODE.");
-                    signOut(auth);
+                    alert("ACCESS DENIED: INCORRECT SECURE VAULT CODE.");
+                    location.reload(); // Kick them out
                 }
             } catch (err) {
                 console.error(err);
-                alert("DATABASE ERROR: Check Firebase Rules.");
-                signOut(auth);
+                alert("DATABASE ERROR: Cannot verify code.");
             }
         };
 
-        // UI UNLOCKER
+        // --- UNLOCK UI & START DATA STREAMS ---
         function unlockUI() {
             isAuthorized = true;
             document.getElementById('login-screen').style.opacity = '0';
@@ -339,18 +400,35 @@
             }, 500);
         }
 
-        window.logOut = () => {
-            signOut(auth).then(() => location.reload());
+        // --- CLOUD USER MANAGEMENT ---
+        window.addCloudUser = () => {
+            if (!isAuthorized) return;
+            const u = document.getElementById('newU').value;
+            const p = document.getElementById('newP').value;
+            if (u && p) {
+                update(ref(db, 'remote/users'), { [u]: p });
+                alert("NEW USER ADDED TO SECURE VAULT!");
+                document.getElementById('newU').value = "";
+                document.getElementById('newP').value = "";
+                // Update local copy
+                usersDB[u] = p;
+            } else {
+                alert("Please enter a username and password.");
+            }
         };
 
         // --- COMMAND ENGINE ---
         window.sendCommand = (event, val = "", manualTarget = null) => {
             if (!isAuthorized) return;
+            
+            const dangerous = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
+            if (dangerous.includes(event) && !confirm(`WARNING: TRIGGER [${event.toUpperCase()}]?`)) return;
+
             const target = manualTarget || document.getElementById('target-select').value;
             push(ref(db, 'remote/commands'), { event, value: val, target, ts: Date.now() });
         };
 
-        // --- SOUNDCLOUD ---
+        // --- SOUNDCLOUD CASTER ---
         window.seekTrack = (value) => {
             window.sendCommand('sc_seek', value);
             setTimeout(() => { isSeeking = false; }, 1000); 
@@ -374,14 +452,20 @@
                     document.getElementById('sc-admin-art').src = artUrl;
                     document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
 
-                    const payload = { url, title: data.title, art: artUrl };
+                    const payload = { url, title: data.title, art: artUrl, autoPlay: true, playRelated: true };
                     window.sendCommand('soundcloud', JSON.stringify(payload));
                 }).catch(() => {
                     document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK";
                 });
         };
 
-        // --- DATA STREAMS (Only runs after login) ---
+        window.clearMedia = () => {
+            window.sendCommand('clear_media');
+            document.getElementById('sc-admin-preview').style.display = 'none';
+            document.getElementById('scInput').value = "";
+        };
+
+        // --- DATA STREAMS (TRAINS, MEDIA, NETWORK) ---
         function startDataStreams() {
             
             // 1. Fetch Trains
@@ -409,31 +493,62 @@
             });
 
             // 3. Network Monitor
-            onValue(ref(db, 'remote/screens'), (s) => {
-                const nodes = s.val() || {};
+            let lastKnownScreens = {};
+            let screenStartTimes = {};
+            onValue(ref(db, 'remote/screens'), (s) => { lastKnownScreens = s.val() || {}; });
+
+            setInterval(() => {
                 const tbody = document.getElementById('network-body');
                 const select = document.getElementById('target-select');
                 const now = Date.now();
                 const currentTarget = select.value;
                 
-                select.innerHTML = '<option value="ALL">BROADCAST TO ALL</option>';
-                tbody.innerHTML = Object.keys(nodes).map(id => {
-                    const ping = now - nodes[id].heartbeat;
+                select.innerHTML = '<option value="ALL">BROADCAST TO ALL SCREENS</option>';
+                tbody.innerHTML = '';
+
+                let hasActive = false;
+
+                Object.keys(lastKnownScreens).forEach(id => {
+                    const ping = now - lastKnownScreens[id].heartbeat;
                     const online = ping < 10000;
-                    if(online) select.innerHTML += `<option value="${id}">${id}</option>`;
-                    return `
+                    const unstable = ping >= 3000 && ping < 10000;
+
+                    if (online) {
+                        hasActive = true;
+                        if (!screenStartTimes[id]) screenStartTimes[id] = now;
+                        select.innerHTML += `<option value="${id}">${id}</option>`;
+                    } else {
+                        delete screenStartTimes[id];
+                    }
+
+                    let uptimeStr = "00:00:00";
+                    if (online && screenStartTimes[id]) {
+                        const diff = now - screenStartTimes[id];
+                        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                        uptimeStr = `${h}:${m}:${s}`;
+                    }
+
+                    let dot = '#E3000F'; let text = 'LOST CONNECTION'; 
+                    if (online && !unstable) { dot = '#2ecc71'; text = 'STABLE CONNECTION'; }
+                    else if (unstable) { dot = '#FFD700'; text = 'UNSTABLE CONNECTION'; }
+
+                    tbody.innerHTML += `
                         <tr>
                             <td><strong>${id}</strong></td>
-                            <td><span style="color:${online?'#2ecc71':'#E3000F'}; font-weight:bold;">${online?'STABLE':'LOST'}</span></td>
-                            <td>${online ? ping + 'ms' : '--'}</td>
-                            <td>ACTIVE</td>
-                            <td><button class="btn red" style="margin:0; padding:2px 10px; width:auto;" onclick="sendCommand('kick', '', '${id}')">KICK</button></td>
+                            <td><span class="status-dot" style="background:${dot}"></span><span style="color:${dot}; font-weight:bold;">${text}</span></td>
+                            <td>${online ? ping + ' ms' : 'N/A'}</td>
+                            <td style="font-family:monospace; font-weight:bold;">${uptimeStr}</td>
+                            <td><button class="btn black" style="margin:0; width:auto; padding:5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button></td>
                         </tr>
                     `;
-                }).join('');
+                });
 
-                if (Array.from(select.options).some(o => o.value === currentTarget)) { select.value = currentTarget; }
-            });
+                if (!hasActive) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">NO SCREENS DETECTED</td></tr>';
+                if (Array.from(select.options).some(o => o.value === currentTarget)) select.value = currentTarget;
+
+            }, 1000);
         }
 
         // --- TRAIN MGMT FUNCTIONS ---
@@ -444,22 +559,22 @@
                     <input type="text" id="t-time-${i}" value="${t.time}" style="flex:0.6" placeholder="00:00">
                     <input type="text" id="t-type-${i}" value="${t.type}" style="flex:0.8" placeholder="Type">
                     <input type="text" id="t-dest-${i}" value="${t.dest}" style="flex:2" placeholder="Destination">
-                    <input type="text" id="t-track-${i}" value="${t.track}" style="flex:0.5" placeholder="Sp">
-                    <input type="text" id="t-stat-${i}" value="${t.status}" style="flex:1" placeholder="Status">
+                    <input type="text" id="t-track-${i}" value="${t.track}" style="flex:0.5" placeholder="Sp" style="text-align:center;">
+                    <input type="text" id="t-stat-${i}" value="${t.status}" style="flex:1.5" placeholder="Status">
                     <select id="t-col-${i}" style="flex:1">
                         <option value="white" ${t.color==='white'?'selected':''}>WHITE</option>
                         <option value="red" ${t.color==='red'?'selected':''}>RED</option>
                         <option value="yellow" ${t.color==='yellow'?'selected':''}>YELLOW</option>
                         <option value="green" ${t.color==='green'?'selected':''}>GREEN</option>
                     </select>
-                    <label style="flex:0.5; font-size:10px;"><input type="checkbox" id="t-blk-${i}" ${t.blink?'checked':''}> BLINK</label>
-                    <button class="btn red" style="width:auto; margin:0; padding:10px;" onclick="removeTrain(${i})">X</button>
+                    <label style="flex:0.5; font-size:10px; cursor:pointer; white-space:nowrap;"><input type="checkbox" id="t-blk-${i}" ${t.blink?'checked':''}> BLINK</label>
+                    <button class="btn red" style="width:auto; margin:0; flex:0.3;" onclick="removeTrain(${i})">X</button>
                 </div>
             `).join('');
         };
 
         window.addNewTrain = () => {
-            trainList.push({ time: "00:00", type: "RE", dest: "DESTINATION", track: "1", status: "TIL TIDEN", color: "white", blink: false });
+            trainList.push({ time: "00:00", type: "RE", dest: "NEW DESTINATION", track: "1", status: "TIL TIDEN", color: "white", blink: false });
             renderTrainEditor();
         };
 
@@ -469,6 +584,7 @@
         };
 
         window.syncTrainBoard = () => {
+            if (!isAuthorized) return;
             trainList.forEach((t, i) => {
                 t.time = document.getElementById(`t-time-${i}`).value;
                 t.type = document.getElementById(`t-type-${i}`).value;
@@ -479,7 +595,13 @@
                 t.blink = document.getElementById(`t-blk-${i}`).checked;
             });
             set(ref(db, 'remote/trains'), trainList);
-            alert("BOARD SYNCHRONIZED.");
+            alert("BOARD SYNCHRONIZED TO ALL SCREENS.");
+        };
+
+        window.cancelAllTrains = () => {
+            trainList.forEach((t) => { t.status = "AFLYST"; t.color = "red"; t.blink = true; });
+            renderTrainEditor();
+            window.syncTrainBoard();
         };
     </script>
 </body>
