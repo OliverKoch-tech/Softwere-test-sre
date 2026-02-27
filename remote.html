@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>MASTER ADMIN - SRE Hub</title>
     <style>
+        /* --- DYNAMIC COLOR VARIABLES --- */
+        :root {
+            --c1: 227, 0, 15;   /* Red Default */
+            --c2: 0, 40, 85;    /* Blue Default */
+            --c3: 255, 215, 0;  /* Yellow Default */
+        }
+
         body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; }
         
         /* --- GLOBE BACKGROUND --- */
@@ -78,6 +85,20 @@
         
         /* STATUS DOT */
         .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+
+        /* --- DYNAMIC ADMIN WIDGET RIM --- */
+        .admin-art-wrapper {
+            padding: 3px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, rgb(var(--c1)), rgb(var(--c2)), rgb(var(--c3)), rgb(var(--c1)));
+            background-size: 300% 300%;
+            animation: grad-spin 6s ease infinite;
+        }
+        @keyframes grad-spin {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
         /* --- DARK MODE --- */
         body.dark-mode { background: #111; color: #eee; }
@@ -172,8 +193,9 @@
             </div>
             <div class="card" style="border: 2px solid #E3000F;">
                 <h2>EMERGENCY STOP</h2>
-                <button class="btn red" onclick="sendCommand('blackout')">FORCE BLACKOUT</button>
-                <button class="btn red" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
+                <button class="btn red" onclick="sendCommand('soft_reset')">SOFT REBOOT (KEEP AUDIO ALIVE)</button>
+                <button class="btn black" onclick="sendCommand('blackout')">FORCE BLACKOUT</button>
+                <button class="btn black" onclick="sendCommand('reset')">HARD SYSTEM REBOOT</button>
                 <button class="btn black" onclick="sendCommand('msg_board', '')">CLOSE ALERT BOX</button>
             </div>
         </div>
@@ -222,11 +244,27 @@
                     <button class="btn black" style="flex: 1; margin-bottom: 0;" onclick="castSoundCloud()">CAST AUDIO</button>
                 </div>
                 
-                <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 10px; border-radius: 8px; color: white; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                    <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover; border: 2px solid #E3000F;">
-                    <div style="display: flex; flex-direction: column; overflow: hidden;">
-                        <span style="font-size: 10px; color: #E3000F; font-weight: bold; letter-spacing: 1px;">NOW CASTING TO SCREENS</span>
-                        <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
+                <h2 style="margin-top: 15px;">BACKGROUND VISUALIZER</h2>
+                <div class="flex-row">
+                    <button class="btn" onclick="sendCommand('sc_bg', 'topo')">TOPO WAVES</button>
+                    <button class="btn" onclick="sendCommand('sc_bg', 'globe')">3D GLOBE</button>
+                    <button class="btn" onclick="sendCommand('sc_bg', 'ascii_album')">ASCII ALBUM</button>
+                </div>
+
+                <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                        <div class="admin-art-wrapper">
+                            <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; overflow: hidden;">
+                            <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING TO SCREENS</span>
+                            <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
+                        </div>
+                    </div>
+                    <div class="flex-row" style="gap: 5px;">
+                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_pause')">PAUSE</button>
+                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_play')">PLAY</button>
+                        <button class="btn black" style="margin:0;" onclick="sendCommand('sc_skip')">SKIP >></button>
                     </div>
                 </div>
 
@@ -424,6 +462,33 @@
             } 
         };
 
+        // --- COLOR EXTRACTION FOR ADMIN PANEL RIM ---
+        function extractColors(imgEl) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = imgEl.width || 100;
+            canvas.height = imgEl.height || 100;
+            ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+            try {
+                const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
+                let c1 = getAvgColor(data, 0, data.length/3);
+                let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
+                let c3 = getAvgColor(data, (data.length/3)*2, data.length);
+                
+                document.documentElement.style.setProperty('--c1', c1);
+                document.documentElement.style.setProperty('--c2', c2);
+                document.documentElement.style.setProperty('--c3', c3);
+            } catch(e) { console.log("CORS blocked extraction. Using default colors."); }
+        }
+
+        function getAvgColor(data, start, end) {
+            let r=0, g=0, b=0, count=0;
+            for(let i=Math.floor(start); i<end; i+=16) { 
+                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+            }
+            return `${Math.floor(r/count)}, ${Math.floor(g/count)}, ${Math.floor(b/count)}`;
+        }
+
         // Command Sender 
         window.sendCommand = (event, val = "", overrideTarget = null) => {
             if (!isLoggedIn) {
@@ -431,7 +496,7 @@
                 return;
             }
 
-            const dangerousEvents = ['reset', 'blackout', 'kick', 'bluescreen'];
+            const dangerousEvents = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
             if (dangerousEvents.includes(event)) {
                 if (!confirm(`WARNING: You are about to trigger [${event.toUpperCase()}]. Proceed?`)) return;
             }
@@ -445,7 +510,7 @@
             });
         };
 
-        // --- NEW: SOUNDCLOUD CASTER FUNCTION ---
+        // --- SOUNDCLOUD CASTER FUNCTION ---
         window.castSoundCloud = () => {
             const url = document.getElementById('scInput').value;
             
@@ -463,24 +528,36 @@
             document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
             document.getElementById('sc-admin-art').src = "";
             
-            // Ask SoundCloud for the track details just like the Display Hub does
+            // Ask SoundCloud for the track details
             fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`)
             .then(res => res.json())
             .then(data => {
                 let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
-                document.getElementById('sc-admin-art').src = artUrl;
+                
+                // Load image with CORS proxy/flag so we can extract colors
+                let img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    document.getElementById('sc-admin-art').src = img.src;
+                    extractColors(img);
+                };
+                img.src = artUrl;
+                
                 document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
             }).catch(e => {
                 document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK";
             });
         };
 
-        // --- NEW: CLEAR MEDIA UPDATED ---
+        // --- CLEAR MEDIA UPDATED ---
         window.clearMedia = () => {
             window.sendCommand('clear_media');
-            // Hide the admin preview as well
+            // Hide the admin preview and reset colors
             document.getElementById('sc-admin-preview').style.display = 'none';
             document.getElementById('scInput').value = "";
+            document.documentElement.style.setProperty('--c1', '227, 0, 15');
+            document.documentElement.style.setProperty('--c2', '0, 40, 85');
+            document.documentElement.style.setProperty('--c3', '255, 215, 0');
         };
 
         let trainData = [];

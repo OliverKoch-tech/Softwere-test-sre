@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>SRE Master Hub - OLIVER TECH</title>
     <style>
+        /* --- DYNAMIC COLOR VARIABLES --- */
+        :root {
+            --c1: 227, 0, 15;   /* Red Default */
+            --c2: 0, 40, 85;    /* Blue Default */
+            --c3: 255, 215, 0;  /* Yellow Default */
+        }
+
         body { background: #050505; color: white; font-family: Arial, sans-serif; text-transform: uppercase; margin: 0; padding: 20px; overflow: hidden; height: 100vh; transition: transform 0.5s, filter 0.5s; }
         
         /* --- CLEAN WHITE INTRO & KICK SCREEN --- */
@@ -13,13 +20,15 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             transition: opacity 1s ease-in-out; color: #000;
         }
-        #kick-screen { display: none; z-index: 10000000; }
+        #intro-screen { cursor: pointer; } /* Added cursor pointer for the click requirement */
+        #kick-screen { display: none; z-index: 10000000; cursor: not-allowed; }
+        
         #intro-screen img, #kick-screen img { max-width: 250px; margin-bottom: 30px; }
         #intro-screen h1, #kick-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
         #kick-screen h1 { color: #E3000F; } 
         .intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
         #kick-screen .intro-loader { border-top: 4px solid #E3000F; } 
-        .load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
+        .load-status { font-family: monospace; font-size: 14px; color: #666; text-transform: none; font-weight: bold; background: #eee; padding: 10px 20px; border-radius: 5px;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- TROLL EFFECTS --- */
@@ -51,14 +60,43 @@
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         
-        /* NEW SOUNDCLOUD OVERLAY */
+        /* --- NEW SOUNDCLOUD OVERLAY STYLING --- */
         #sc-overlay { background: black; z-index: 99991; overflow: hidden; }
         #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        #sc-art { width: 450px; height: 450px; object-fit: cover; border-radius: 15px; border: 5px solid #E3000F; box-shadow: 0 10px 50px rgba(227, 0, 15, 0.4); }
-        #sc-title { margin-top: 40px; font-size: 40px; font-weight: 900; letter-spacing: 5px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); text-align: center; max-width: 80%; }
+        
+        /* The Gradient Rim Wrapper */
+        .art-wrapper {
+            padding: 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgb(var(--c1)), rgb(var(--c2)), rgb(var(--c3)), rgb(var(--c1)));
+            background-size: 300% 300%;
+            animation: grad-spin 6s ease infinite;
+            box-shadow: 0 15px 60px rgba(var(--c1), 0.5);
+        }
+        @keyframes grad-spin {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #sc-art { width: 450px; height: 450px; object-fit: cover; border-radius: 12px; display: block; }
+        
+        /* The Gradient Text Box */
+        .title-box {
+            margin-top: 40px;
+            padding: 15px 50px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(var(--c1), 0.85), rgba(var(--c2), 0.85));
+            border: 2px solid rgba(var(--c3), 0.6);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #sc-title { font-size: 45px; font-weight: 900; letter-spacing: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,0.9); text-align: center; max-width: 1200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         #sc-player-container { display: none; }
 
+        /* Legacy Overlays */
         #terminal-overlay { background: rgba(0,0,0,0.95); z-index: 99998; padding: 60px; box-sizing: border-box; }
         #terminal-text { color: #0f0; font-family: monospace; font-size: 45px; white-space: pre-wrap; text-transform: none; text-shadow: 0 0 10px rgba(0,255,0,0.5); line-height: 1.4; }
         #dvd-overlay { background: black; z-index: 99990; overflow: hidden; }
@@ -80,22 +118,25 @@
         <img src="logo.png" alt="SRE Logo" onerror="this.style.display='none'">
         <h1>SYSTEM INITIALIZING</h1>
         <div class="intro-loader"></div>
-        <div id="load-status" class="load-status">Connecting to terminal...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">MADE BY OLIVER</div>
+        <div id="load-status" class="load-status">CLICK ANYWHERE TO START HUB & UNLOCK AUDIO</div>
     </div>
 
     <div id="kick-screen">
         <img src="logo.png" alt="SRE Logo" onerror="this.style.display='none'" style="filter: grayscale(100%); opacity: 0.5;">
         <h1>CONNECTION LOST</h1>
         <div class="intro-loader"></div>
-        <div class="load-status" style="color: #E3000F;">Connection terminated by Network Administrator.</div>
+        <div class="load-status" style="color: #E3000F; background: transparent;">Connection terminated by Network Administrator.</div>
     </div>
 
     <div id="sc-overlay" class="overlay">
         <canvas id="sc-canvas"></canvas>
         <div class="sc-content">
-            <img id="sc-art" src="">
-            <div id="sc-title">FETCHING TRACK...</div>
+            <div class="art-wrapper">
+                <img id="sc-art" src="">
+            </div>
+            <div class="title-box">
+                <div id="sc-title">FETCHING TRACK...</div>
+            </div>
         </div>
         <div id="sc-player-container"></div>
     </div>
@@ -148,81 +189,160 @@
         window.scrambleTimer = null;
         let isKicked = false;
 
-        const statusEl = document.getElementById('load-status');
-        const introMsgInterval = setInterval(() => { statusEl.innerText = "Syncing Hub..."; }, 800);
-        setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 4500);
+        // --- CLICK TO UNLOCK AUDIO ---
+        document.getElementById('intro-screen').addEventListener('click', function() {
+            this.style.opacity = '0';
+            setTimeout(() => this.style.display = 'none', 1000);
+        });
 
-        // --- NEW: 3D ASCII TOPOGRAPHY VISUALIZER ---
+        // --- DYNAMIC COLOR EXTRACTION ---
+        function extractColors(imgEl) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = imgEl.width || 100;
+            canvas.height = imgEl.height || 100;
+            ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+            try {
+                const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
+                // Grab 3 color zones (Top, Middle, Bottom)
+                let c1 = getAvgColor(data, 0, data.length/3);
+                let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
+                let c3 = getAvgColor(data, (data.length/3)*2, data.length);
+                
+                document.documentElement.style.setProperty('--c1', c1);
+                document.documentElement.style.setProperty('--c2', c2);
+                document.documentElement.style.setProperty('--c3', c3);
+            } catch(e) { console.log("CORS blocked extraction. Using default colors."); }
+        }
+        function getAvgColor(data, start, end) {
+            let r=0, g=0, b=0, count=0;
+            for(let i=Math.floor(start); i<end; i+=16) { // step 16 to be fast
+                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+            }
+            return `${Math.floor(r/count)}, ${Math.floor(g/count)}, ${Math.floor(b/count)}`;
+        }
+
+        // --- ASCII GENERATOR ---
+        let asciiData = [];
+        function generateAscii(imgEl) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const cols = 90, rows = 45; // Grid resolution
+            canvas.width = cols; canvas.height = rows;
+            ctx.drawImage(imgEl, 0, 0, cols, rows);
+            try {
+                const data = ctx.getImageData(0,0,cols,rows).data;
+                const charList = "M@#W$?!;:~-,. ".split('');
+                asciiData = [];
+                for(let y=0; y<rows; y++){
+                    for(let x=0; x<cols; x++){
+                        let idx = (y*cols + x) * 4;
+                        let bright = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                        let cIdx = Math.floor((bright / 255) * (charList.length - 1));
+                        asciiData.push({x, y, char: charList[cIdx], r: data[idx], g: data[idx+1], b: data[idx+2]});
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // --- BACKGROUND FRAMEWORK ---
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
         let scAnimFrame;
         let visTime = 0;
+        let currentBgMode = 'topo'; // Default Mode
+
+        // Pre-compute globe points so it doesn't stutter
+        const globePoints = [];
+        const phi = Math.PI * (3 - Math.sqrt(5));
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
+        for (let i = 0; i < 600; i++) {
+            const y = 1 - (i / 599) * 2;
+            const r = Math.sqrt(1 - y * y);
+            const theta = phi * i;
+            globePoints.push({ x: Math.cos(theta)*r, y: y, z: Math.sin(theta)*r, char: chars[i % chars.length] });
+        }
 
         function startVisualizer() {
-            scCanvas.width = window.innerWidth;
-            scCanvas.height = window.innerHeight;
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
-            const gridSize = 35; // Size of the map
-            const spacing = 1.6; // Spread of letters
+            if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
             
             function draw() {
+                scCanvas.width = window.innerWidth;
+                scCanvas.height = window.innerHeight;
                 scCtx.clearRect(0, 0, scCanvas.width, scCanvas.height);
-                scCtx.font = "14px monospace";
-                scCtx.textAlign = "center";
-                
                 visTime += 0.05;
-                // Fake "Bass Pulse" simulating an audio reactor
+                
                 let bassPulse = Math.pow(Math.sin(visTime * Math.PI * 1.5), 6) * 3.5; 
 
-                // 45 degrees to view from corner, Tilt down slightly
-                const angleY = Math.PI / 4; 
-                const angleX = Math.PI / 3.5; 
-                
-                const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
-                const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
-                
-                const projected = [];
+                if (currentBgMode === 'topo') {
+                    // 1. TOPO WAVES
+                    scCtx.font = "14px monospace";
+                    scCtx.textAlign = "center";
+                    const gridSize = 35; 
+                    const spacing = 1.6; 
+                    const angleY = Math.PI / 4, angleX = Math.PI / 3.5; 
+                    const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
+                    const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
+                    const projected = [];
 
-                for(let x = -gridSize; x <= gridSize; x++) {
-                    for(let z = -gridSize; z <= gridSize; z++) {
-                        const dist = Math.sqrt(x*x + z*z);
+                    for(let x = -gridSize; x <= gridSize; x++) {
+                        for(let z = -gridSize; z <= gridSize; z++) {
+                            const dist = Math.sqrt(x*x + z*z);
+                            let y = Math.sin(dist * 0.4 - visTime * 3) * (1 + bassPulse * 0.4) + Math.cos(x * 0.3 + visTime) * 1.5;
+                            let px = x * spacing, pz = z * spacing, py = y;
+                            let rx = px * cosY - pz * sinY, rz = pz * cosY + px * sinY;
+                            let ry = py * cosX - rz * sinX, rz2 = rz * cosX + py * sinX;
+                            const distance = 45;
+                            const zScale = distance + rz2;
+                            if(zScale <= 0) continue;
+                            const scale = (Math.min(scCanvas.width, scCanvas.height) * 0.8) / zScale;
+                            projected.push({ sx: scCanvas.width/2 + rx*scale, sy: scCanvas.height/2 + ry*scale + 100, z: rz2, char: chars[Math.abs(x*z) % chars.length] });
+                        }
+                    }
+                    projected.sort((a,b) => b.z - a.z); 
+                    projected.forEach(p => {
+                        let alpha = Math.max(0, 1 - (p.z + 20) / 70);
+                        scCtx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+                        scCtx.fillText(p.char, p.sx, p.sy);
+                    });
+
+                } else if (currentBgMode === 'globe') {
+                    // 2. GLOBE (Slightly larger and faster for audio)
+                    scCtx.font = "16px monospace";
+                    scCtx.textAlign = "center";
+                    const cosA = Math.cos(visTime*0.2), sinA = Math.sin(visTime*0.2);
+                    const projected = [];
+                    globePoints.forEach(p => {
+                        const rotX = p.x * cosA - p.z * sinA;
+                        const rotZ = p.z * cosA + p.x * sinA;
+                        const zScale = rotZ + 3;
+                        const scale = (Math.min(scCanvas.width, scCanvas.height) * 1.1) / zScale;
+                        projected.push({ sx: scCanvas.width/2 + rotX*scale, sy: scCanvas.height/2 + p.y*scale, z: rotZ, char: p.char });
+                    });
+                    projected.sort((a,b) => b.z - a.z);
+                    projected.forEach(p => {
+                        let alpha = (p.z + 1) / 2;
+                        scCtx.fillStyle = `rgba(255, 255, 255, ${0.2 + (alpha * 0.8)})`;
+                        scCtx.fillText(p.char, p.sx, p.sy);
+                    });
+
+                } else if (currentBgMode === 'ascii_album') {
+                    // 3. ASCII ALBUM ART
+                    if (asciiData.length > 0) {
+                        const cellW = scCanvas.width / 90;
+                        const cellH = scCanvas.height / 45;
+                        scCtx.textAlign = 'left';
+                        scCtx.textBaseline = 'top';
+                        scCtx.font = `${cellH * 1.2}px monospace`;
+                        // Pulse the opacity of the ascii based on the beat
+                        let pulseAlpha = Math.min(1, Math.max(0.4, 0.6 + bassPulse * 0.15));
                         
-                        // Topography Math: Creates rolling waves outward + bass hits
-                        let y = Math.sin(dist * 0.4 - visTime * 3) * (1 + bassPulse * 0.4) 
-                              + Math.cos(x * 0.3 + visTime) * 1.5;
-                        
-                        let px = x * spacing;
-                        let pz = z * spacing;
-                        let py = y;
-                        
-                        // Apply Rotations (3D to 2D)
-                        let rx = px * cosY - pz * sinY;
-                        let rz = pz * cosY + px * sinY;
-                        let ry = py * cosX - rz * sinX;
-                        let rz2 = rz * cosX + py * sinX;
-                        
-                        const distance = 45;
-                        const fov = Math.min(scCanvas.width, scCanvas.height) * 0.8;
-                        const zScale = distance + rz2;
-                        if(zScale <= 0) continue;
-                        
-                        const scale = fov / zScale;
-                        const sx = scCanvas.width / 2 + rx * scale;
-                        const sy = scCanvas.height / 2 + ry * scale + 100; // Shift down
-                        
-                        projected.push({ sx, sy, z: rz2, char: chars[Math.abs(x*z) % chars.length] });
+                        asciiData.forEach(p => {
+                            scCtx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${pulseAlpha})`;
+                            scCtx.fillText(p.char, p.x * cellW, p.y * cellH);
+                        });
                     }
                 }
-                
-                // Depth Sort
-                projected.sort((a,b) => b.z - a.z); 
-                
-                // Draw points
-                projected.forEach(p => {
-                    let alpha = Math.max(0, 1 - (p.z + 20) / 70);
-                    scCtx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
-                    scCtx.fillText(p.char, p.sx, p.sy);
-                });
                 
                 scAnimFrame = requestAnimationFrame(draw);
             }
@@ -311,11 +431,7 @@
             } else {
                 renderTrains([
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:45", type: "RE", dest: "TUNG BYRDE VIA MODYBY", track: "3", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "11:00", type: "SPIL", dest: "SPORLØS PREMIERE", track: "1", status: "KLAR", color: "red", blink: true },
-                    { time: "11:30", type: "RE", dest: "HJEMBY", track: "1", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "12:15", type: "ICL", dest: "VIRKELIGHEDEN", track: "4", status: "TIL TIDEN", color: "white", blink: false }
+                    { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false }
                 ]);
             }
         });
@@ -341,7 +457,12 @@
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
             
-            // --- NEW: SOUNDCLOUD COMMAND ---
+            // --- NEW: BG SWITCHER COMMAND ---
+            else if (cmd.event === "sc_bg") {
+                currentBgMode = cmd.value;
+            }
+
+            // --- UPDATED SOUNDCLOUD COMMAND ---
             else if (cmd.event === "soundcloud") {
                 const overlay = document.getElementById('sc-overlay');
                 const container = document.getElementById('sc-player-container');
@@ -359,7 +480,17 @@
                     .then(res => res.json())
                     .then(data => {
                         let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
-                        document.getElementById('sc-art').src = artUrl;
+                        
+                        // Load image with CORS proxy/flag so we can read its pixels
+                        let img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            document.getElementById('sc-art').src = img.src;
+                            extractColors(img);
+                            generateAscii(img);
+                        };
+                        img.src = artUrl;
+                        
                         document.getElementById('sc-title').innerText = data.title.toUpperCase();
                         
                         container.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(cmd.value)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
@@ -379,10 +510,7 @@
                 else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
             }
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
-            else if (cmd.event === "status") {
-                const el = document.getElementById('play-status');
-                if(el) el.innerText = cmd.value;
-            }
+            else if (cmd.event === "status") { const el = document.getElementById('play-status'); if(el) el.innerText = cmd.value; }
             else if (cmd.event === "mirror") body.classList.toggle('mirror');
             else if (cmd.event === "invert") body.classList.toggle('upside-down');
             else if (cmd.event === "panic") body.classList.toggle('glitch-red');
@@ -411,7 +539,7 @@
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
             else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
-            // --- UPDATED CLEAR MEDIA ---
+            
             else if (cmd.event === "clear_media") { 
                 document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
                 stopDvd(); 
