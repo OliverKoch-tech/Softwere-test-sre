@@ -79,7 +79,7 @@
         /* STATUS DOT */
         .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 
-        /* --- NEW: DARK MODE --- */
+        /* --- DARK MODE --- */
         body.dark-mode { background: #111; color: #eee; }
         body.dark-mode #intro-screen, body.dark-mode #login-screen { background: #111; color: #eee; }
         body.dark-mode .login-box { background: #222; border-color: #555; }
@@ -160,7 +160,7 @@
         <div class="grid">
             <div class="card" style="border: 2px solid #2ecc71;">
                 <h2>RESETS & CLEARS</h2>
-                <button class="btn green" onclick="sendCommand('clear_media')">STOP ALL OVERLAYS</button>
+                <button class="btn green" onclick="sendCommand('clear_media')">STOP ALL OVERLAYS & VIDEO</button>
                 <button class="btn green" onclick="sendCommand('clear_fx')">REMOVE VISUAL FX</button>
                 <button class="btn green" onclick="clearTicker()">REVERT TO DR NEWS</button>
                 <button class="btn green" onclick="sendCommand('reset_trains')">NORMALIZE TRAINS</button>
@@ -212,9 +212,15 @@
             </div>
 
             <div class="card">
-                <h2>EMERGENCY ANNOUNCEMENTS</h2>
+                <h2>MEDIA OVERLAYS</h2>
                 <textarea id="mInput" rows="2" placeholder="Overlay text..."></textarea>
                 <button class="btn red" onclick="sendCommand('msg_board', document.getElementById('mInput').value)">SEND FULL SCREEN ALERT</button>
+                
+                <h2 style="margin-top: 15px;">YOUTUBE CASTER</h2>
+                <div class="flex-row">
+                    <input type="text" id="ytInput" placeholder="Video ID (e.g. dQw4w9WgXcQ)" style="flex: 2; margin-bottom: 0;">
+                    <button class="btn black" style="flex: 1; margin-bottom: 0;" onclick="sendCommand('youtube', document.getElementById('ytInput').value)">CAST VIDEO</button>
+                </div>
             </div>
         </div>
 
@@ -328,11 +334,21 @@
             
             projected.sort((a, b) => b.z - a.z);
             
+            // --- UPDATED GLOBE COLOR LOGIC ---
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
             for (let i = 0; i < numPoints; i++) {
                 const p = projected[i];
                 const alpha = (p.z + 1) / 2; 
                 const opacity = 0.2 + (alpha * 0.8);
-                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+                
+                // If dark mode is active, draw white letters. Otherwise, black letters.
+                if (isDarkMode) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                } else {
+                    ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+                }
+                
                 ctx.fillText(p.char, p.screenX, p.screenY);
             }
             requestAnimationFrame(drawGlobe);
@@ -348,8 +364,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- NEW: Auth State ---
+        // --- Auth State ---
         let isLoggedIn = false;
+        let usersDB = {};
 
         // Intro Logic
         let introIdx = 0;
@@ -357,31 +374,53 @@
         const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
 
-        // Authentication
-        let usersDB = { admin: "1234" };
-        onValue(ref(db, 'remote/users'), (snap) => { if(snap.val()) usersDB = snap.val(); });
+        // --- NEW: FETCH & CREATE USERS FROM FIREBASE ---
+        get(ref(db, 'remote/users')).then((snapshot) => {
+            if (snapshot.exists()) {
+                usersDB = snapshot.val();
+            } else {
+                // If database is completely empty, create the default user "Oliver" / "3112"
+                usersDB = { "Oliver": "3112" };
+                set(ref(db, 'remote/users'), usersDB);
+            }
+            
+            // Keep listening for live updates (like when you add a new user below)
+            onValue(ref(db, 'remote/users'), (liveSnap) => {
+                if (liveSnap.exists()) {
+                    usersDB = liveSnap.val();
+                }
+            });
+        });
 
         window.checkLogin = () => { 
             const u = document.getElementById('logUser').value;
             const p = document.getElementById('logPass').value;
-            if (usersDB[u] === p) {
+            
+            // Checks against the data pulled from Firebase
+            if (usersDB[u] && usersDB[u] === p) {
                 isLoggedIn = true;
                 document.getElementById('login-screen').style.display = 'none'; 
+            } else { 
+                alert("ACCESS DENIED: Incorrect Username or Password"); 
             }
-            else alert("ACCESS DENIED"); 
         };
 
         window.addUser = () => { 
+            if (!isLoggedIn) {
+                alert("You must be logged in to add users.");
+                return;
+            }
             const u = document.getElementById('newU').value;
             const p = document.getElementById('newP').value;
             if (u && p) { 
+                // Saves the new user permanently to your Firebase
                 update(ref(db, 'remote/users'), { [u]: p }); 
-                alert("USER ADDED"); 
+                alert("USER ADDED TO DATABASE!"); 
                 document.getElementById('newU').value = ""; document.getElementById('newP').value = "";
             } 
         };
 
-        // Command Sender (With Safety added)
+        // Command Sender 
         window.sendCommand = (event, val = "", overrideTarget = null) => {
             if (!isLoggedIn) {
                 alert("Session expired. Please log in.");
@@ -494,7 +533,7 @@
             window.sendCommand('ticker', ""); 
         };
 
-        // --- LIVE NETWORK MONITORING (WITH UPTIME & SPEED) ---
+        // --- LIVE NETWORK MONITORING ---
         let lastKnownScreens = {};
         let screenStartTimes = {}; 
         

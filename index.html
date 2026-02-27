@@ -82,6 +82,10 @@
         <div class="load-status" style="color: #E3000F;">Connection terminated by Network Administrator.</div>
     </div>
 
+    <div id="yt-overlay" class="overlay" style="background: black; z-index: 99991;">
+        <iframe id="yt-player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
     <div id="terminal-overlay" class="overlay"><div id="terminal-text"></div></div>
     <div id="screen-id-tag">ID: --</div>
@@ -115,7 +119,6 @@
     <div class="ticker-container"><div class="ticker-text" id="ticker-msg">HENTER SENESTE NYT FRA DR...</div></div>
 
     <script type="module">
-        // Added 'get' to the import so we can fetch the initial train list
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -129,6 +132,9 @@
         document.getElementById('screen-id-tag').innerText = "ID: " + myId;
         let bootTime = Date.now();
         window.scrambleTimer = null;
+        
+        // --- NEW: KICKED FLAG ---
+        let isKicked = false;
 
         const statusEl = document.getElementById('load-status');
         const introMsgInterval = setInterval(() => { statusEl.innerText = "Syncing Hub..."; }, 800);
@@ -185,12 +191,10 @@
             typeChar();
         }
 
-        // --- NEW: DYNAMIC TRAIN RENDERER ---
         function renderTrains(trainArray) {
             const tbody = document.getElementById('train-table');
             tbody.innerHTML = '';
             trainArray.forEach((train, index) => {
-                // Determines if the prefix box is red (IC/SPIL) or blue (RE)
                 const boxClass = (train.type.includes('IC') || train.type === 'SPIL') ? 'ic-box' : 're-box';
                 const blinkClass = train.blink ? 'blinking' : '';
                 
@@ -207,12 +211,10 @@
             });
         }
 
-        // Fetch initial trains on boot
         get(ref(db, 'remote/trains')).then((snapshot) => {
             if (snapshot.exists()) {
                 renderTrains(snapshot.val());
             } else {
-                // Fallback to original values if database is empty
                 renderTrains([
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
                     { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
@@ -227,24 +229,38 @@
         const heartbeatInterval = setInterval(() => { set(ref(db, `remote/screens/${myId}/heartbeat`), Date.now()); }, 2000);
 
         onValue(ref(db, 'remote/commands'), (snapshot) => {
+            // --- NEW: ABORT IF KICKED ---
+            if (isKicked) return;
+
             const cmd = snapshot.val();
             if (!cmd || cmd.ts <= bootTime) return;
             if (cmd.target !== "ALL" && cmd.target !== myId) return;
             bootTime = cmd.ts;
             const body = document.getElementById('main-body');
 
-            // --- COMMANDS ---
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "kick") {
+                // --- NEW: SET FLAG TO IGNORE ALL FUTURE COMMANDS ---
+                isKicked = true;
                 clearInterval(heartbeatInterval); 
                 document.getElementById('kick-screen').style.display = 'flex';
             }
             else if (cmd.event === "sync_trains") {
-                // Catches the new command from the admin panel to redraw the entire board
                 renderTrains(JSON.parse(cmd.value));
             }
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
+            // --- NEW: YOUTUBE LOGIC ---
+            else if (cmd.event === "youtube") {
+                const overlay = document.getElementById('yt-overlay');
+                if (!cmd.value || cmd.value === "") {
+                    overlay.style.display = 'none';
+                    document.getElementById('yt-player').src = "";
+                } else {
+                    document.getElementById('yt-player').src = `https://www.youtube.com/embed/${cmd.value}?autoplay=1&controls=0`;
+                    overlay.style.display = 'block';
+                }
+            }
             else if (cmd.event === "ticker") {
                 if (!cmd.value || cmd.value === "") { customTickerActive = false; document.getElementById('ticker-msg').innerText = lastDrNews; } 
                 else { customTickerActive = true; document.getElementById('ticker-msg').innerText = "*** " + cmd.value.toUpperCase() + " ***"; }
@@ -255,7 +271,6 @@
                 else { document.getElementById('msg-board-text').innerHTML = cmd.value; overlay.style.display = 'flex'; }
             }
             else if (cmd.event === "weather") document.querySelector('.weather-text').innerText = cmd.value;
-            // Target the play-status cell specifically if needed, or all of them
             else if (cmd.event === "status") {
                 const el = document.getElementById('play-status');
                 if(el) el.innerText = cmd.value;
@@ -288,7 +303,12 @@
             else if (cmd.event === "boarding") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "GÅ TIL SPOR"; el.className = "green blinking status-msg"; }); }
             else if (cmd.event === "reset_trains") { document.querySelectorAll('.status-msg').forEach(el => { el.innerText = "TIL TIDEN"; el.className = "white status-msg"; }); }
             else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
-            else if (cmd.event === "clear_media") { document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); stopDvd(); }
+            // --- NEW: CLEAR YOUTUBE MEDIA ---
+            else if (cmd.event === "clear_media") { 
+                document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
+                stopDvd(); 
+                document.getElementById('yt-player').src = ""; 
+            }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
                     const tds = document.querySelectorAll('td');
