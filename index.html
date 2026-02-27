@@ -62,7 +62,10 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         
         /* --- SOUNDCLOUD OVERLAY STYLING --- */
-        #sc-overlay { background: black; z-index: 99991; overflow: hidden; }
+        /* ADDED: Smooth transition for fade in/out */
+        #sc-overlay { background: black; z-index: 99991; overflow: hidden; opacity: 0; transition: opacity 1s ease-in-out; pointer-events: none; }
+        #sc-overlay.active { opacity: 1; pointer-events: auto; }
+        
         #sc-bg-img { position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; object-fit: cover; filter: blur(40px) brightness(0.3); z-index: 0; display: none; }
         #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
@@ -192,6 +195,8 @@
         window.scrambleTimer = null;
         let isKicked = false;
         let scWidget = null; 
+        let trackDuration = 0; // Stores total ms of current song
+        let progressInterval = null;
 
         // --- CLICK TO UNLOCK AUDIO ---
         document.getElementById('intro-screen').addEventListener('click', function() {
@@ -424,12 +429,16 @@
 
             if (cmd.event === "reset") location.reload();
             else if (cmd.event === "soft_reset") {
-                document.querySelectorAll('.overlay').forEach(e => e.style.display='none');
+                document.querySelectorAll('.overlay').forEach(e => {
+                    e.classList.remove('active');
+                    setTimeout(() => { if(!e.classList.contains('active')) e.style.display='none'; }, 1000);
+                });
                 body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried');
                 if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; }
                 stopDvd();
                 stopVisualizer();
                 document.getElementById('sc-player-container').innerHTML = ""; 
+                clearInterval(progressInterval);
                 get(ref(db, 'remote/trains')).then((s) => { if(s.exists()) renderTrains(s.val()); });
             }
             else if (cmd.event === "kick") {
@@ -446,6 +455,14 @@
             else if (cmd.event === "sc_pause") { try { if(scWidget) scWidget.pause(); } catch(e){} }
             else if (cmd.event === "sc_play") { try { if(scWidget) scWidget.play(); } catch(e){} }
             else if (cmd.event === "sc_skip") { try { if(scWidget) scWidget.next(); } catch(e){} }
+            else if (cmd.event === "sc_shuffle") { try { if(scWidget) { scWidget.toggle(); } } catch(e){} }
+            else if (cmd.event === "sc_seek") { 
+                try { 
+                    if(scWidget && trackDuration > 0) { 
+                        scWidget.seekTo(trackDuration * parseFloat(cmd.value)); 
+                    } 
+                } catch(e){} 
+            }
             
             // --- UPDATED SOUNDCLOUD LOGIC ---
             else if (cmd.event === "soundcloud") {
@@ -453,14 +470,27 @@
                 const container = document.getElementById('sc-player-container');
                 
                 if (!cmd.value || cmd.value === "") {
-                    overlay.style.display = 'none';
-                    container.innerHTML = "";
-                    stopVisualizer();
+                    // Smooth close
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        if (!overlay.classList.contains('active')) {
+                            overlay.style.display = 'none';
+                            container.innerHTML = "";
+                            stopVisualizer();
+                            clearInterval(progressInterval);
+                            set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
+                        }
+                    }, 1000);
+
                 } else {
                     document.getElementById('sc-title').innerText = "LOADING AUDIO...";
                     document.getElementById('sc-art').src = "";
                     document.getElementById('sc-bg-img').src = "";
+                    
+                    // Smooth open
                     overlay.style.display = 'block';
+                    setTimeout(() => overlay.classList.add('active'), 50);
+                    
                     startVisualizer();
                     
                     // Parse the JSON payload from the Admin
@@ -468,11 +498,9 @@
                     try {
                         payload = JSON.parse(cmd.value);
                     } catch(e) {
-                        // Fallback just in case a raw URL gets sent
                         payload = { url: cmd.value };
                     }
 
-                    // A helper to initialize the player once we have data
                     const startPlayer = (title, artUrl, trackUrl) => {
                         document.getElementById('sc-title').innerText = title.toUpperCase();
                         if(artUrl) {
@@ -480,26 +508,46 @@
                             document.getElementById('sc-bg-img').src = artUrl;
                         }
                         
-                        // We use hide_related=false so soundcloud builds an autoplay queue naturally
                         container.innerHTML = `<iframe id="sc-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&color=%23E3000F&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
                         
-                        // Wait half a second for the iframe to exist, then hook up the API for Auto-skip
+                        // Setup the player API
                         setTimeout(() => {
                             scWidget = SC.Widget(document.getElementById('sc-iframe'));
-                            scWidget.bind(SC.Widget.Events.FINISH, function() {
-                                scWidget.next(); // Forces the next song in the related queue to play
+                            
+                            // Get track duration when it plays
+                            scWidget.bind(SC.Widget.Events.PLAY, function() {
+                                scWidget.getDuration(function(dur) {
+                                    trackDuration = dur;
+                                });
                             });
+
+                            // Auto-skip
+                            scWidget.bind(SC.Widget.Events.FINISH, function() {
+                                scWidget.next(); 
+                            });
+
+                            // Report time to Admin every second
+                            clearInterval(progressInterval);
+                            progressInterval = setInterval(() => {
+                                if (scWidget) {
+                                    scWidget.getPosition(function(pos) {
+                                        set(ref(db, 'remote/media_state'), { 
+                                            currentTime: pos, 
+                                            totalTime: trackDuration 
+                                        });
+                                    });
+                                }
+                            }, 1000);
+
                         }, 500);
                     };
 
                     if (payload.title && payload.colors) {
-                        // 1. FAST PATH: The Admin sent us everything we need instantly!
                         document.documentElement.style.setProperty('--c1', payload.colors.c1);
                         document.documentElement.style.setProperty('--c2', payload.colors.c2);
                         document.documentElement.style.setProperty('--c3', payload.colors.c3);
                         startPlayer(payload.title, payload.art, payload.url);
                     } else {
-                        // 2. SLOW PATH (Fallback): We have to fetch data ourselves
                         fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(payload.url)}`)
                         .then(res => res.json())
                         .then(data => {
@@ -557,10 +605,22 @@
             else if (cmd.event === "clear_fx") { body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried'); if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; document.querySelectorAll('td[data-orig]').forEach(td => { td.innerHTML = td.dataset.orig; }); } }
             
             else if (cmd.event === "clear_media") { 
-                document.querySelectorAll('.overlay').forEach(e => e.style.display='none'); 
+                const overlay = document.getElementById('sc-overlay');
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    if(!overlay.classList.contains('active')) {
+                        overlay.style.display='none'; 
+                        document.getElementById('sc-player-container').innerHTML = ""; 
+                        stopVisualizer();
+                        clearInterval(progressInterval);
+                        set(ref(db, 'remote/media_state'), { currentTime: 0, totalTime: 0 });
+                    }
+                }, 1000);
+                
+                document.querySelectorAll('.overlay').forEach(e => {
+                    if (e.id !== 'sc-overlay') e.style.display='none';
+                }); 
                 stopDvd(); 
-                document.getElementById('sc-player-container').innerHTML = ""; 
-                stopVisualizer();
             }
             else if (cmd.event === "scramble") {
                 if(!window.scrambleTimer) {
