@@ -123,7 +123,16 @@
 
             <div id="auth-stage-2" style="display: none;">
                 <p style="font-size: 11px; margin-bottom: 20px; color: #E3000F; font-weight: 900; letter-spacing: 2px;">CREDENTIALS ACCEPTED.<br>ENTER SECURE VAULT CODE.</p>
-                <input type="password" id="accessCode" class="code-input" maxlength="6" placeholder="******">
+                <!-- UPDATED: numeric hints added -->
+                <input
+                    type="password"
+                    id="accessCode"
+                    class="code-input"
+                    maxlength="6"
+                    placeholder="******"
+                    inputmode="numeric"
+                    pattern="\d*"
+                >
                 <button class="btn black" style="padding:15px; font-size: 13px;" onclick="verifySecretCode()">UNLOCK COMMAND CENTER</button>
             </div>
         </div>
@@ -359,7 +368,7 @@
             }
         });
 
-        // THE FIX: Forces text comparison and removes spaces
+        // Stage 1: Credentials check (already using string compare)
         window.checkCloudCredentials = () => {
             const u = document.getElementById('logUser').value.trim();
             const p = document.getElementById('logPass').value.trim();
@@ -374,7 +383,7 @@
             }
         };
 
-        // --- STAGE 2: VERIFY MASTER CODE ---
+        // --- STAGE 2: VERIFY MASTER CODE (string vs string, like password) ---
         window.verifySecretCode = async () => {
             const input = document.getElementById('accessCode').value.trim();
             try {
@@ -528,8 +537,8 @@
                         const diff = now - screenStartTimes[id];
                         const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
                         const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-                        uptimeStr = `${h}:${m}:${s}`;
+                        const s2 = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                        uptimeStr = `${h}:${m}:${s2}`;
                     }
 
                     let dot = '#E3000F'; let text = 'LOST CONNECTION'; 
