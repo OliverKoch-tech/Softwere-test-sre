@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SRE Master Hub - OLIVER TECH</title>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
     <style>
         /* --- DYNAMIC COLOR VARIABLES --- */
         :root {
@@ -20,7 +21,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             transition: opacity 1s ease-in-out; color: #000;
         }
-        #intro-screen { cursor: pointer; } /* Added cursor pointer for the click requirement */
+        #intro-screen { cursor: pointer; } 
         #kick-screen { display: none; z-index: 10000000; cursor: not-allowed; }
         
         #intro-screen img, #kick-screen img { max-width: 250px; margin-bottom: 30px; }
@@ -60,8 +61,9 @@
         /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
         
-        /* --- NEW SOUNDCLOUD OVERLAY STYLING --- */
+        /* --- SOUNDCLOUD OVERLAY STYLING --- */
         #sc-overlay { background: black; z-index: 99991; overflow: hidden; }
+        #sc-bg-img { position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; object-fit: cover; filter: blur(40px) brightness(0.3); z-index: 0; display: none; }
         #sc-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .sc-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
@@ -129,6 +131,7 @@
     </div>
 
     <div id="sc-overlay" class="overlay">
+        <img id="sc-bg-img" src="">
         <canvas id="sc-canvas"></canvas>
         <div class="sc-content">
             <div class="art-wrapper">
@@ -188,6 +191,7 @@
         let bootTime = Date.now();
         window.scrambleTimer = null;
         let isKicked = false;
+        let scWidget = null; 
 
         // --- CLICK TO UNLOCK AUDIO ---
         document.getElementById('intro-screen').addEventListener('click', function() {
@@ -195,7 +199,7 @@
             setTimeout(() => this.style.display = 'none', 1000);
         });
 
-        // --- DYNAMIC COLOR EXTRACTION ---
+        // --- DYNAMIC COLOR EXTRACTION (Fallback if Admin doesn't send it) ---
         function extractColors(imgEl) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -204,7 +208,6 @@
             ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
             try {
                 const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
-                // Grab 3 color zones (Top, Middle, Bottom)
                 let c1 = getAvgColor(data, 0, data.length/3);
                 let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
                 let c3 = getAvgColor(data, (data.length/3)*2, data.length);
@@ -216,43 +219,20 @@
         }
         function getAvgColor(data, start, end) {
             let r=0, g=0, b=0, count=0;
-            for(let i=Math.floor(start); i<end; i+=16) { // step 16 to be fast
+            for(let i=Math.floor(start); i<end; i+=16) { 
                 r += data[i]; g += data[i+1]; b += data[i+2]; count++;
             }
             return `${Math.floor(r/count)}, ${Math.floor(g/count)}, ${Math.floor(b/count)}`;
         }
 
-        // --- ASCII GENERATOR ---
-        let asciiData = [];
-        function generateAscii(imgEl) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const cols = 90, rows = 45; // Grid resolution
-            canvas.width = cols; canvas.height = rows;
-            ctx.drawImage(imgEl, 0, 0, cols, rows);
-            try {
-                const data = ctx.getImageData(0,0,cols,rows).data;
-                const charList = "M@#W$?!;:~-,. ".split('');
-                asciiData = [];
-                for(let y=0; y<rows; y++){
-                    for(let x=0; x<cols; x++){
-                        let idx = (y*cols + x) * 4;
-                        let bright = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                        let cIdx = Math.floor((bright / 255) * (charList.length - 1));
-                        asciiData.push({x, y, char: charList[cIdx], r: data[idx], g: data[idx+1], b: data[idx+2]});
-                    }
-                }
-            } catch(e) {}
-        }
-
         // --- BACKGROUND FRAMEWORK ---
         const scCanvas = document.getElementById('sc-canvas');
         const scCtx = scCanvas.getContext('2d');
+        const scBgImg = document.getElementById('sc-bg-img');
         let scAnimFrame;
         let visTime = 0;
-        let currentBgMode = 'topo'; // Default Mode
+        let currentBgMode = 'topo'; 
 
-        // Pre-compute globe points so it doesn't stutter
         const globePoints = [];
         const phi = Math.PI * (3 - Math.sqrt(5));
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
@@ -271,15 +251,22 @@
                 scCanvas.height = window.innerHeight;
                 scCtx.clearRect(0, 0, scCanvas.width, scCanvas.height);
                 visTime += 0.05;
-                
-                let bassPulse = Math.pow(Math.sin(visTime * Math.PI * 1.5), 6) * 3.5; 
+
+                // Check if user requested the ALUBM BLUR background mode
+                if (currentBgMode === 'blur') {
+                    scCanvas.style.display = 'none';
+                    scBgImg.style.display = 'block';
+                    scAnimFrame = requestAnimationFrame(draw);
+                    return;
+                } else {
+                    scCanvas.style.display = 'block';
+                    scBgImg.style.display = 'none';
+                }
 
                 if (currentBgMode === 'topo') {
-                    // 1. TOPO WAVES
                     scCtx.font = "14px monospace";
                     scCtx.textAlign = "center";
-                    const gridSize = 35; 
-                    const spacing = 1.6; 
+                    const gridSize = 35, spacing = 1.6; 
                     const angleY = Math.PI / 4, angleX = Math.PI / 3.5; 
                     const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
                     const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
@@ -288,7 +275,10 @@
                     for(let x = -gridSize; x <= gridSize; x++) {
                         for(let z = -gridSize; z <= gridSize; z++) {
                             const dist = Math.sqrt(x*x + z*z);
-                            let y = Math.sin(dist * 0.4 - visTime * 3) * (1 + bassPulse * 0.4) + Math.cos(x * 0.3 + visTime) * 1.5;
+                            
+                            // UPDATED: Smooth, calm waves without bass pulsing
+                            let y = Math.sin(dist * 0.25 - visTime) * 2 + Math.cos(x * 0.2 + visTime * 0.8) * 1.5;
+                            
                             let px = x * spacing, pz = z * spacing, py = y;
                             let rx = px * cosY - pz * sinY, rz = pz * cosY + px * sinY;
                             let ry = py * cosX - rz * sinX, rz2 = rz * cosX + py * sinX;
@@ -307,7 +297,6 @@
                     });
 
                 } else if (currentBgMode === 'globe') {
-                    // 2. GLOBE (Slightly larger and faster for audio)
                     scCtx.font = "16px monospace";
                     scCtx.textAlign = "center";
                     const cosA = Math.cos(visTime*0.2), sinA = Math.sin(visTime*0.2);
@@ -325,23 +314,6 @@
                         scCtx.fillStyle = `rgba(255, 255, 255, ${0.2 + (alpha * 0.8)})`;
                         scCtx.fillText(p.char, p.sx, p.sy);
                     });
-
-                } else if (currentBgMode === 'ascii_album') {
-                    // 3. ASCII ALBUM ART
-                    if (asciiData.length > 0) {
-                        const cellW = scCanvas.width / 90;
-                        const cellH = scCanvas.height / 45;
-                        scCtx.textAlign = 'left';
-                        scCtx.textBaseline = 'top';
-                        scCtx.font = `${cellH * 1.2}px monospace`;
-                        // Pulse the opacity of the ascii based on the beat
-                        let pulseAlpha = Math.min(1, Math.max(0.4, 0.6 + bassPulse * 0.15));
-                        
-                        asciiData.forEach(p => {
-                            scCtx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${pulseAlpha})`;
-                            scCtx.fillText(p.char, p.x * cellW, p.y * cellH);
-                        });
-                    }
                 }
                 
                 scAnimFrame = requestAnimationFrame(draw);
@@ -352,7 +324,6 @@
         function stopVisualizer() {
             if(scAnimFrame) cancelAnimationFrame(scAnimFrame);
         }
-        // ---------------------------------------------
 
         async function fetchWeather() {
             try {
@@ -431,7 +402,11 @@
             } else {
                 renderTrains([
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
-                    { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false }
+                    { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
+                    { time: "10:45", type: "RE", dest: "TUNG BYRDE VIA MODYBY", track: "3", status: "TIL TIDEN", color: "white", blink: false },
+                    { time: "11:00", type: "SPIL", dest: "SPORLØS PREMIERE", track: "1", status: "KLAR", color: "red", blink: true },
+                    { time: "11:30", type: "RE", dest: "HJEMBY", track: "1", status: "TIL TIDEN", color: "white", blink: false },
+                    { time: "12:15", type: "ICL", dest: "VIRKELIGHEDEN", track: "4", status: "TIL TIDEN", color: "white", blink: false }
                 ]);
             }
         });
@@ -448,6 +423,15 @@
             const body = document.getElementById('main-body');
 
             if (cmd.event === "reset") location.reload();
+            else if (cmd.event === "soft_reset") {
+                document.querySelectorAll('.overlay').forEach(e => e.style.display='none');
+                body.classList.remove('mirror', 'upside-down', 'glitch-red', 'disco', 'shake', 'deep-fried');
+                if(window.scrambleTimer) { clearInterval(window.scrambleTimer); window.scrambleTimer = null; }
+                stopDvd();
+                stopVisualizer();
+                document.getElementById('sc-player-container').innerHTML = ""; 
+                get(ref(db, 'remote/trains')).then((s) => { if(s.exists()) renderTrains(s.val()); });
+            }
             else if (cmd.event === "kick") {
                 isKicked = true;
                 clearInterval(heartbeatInterval); 
@@ -456,16 +440,18 @@
             else if (cmd.event === "sync_trains") renderTrains(JSON.parse(cmd.value));
             else if (cmd.event === "terminal") playTerminal(cmd.value);
             else if (cmd.event === "dvd") startDvd();
+            else if (cmd.event === "sc_bg") currentBgMode = cmd.value;
             
-            // --- NEW: BG SWITCHER COMMAND ---
-            else if (cmd.event === "sc_bg") {
-                currentBgMode = cmd.value;
-            }
-
-            // --- UPDATED SOUNDCLOUD COMMAND ---
+            // --- MEDIA CONTROLS ---
+            else if (cmd.event === "sc_pause") { try { if(scWidget) scWidget.pause(); } catch(e){} }
+            else if (cmd.event === "sc_play") { try { if(scWidget) scWidget.play(); } catch(e){} }
+            else if (cmd.event === "sc_skip") { try { if(scWidget) scWidget.next(); } catch(e){} }
+            
+            // --- UPDATED SOUNDCLOUD LOGIC ---
             else if (cmd.event === "soundcloud") {
                 const overlay = document.getElementById('sc-overlay');
                 const container = document.getElementById('sc-player-container');
+                
                 if (!cmd.value || cmd.value === "") {
                     overlay.style.display = 'none';
                     container.innerHTML = "";
@@ -473,30 +459,60 @@
                 } else {
                     document.getElementById('sc-title').innerText = "LOADING AUDIO...";
                     document.getElementById('sc-art').src = "";
+                    document.getElementById('sc-bg-img').src = "";
                     overlay.style.display = 'block';
                     startVisualizer();
                     
-                    fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(cmd.value)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
+                    // Parse the JSON payload from the Admin
+                    let payload;
+                    try {
+                        payload = JSON.parse(cmd.value);
+                    } catch(e) {
+                        // Fallback just in case a raw URL gets sent
+                        payload = { url: cmd.value };
+                    }
+
+                    // A helper to initialize the player once we have data
+                    const startPlayer = (title, artUrl, trackUrl) => {
+                        document.getElementById('sc-title').innerText = title.toUpperCase();
+                        if(artUrl) {
+                            document.getElementById('sc-art').src = artUrl;
+                            document.getElementById('sc-bg-img').src = artUrl;
+                        }
                         
-                        // Load image with CORS proxy/flag so we can read its pixels
-                        let img = new Image();
-                        img.crossOrigin = "Anonymous";
-                        img.onload = () => {
-                            document.getElementById('sc-art').src = img.src;
-                            extractColors(img);
-                            generateAscii(img);
-                        };
-                        img.src = artUrl;
+                        // We use hide_related=false so soundcloud builds an autoplay queue naturally
+                        container.innerHTML = `<iframe id="sc-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&color=%23E3000F&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
                         
-                        document.getElementById('sc-title').innerText = data.title.toUpperCase();
-                        
-                        container.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(cmd.value)}&color=%23E3000F&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`;
-                    }).catch(e => {
-                        document.getElementById('sc-title').innerText = "SOUNDCLOUD ERROR";
-                    });
+                        // Wait half a second for the iframe to exist, then hook up the API for Auto-skip
+                        setTimeout(() => {
+                            scWidget = SC.Widget(document.getElementById('sc-iframe'));
+                            scWidget.bind(SC.Widget.Events.FINISH, function() {
+                                scWidget.next(); // Forces the next song in the related queue to play
+                            });
+                        }, 500);
+                    };
+
+                    if (payload.title && payload.colors) {
+                        // 1. FAST PATH: The Admin sent us everything we need instantly!
+                        document.documentElement.style.setProperty('--c1', payload.colors.c1);
+                        document.documentElement.style.setProperty('--c2', payload.colors.c2);
+                        document.documentElement.style.setProperty('--c3', payload.colors.c3);
+                        startPlayer(payload.title, payload.art, payload.url);
+                    } else {
+                        // 2. SLOW PATH (Fallback): We have to fetch data ourselves
+                        fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(payload.url)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
+                            let img = new Image();
+                            img.crossOrigin = "Anonymous";
+                            img.onload = () => { extractColors(img); };
+                            img.src = artUrl;
+                            startPlayer(data.title, artUrl, payload.url);
+                        }).catch(e => {
+                            document.getElementById('sc-title').innerText = "SOUNDCLOUD ERROR";
+                        });
+                    }
                 }
             }
             

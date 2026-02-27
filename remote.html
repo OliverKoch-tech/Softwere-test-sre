@@ -128,7 +128,7 @@
         <h1>ADMIN INITIALIZING</h1>
         <div id="intro-loader"></div>
         <div id="load-status">Connecting to servers...</div>
-        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">OLIVER TECH HUB v11.0</div>
+        <div style="margin-top: 20px; font-size: 10px; letter-spacing: 2px;">SRE Admin Panel</div>
     </div>
 
     <div id="login-screen">
@@ -142,7 +142,7 @@
 
     <div class="master-header">
         <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-        <h1>OLIVER TECH</h1>
+        <h1>SRE Admin Panel</h1>
     </div>
 
     <div class="container">
@@ -320,6 +320,11 @@
                 <button class="btn black" onclick="sendCommand('weather', document.getElementById('wInput').value)">SET GLOBAL WEATHER</button>
             </div>
         </div>
+
+        <div style="text-align: center; padding: 30px 0 10px 0; font-size: 10px; color: #999; letter-spacing: 2px; font-weight: bold;">
+            &copy; COPYRIGHT OLIVER KOCH AND OLIVER KOCH STUDIOS
+        </div>
+
     </div>
 
     <script>
@@ -462,7 +467,7 @@
             } 
         };
 
-        // --- COLOR EXTRACTION FOR ADMIN PANEL RIM ---
+        // --- COLOR EXTRACTION FOR ADMIN PANEL RIM (UPDATED) ---
         function extractColors(imgEl) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -475,10 +480,17 @@
                 let c2 = getAvgColor(data, data.length/3, (data.length/3)*2);
                 let c3 = getAvgColor(data, (data.length/3)*2, data.length);
                 
+                // Update Admin UI
                 document.documentElement.style.setProperty('--c1', c1);
                 document.documentElement.style.setProperty('--c2', c2);
                 document.documentElement.style.setProperty('--c3', c3);
-            } catch(e) { console.log("CORS blocked extraction. Using default colors."); }
+
+                // Return the colors to package them for the screens
+                return { c1, c2, c3 };
+            } catch(e) { 
+                console.log("CORS blocked extraction. Using default colors."); 
+                return { c1: "227, 0, 15", c2: "0, 40, 85", c3: "255, 215, 0" };
+            }
         }
 
         function getAvgColor(data, start, end) {
@@ -510,42 +522,51 @@
             });
         };
 
-        // --- SOUNDCLOUD CASTER FUNCTION ---
+        // --- SOUNDCLOUD CASTER FUNCTION (UPDATED) ---
         window.castSoundCloud = () => {
             const url = document.getElementById('scInput').value;
-            
-            // 1. Send the command to the screens
-            window.sendCommand('soundcloud', url); 
-            
-            // 2. Update Admin Panel Preview
             const preview = document.getElementById('sc-admin-preview');
+            
             if (!url || url === "") {
                 preview.style.display = 'none';
                 return;
             }
             
             preview.style.display = 'flex';
-            document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
+            document.getElementById('sc-admin-title').innerText = "FETCHING TRACK & COLORS...";
             document.getElementById('sc-admin-art').src = "";
             
-            // Ask SoundCloud for the track details
             fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`)
             .then(res => res.json())
             .then(data => {
                 let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
                 
-                // Load image with CORS proxy/flag so we can extract colors
                 let img = new Image();
                 img.crossOrigin = "Anonymous";
                 img.onload = () => {
                     document.getElementById('sc-admin-art').src = img.src;
-                    extractColors(img);
+                    document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
+
+                    // Extract colors
+                    const extractedColors = extractColors(img);
+                    
+                    // Build JSON payload
+                    const payload = {
+                        url: url,
+                        title: data.title,
+                        art: artUrl,
+                        colors: extractedColors,
+                        autoPlay: true,
+                        playRelated: true
+                    };
+
+                    // Send stringified JSON to the screens
+                    window.sendCommand('soundcloud', JSON.stringify(payload)); 
                 };
                 img.src = artUrl;
                 
-                document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
             }).catch(e => {
-                document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK";
+                document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK / ERROR";
             });
         };
 
