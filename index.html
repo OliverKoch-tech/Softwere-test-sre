@@ -119,6 +119,27 @@
         #msg-board-title { color: #FFD700; font-size: 80px; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; animation: blinker 2s linear infinite; }
         #screen-id-tag { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #ffffff; padding: 5px 10px; font-size: 12px; font-family: monospace; z-index: 999999; border: 1px solid #444; }
         .footer-logo { position: fixed; bottom: 75px; left: 20px; height: 30px; opacity: 0.3; filter: grayscale(100%); }
+
+        /* NEW MEDIA/IMAGE OVERLAY */
+        #media-overlay { 
+            background: rgba(0, 0, 0, 0.92); 
+            z-index: 99994; /* Sits just below critical alerts */
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity 0.5s ease-in-out; 
+            pointer-events: none; 
+        }
+        #media-overlay.active { opacity: 1; pointer-events: auto; }
+        #media-image { 
+            max-width: 90vw; 
+            max-height: 85vh; 
+            object-fit: contain; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); 
+            border-radius: 8px; 
+            border: 2px solid #333;
+        }
     </style>
 </head>
 <body id="main-body">
@@ -149,6 +170,10 @@
             </div>
         </div>
         <div id="sc-player-container"></div>
+    </div>
+
+    <div id="media-overlay" class="overlay">
+        <img id="media-image" src="" alt="Live Media Content">
     </div>
 
     <div id="dvd-overlay" class="overlay"><img id="dvd-logo" src="logo.png"></div>
@@ -615,6 +640,7 @@
                 });
             }
 
+            // --- MEDIA AUDIO CONTROLS ---
             else if (cmd.event === "sc_pause") {
                 try { if (scWidget) scWidget.pause(); } catch(e){}
             } else if (cmd.event === "sc_play") {
@@ -641,6 +667,28 @@
                 startSoundcloud(cmd.value);
             } else if (cmd.event === "clear_media") {
                 clearMedia();
+            }
+
+            // --- NEW: SHOW IMAGE/GIF LOGIC ---
+            else if (cmd.event === "show_image") {
+                const overlay = document.getElementById('media-overlay');
+                const imgEl = document.getElementById('media-image');
+                imgEl.src = cmd.value;
+                overlay.style.display = 'flex';
+                
+                // Allow CSS transition to trigger
+                setTimeout(() => overlay.classList.add('active'), 50);
+            } else if (cmd.event === "clear_image") {
+                const overlay = document.getElementById('media-overlay');
+                overlay.classList.remove('active');
+                
+                // Wait for fade out to finish before removing source
+                setTimeout(() => {
+                    if (!overlay.classList.contains('active')) {
+                        overlay.style.display = 'none';
+                        document.getElementById('media-image').src = "";
+                    }
+                }, 500);
             }
         }
 
@@ -714,11 +762,16 @@
         }
 
         function clearMedia() {
-            const overlay = document.getElementById('sc-overlay');
-            overlay.classList.remove('active');
+            const scOverlay = document.getElementById('sc-overlay');
+            scOverlay.classList.remove('active');
+            
+            // Also hide the new Image Overlay when pressing "STOP ALL MEDIA"
+            const imgOverlay = document.getElementById('media-overlay');
+            imgOverlay.classList.remove('active');
+
             setTimeout(() => {
-                if (!overlay.classList.contains('active')) {
-                    overlay.style.display='none'; 
+                if (!scOverlay.classList.contains('active')) {
+                    scOverlay.style.display='none'; 
                     document.getElementById('sc-player-container').innerHTML = ""; 
                     stopVisualizer();
                     clearInterval(progressInterval);
@@ -727,10 +780,15 @@
                         { currentTime: 0, totalTime: 0, volume: currentVolume }
                     );
                 }
+                
+                if (!imgOverlay.classList.contains('active')) {
+                    imgOverlay.style.display = 'none';
+                    document.getElementById('media-image').src = "";
+                }
             }, 1000);
             
             document.querySelectorAll('.overlay').forEach(e => {
-                if (e.id !== 'sc-overlay') e.style.display='none';
+                if (e.id !== 'sc-overlay' && e.id !== 'media-overlay') e.style.display='none';
             }); 
             stopDvd();
         }
