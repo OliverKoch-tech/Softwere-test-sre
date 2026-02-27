@@ -4,63 +4,47 @@
     <meta charset="UTF-8">
     <title>MASTER ADMIN - SRE Hub</title>
     <style>
-        /* --- DYNAMIC COLOR VARIABLES --- */
-        :root {
-            --c1: 227, 0, 15;   /* Red Default */
-            --c2: 0, 40, 85;    /* Blue Default */
-            --c3: 255, 215, 0;  /* Yellow Default */
-        }
-
-        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; }
+        /* --- CORE VARIABLES --- */
+        :root { --c1: 227, 0, 15; --c2: 0, 40, 85; --c3: 255, 215, 0; }
+        body { background: #fdfdfd; color: #000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; text-transform: uppercase; overflow-x: hidden; position: relative; transition: background 0.3s;}
         
-        /* --- GLOBE BACKGROUND --- */
-        #globe-canvas {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 0; pointer-events: none; opacity: 0.15;
-        }
+        #globe-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.15; }
 
-        /* --- CLEAN WHITE INTRO --- */
-        #intro-screen { 
+        /* --- INTRO & LOGIN SCREEN --- */
+        #intro-screen, #login-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #ffffff; z-index: 9999999; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: opacity 1s ease-in-out; color: #000;
+            transition: opacity 0.5s ease-in-out; color: #000;
         }
+        #login-screen { z-index: 9999998; }
         #intro-screen img { max-width: 200px; margin-bottom: 30px; }
         #intro-screen h1 { font-size: 20px; letter-spacing: 5px; margin: 0; font-weight: 900; }
-        #intro-loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #000;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px 0;
-        }
+        #intro-loader { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px 0; }
         #load-status { font-family: monospace; font-size: 12px; color: #666; text-transform: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- LOGIN SCREEN --- */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s;}
-        .login-box { border: 2px solid #000; padding: 40px; width: 320px; text-align: center; background: #fff; position: relative; z-index: 2; }
+        .login-box { border: 2px solid #000; padding: 40px; width: 350px; text-align: center; background: #fff; position: relative; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .login-box h1 { font-size: 18px; margin-bottom: 25px; letter-spacing: 3px; }
         .google-btn { width: 100%; padding: 15px; background: #4285F4; color: #fff; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; transition: background 0.2s;}
         .google-btn:hover { background: #357abd; }
+        
+        .code-input { width: 100%; padding: 15px; margin: 20px 0; border: 2px solid #000; font-size: 24px; text-align: center; letter-spacing: 10px; outline: none; font-family: monospace; background: #f9f9f9; box-sizing: border-box; }
 
-        /* --- HEADER & LOGO --- */
+        /* --- HEADER & LAYOUT --- */
         .master-header { text-align: center; padding: 40px 0; border-bottom: 1px solid #eee; background: rgba(255,255,255,0.9); position: relative; z-index: 1; }
         .master-header img { height: 120px; margin-bottom: 10px; }
         .master-header h1 { font-size: 14px; letter-spacing: 10px; margin: 0; color: #000; }
-
-        /* --- MAIN UI --- */
         .container { max-width: 1300px; margin: 0 auto; padding: 25px; position: relative; z-index: 1; }
         .target-box { background: #fff; border: 1px solid #000; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        select { padding: 10px; font-weight: bold; border: 1px solid #000; cursor: pointer; background: white; }
-
+        select { padding: 10px; font-weight: bold; border: 1px solid #000; cursor: pointer; background: white; outline: none; }
         .section-title { font-size: 12px; letter-spacing: 4px; font-weight: 900; margin: 40px 0 20px 0; border-left: 5px solid #000; padding-left: 15px; background: rgba(255,255,255,0.8); display: inline-block; padding-right: 15px;}
-
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card { background: rgba(255,255,255,0.95); border: 1px solid #eee; padding: 25px; transition: 0.2s; position: relative; overflow: hidden; backdrop-filter: blur(5px); }
         .card:hover { border-color: #000; box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
         h2 { font-size: 10px; color: #999; margin: 0 0 15px 0; letter-spacing: 2px; }
 
-        /* --- BUTTONS --- */
+        /* --- BUTTONS & INPUTS --- */
         .btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #000; background: #fff; color: #000; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.2s; }
         .btn:hover { background: #000; color: #fff; }
         .btn.black { background: #000; color: #fff; }
@@ -68,42 +52,33 @@
         .btn.red:hover { background: #E3000F; color: #fff; }
         .btn.green { border-color: #2ecc71; color: #2ecc71; }
         .btn.green:hover { background: #2ecc71; color: #fff; }
-
         input, textarea { width: 100%; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; font-size: 12px; outline: none; background: rgba(255,255,255,0.9); }
         .flex-row { display: flex; gap: 10px; align-items: center; }
-        
-        /* NETWORK TABLE */
+
+        /* --- NETWORK TABLE --- */
         table.net-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; margin-top: 15px; }
         table.net-table th { border-bottom: 2px solid #000; padding-bottom: 10px; color: #999; }
         table.net-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
-
-        /* DROPDOWN DETAILS STYLING */
         details.dropdown-card summary { list-style: none; outline: none; cursor: pointer; font-size: 12px; font-weight: 900; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; padding-bottom: 5px;}
         details.dropdown-card summary::-webkit-details-marker { display: none; }
         details.dropdown-card[open] summary { border-bottom: 2px solid #1f6feb; margin-bottom: 15px; }
         details.dropdown-card summary:hover { color: #1f6feb; }
-        
-        /* STATUS DOT */
         .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 
-        /* --- DYNAMIC ADMIN WIDGET RIM --- */
+        /* --- CLEAN BLACK MEDIA PREVIEW WIDGET --- */
         .admin-art-wrapper {
-            padding: 3px;
+            padding: 2px;
             border-radius: 6px;
-            background: linear-gradient(135deg, rgb(var(--c1)), rgb(var(--c2)), rgb(var(--c3)), rgb(var(--c1)));
-            background-size: 300% 300%;
-            animation: grad-spin 6s ease infinite;
-        }
-        @keyframes grad-spin {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            background: #000;
+            border: 2px solid #000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         /* --- DARK MODE --- */
         body.dark-mode { background: #111; color: #eee; }
         body.dark-mode #intro-screen, body.dark-mode #login-screen { background: #111; color: #eee; }
         body.dark-mode .login-box { background: #222; border-color: #555; }
+        body.dark-mode .code-input { background: #333; color: #eee; border-color: #555;}
         body.dark-mode .login-box h1 { color: #eee; }
         body.dark-mode .master-header { background: rgba(17,17,17,0.9); border-bottom: 1px solid #333; }
         body.dark-mode .master-header h1 { color: #eee; }
@@ -116,7 +91,6 @@
         body.dark-mode table.net-table th { border-bottom-color: #555; color: #bbb; }
         body.dark-mode table.net-table td { border-bottom-color: #333; }
 
-        /* --- CUSTOM RANGE SLIDER --- */
         input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; outline: none; border: none; margin: 0; padding: 0; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; border: 2px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
     </style>
@@ -136,10 +110,21 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>SYSTEM ACCESS</h1>
-            <button class="google-btn" onclick="signInWithGoogle()">
-                <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                SIGN IN WITH GOOGLE
-            </button>
+            
+            <div id="auth-stage-1">
+                <p style="font-size: 10px; margin-bottom: 20px; color: #666;">SIGN IN WITH GOOGLE TO START SESSION</p>
+                <button class="google-btn" onclick="signInWithGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                    IDENTIFY WITH GOOGLE
+                </button>
+            </div>
+
+            <div id="auth-stage-2" style="display: none;">
+                <p id="user-display" style="font-size: 11px; margin-bottom: 5px; font-weight: 900;"></p>
+                <input type="password" id="accessCode" class="code-input" maxlength="6" placeholder="******">
+                <button class="btn black" style="padding:15px; font-size: 12px;" onclick="verifyCode()">VERIFY PERMISSIONS</button>
+            </div>
+
         </div>
     </div>
 
@@ -151,9 +136,10 @@
     <div class="container">
         <div class="target-box">
             <span>COMMAND TARGET:</span>
-            <select id="target-screen"><option value="ALL">ALL ACTIVE SCREENS</option></select>
+            <select id="target-screen" style="width:auto;"><option value="ALL">ALL ACTIVE SCREENS</option></select>
             <button class="btn black" style="width:auto; margin:0;" onclick="sendCommand('toggle_id')">TOGGLE ID TAGS</button>
             <button class="btn" style="width:auto; margin:0; margin-left: 10px;" onclick="document.body.classList.toggle('dark-mode')">DARK MODE</button>
+            <button class="btn red" style="width:auto; margin:0; margin-left: 10px;" onclick="logOut()">LOGOUT</button>
         </div>
 
         <div class="section-title">NETWORK DASHBOARD (LIVE)</div>
@@ -256,9 +242,11 @@
 
                 <div id="sc-admin-preview" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; color: white; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
                     <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                        
                         <div class="admin-art-wrapper">
                             <img id="sc-admin-art" src="" style="width: 50px; height: 50px; border-radius: 4px; object-fit: cover; display: block;">
                         </div>
+
                         <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
                             <span style="font-size: 10px; color: #aaa; font-weight: bold; letter-spacing: 1px;">NOW CASTING TO SCREENS</span>
                             <span id="sc-admin-title" style="font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">LOADING...</span>
@@ -278,6 +266,7 @@
                         <button class="btn black" style="margin:0;" onclick="sendCommand('sc_shuffle')">SHUFFLE</button>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -328,6 +317,7 @@
         <div style="text-align: center; padding: 30px 0 10px 0; font-size: 10px; color: #999; letter-spacing: 2px; font-weight: bold;">
             &copy; COPYRIGHT OLIVER KOCH AND OLIVER KOCH STUDIOS
         </div>
+
     </div>
 
     <script>
@@ -335,59 +325,36 @@
         const ctx = canvas.getContext('2d');
         let width, height;
 
-        function resizeGlobe() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeGlobe);
-        resizeGlobe();
+        function resizeGlobe() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeGlobe); resizeGlobe();
 
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*".split('');
-        const points = [];
-        const numPoints = 800; 
-
-        const phi = Math.PI * (3 - Math.sqrt(5));
+        const points = []; const numPoints = 800; const phi = Math.PI * (3 - Math.sqrt(5));
+        
         for (let i = 0; i < numPoints; i++) {
             const y = 1 - (i / (numPoints - 1)) * 2;
             const radiusAtY = Math.sqrt(1 - y * y);
             const theta = phi * i;
-            const x = Math.cos(theta) * radiusAtY;
-            const z = Math.sin(theta) * radiusAtY;
-            points.push({ x, y, z, char: chars[Math.floor(Math.random() * chars.length)] });
+            points.push({ x: Math.cos(theta) * radiusAtY, y, z: Math.sin(theta) * radiusAtY, char: chars[Math.floor(Math.random() * chars.length)] });
         }
 
         let angle = 0;
         function drawGlobe() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.font = "14px monospace";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+            ctx.clearRect(0, 0, width, height); ctx.font = "14px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
             angle += 0.003; 
-            
-            const cosA = Math.cos(angle);
-            const sinA = Math.sin(angle);
-            const projected = [];
+            const cosA = Math.cos(angle); const sinA = Math.sin(angle); const projected = [];
             
             for (let i = 0; i < numPoints; i++) {
                 const p = points[i];
-                const rotX = p.x * cosA - p.z * sinA;
-                const rotZ = p.z * cosA + p.x * sinA;
-                const distance = 3;
-                const z = rotZ + distance;
-                const scale = (Math.min(width, height) * 0.8) / z;
-                
-                const screenX = width / 2 + rotX * scale;
-                const screenY = height / 2 + p.y * scale;
-                projected.push({screenX, screenY, z: rotZ, char: p.char});
+                const rotX = p.x * cosA - p.z * sinA; const rotZ = p.z * cosA + p.x * sinA;
+                const distance = 3; const z = rotZ + distance; const scale = (Math.min(width, height) * 0.8) / z;
+                projected.push({screenX: width / 2 + rotX * scale, screenY: height / 2 + p.y * scale, z: rotZ, char: p.char});
             }
-            
             projected.sort((a, b) => b.z - a.z);
             const isDarkMode = document.body.classList.contains('dark-mode');
             
             for (let i = 0; i < numPoints; i++) {
-                const p = projected[i];
-                const alpha = (p.z + 1) / 2; 
-                const opacity = 0.2 + (alpha * 0.8);
+                const p = projected[i]; const opacity = 0.2 + (((p.z + 1) / 2) * 0.8);
                 ctx.fillStyle = isDarkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`;
                 ctx.fillText(p.char, p.screenX, p.screenY);
             }
@@ -404,69 +371,81 @@
         const firebaseConfig = { databaseURL: "https://trackless-controller-default-rtdb.europe-west1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        // --- GOOGLE AUTHENTICATION SETUP ---
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-        
-        // --- SECURITY WHITELIST ---
-        const ALLOWED_ADMIN = "oliverteilgaardkoch@gmail.com"; 
-        
+
+        // --- IDENTITY CONFIG ---
+        const MASTER_EMAIL = "oliverteilgaardkoch@gmail.com"; 
+
         let isLoggedIn = false;
         let isSeeking = false; 
 
-        // Intro Logic
+        // INTRO SEQUENCE
         let introIdx = 0;
         const statusEl = document.getElementById('load-status');
         const introInterval = setInterval(() => { if(introIdx < 4) introIdx++; statusEl.innerText = "Syncing Hub..."; }, 800);
         setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000); }, 3500);
 
-        // LOGIN FUNCTION TRIGGER
+        // --- DOUBLE GATE AUTHENTICATION ---
         window.signInWithGoogle = () => {
-            signInWithPopup(auth, provider).then(result => {
-                if(result.user.email !== ALLOWED_ADMIN) {
-                    alert(`ACCESS DENIED: ${result.user.email} is not authorized.`);
-                    signOut(auth);
-                }
-            }).catch(e => {
-                alert("LOGIN FAILED: " + e.message);
-            });
+            signInWithPopup(auth, provider).catch(e => alert("LOGIN FAILED: " + e.message));
         };
 
-        // AUTH STATE LISTENER
+        window.verifyCode = async () => {
+            const input = document.getElementById('accessCode').value;
+            try {
+                const snap = await get(ref(db, 'remote/config/access_code'));
+                if (snap.exists() && input === snap.val().toString()) {
+                    unlockAdmin();
+                } else {
+                    alert("ACCESS DENIED: INCORRECT SECURITY CODE");
+                    signOut(auth);
+                }
+            } catch (error) {
+                alert("DATABASE ERROR: Could not verify code.");
+                signOut(auth);
+            }
+        };
+
+        window.logOut = () => {
+            signOut(auth).then(() => location.reload());
+        };
+
+        function unlockAdmin() {
+            isLoggedIn = true;
+            document.getElementById('login-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('login-screen').style.display = 'none', 500);
+        }
+
         onAuthStateChanged(auth, (user) => {
-            if (user && user.email === ALLOWED_ADMIN) {
-                isLoggedIn = true;
-                document.getElementById('login-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('login-screen').style.display = 'none', 500);
+            if (user) {
+                if (user.email === MASTER_EMAIL) {
+                    unlockAdmin(); // Instant unlock for Oliver
+                } else {
+                    // Show secret code stage for friends
+                    document.getElementById('auth-stage-1').style.display = 'none';
+                    document.getElementById('auth-stage-2').style.display = 'block';
+                    document.getElementById('user-display').innerText = "RESTRICTED ACCESS: " + user.displayName.toUpperCase();
+                }
             } else {
+                // Logged out state
                 isLoggedIn = false;
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('login-screen').style.opacity = '1';
+                document.getElementById('auth-stage-1').style.display = 'block';
+                document.getElementById('auth-stage-2').style.display = 'none';
+                document.getElementById('accessCode').value = ""; // Clear input
             }
         });
 
-        // --- COMMAND SENDER (Uses push for reliable queuing) ---
+        // --- COMMAND QUEUE SENDER ---
         window.sendCommand = (event, val = "", overrideTarget = null) => {
-            if (!isLoggedIn) {
-                alert("Session expired. Please log in.");
-                return;
-            }
-
+            if (!isLoggedIn) { alert("Session expired. Please log in."); return; }
             const dangerousEvents = ['reset', 'blackout', 'kick', 'bluescreen', 'soft_reset'];
-            if (dangerousEvents.includes(event)) {
-                if (!confirm(`WARNING: You are about to trigger [${event.toUpperCase()}]. Proceed?`)) return;
-            }
+            if (dangerousEvents.includes(event) && !confirm(`WARNING: Trigger [${event.toUpperCase()}]?`)) return;
 
             const target = overrideTarget || document.getElementById('target-screen').value;
-            
-            // Push creates a unique entry, preventing command overrides
-            push(ref(db, 'remote/commands'), { 
-                event: event, 
-                value: val, 
-                target: target, 
-                ts: Date.now() 
-            });
+            push(ref(db, 'remote/commands'), { event: event, value: val, target: target, ts: Date.now() });
         };
 
         window.seekTrack = (value) => {
@@ -477,15 +456,12 @@
         document.getElementById('sc-progress').addEventListener('mousedown', () => { isSeeking = true; });
         document.getElementById('sc-progress').addEventListener('touchstart', () => { isSeeking = true; });
 
-        // --- SOUNDCLOUD CASTER (Cleaned up, no CORS canvas errors) ---
+        // --- SOUNDCLOUD CASTER (Color Extraction Removed) ---
         window.castSoundCloud = () => {
             const url = document.getElementById('scInput').value;
             const preview = document.getElementById('sc-admin-preview');
             
-            if (!url || url === "") {
-                preview.style.display = 'none';
-                return;
-            }
+            if (!url || url === "") { preview.style.display = 'none'; return; }
             
             preview.style.display = 'flex';
             document.getElementById('sc-admin-title').innerText = "FETCHING TRACK...";
@@ -497,18 +473,10 @@
             .then(res => res.json())
             .then(data => {
                 let artUrl = data.thumbnail_url ? data.thumbnail_url.replace('large', 't500x500') : '';
-                
                 document.getElementById('sc-admin-art').src = artUrl;
                 document.getElementById('sc-admin-title').innerText = data.title.toUpperCase();
 
-                const payload = {
-                    url: url,
-                    title: data.title,
-                    art: artUrl,
-                    autoPlay: true,
-                    playRelated: true
-                };
-
+                const payload = { url: url, title: data.title, art: artUrl, autoPlay: true, playRelated: true };
                 window.sendCommand('soundcloud', JSON.stringify(payload)); 
             }).catch(e => {
                 document.getElementById('sc-admin-title').innerText = "UNKNOWN TRACK / ERROR";
@@ -524,9 +492,8 @@
         // --- TRAIN MANAGER ---
         let trainData = [];
         get(ref(db, 'remote/trains')).then((snapshot) => {
-            if (snapshot.exists()) {
-                trainData = snapshot.val();
-            } else {
+            if (snapshot.exists()) { trainData = snapshot.val(); } 
+            else {
                 trainData = [
                     { time: "09:30", type: "IC", dest: "KØBENHAVN H", track: "4", status: "TIL TIDEN", color: "white", blink: false },
                     { time: "10:00", type: "RE", dest: "LYDFIL VIA SLIPKØBING", track: "2", status: "TIL TIDEN", color: "white", blink: false },
@@ -575,10 +542,7 @@
         };
 
         window.saveAndPushTrains = () => {
-            if (!isLoggedIn) {
-                alert("Session expired. Please log in.");
-                return;
-            }
+            if (!isLoggedIn) { alert("Session expired. Please log in."); return; }
 
             trainData.forEach((train, index) => {
                 train.time = document.getElementById(`t-time-${index}`).value;
@@ -589,7 +553,6 @@
                 train.color = document.getElementById(`t-color-${index}`).value;
                 train.blink = document.getElementById(`t-blink-${index}`).checked;
             });
-            // Only use set() here. Removed the redundant sendCommand.
             set(ref(db, 'remote/trains'), trainData);
             alert("BOARD UPDATED!");
         };
@@ -610,12 +573,9 @@
             window.sendCommand('ticker', ""); 
         };
 
-
         // --- LIVE MEDIA TRACKING ---
         function formatTime(ms) {
-            let s = Math.floor(ms / 1000);
-            let m = Math.floor(s / 60);
-            s = s % 60;
+            let s = Math.floor(ms / 1000); let m = Math.floor(s / 60); s = s % 60;
             return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
@@ -625,22 +585,16 @@
                 if (state.totalTime > 0) {
                     document.getElementById('sc-time-total').innerText = formatTime(state.totalTime);
                     document.getElementById('sc-time-current').innerText = formatTime(state.currentTime);
-                    
-                    if (!isSeeking) {
-                        document.getElementById('sc-progress').value = (state.currentTime / state.totalTime);
-                    }
+                    if (!isSeeking) { document.getElementById('sc-progress').value = (state.currentTime / state.totalTime); }
                 }
             }
         });
-
 
         // --- LIVE NETWORK MONITORING ---
         let lastKnownScreens = {};
         let screenStartTimes = {}; 
         
-        onValue(ref(db, 'remote/screens'), (snapshot) => {
-            lastKnownScreens = snapshot.val() || {};
-        });
+        onValue(ref(db, 'remote/screens'), (snapshot) => { lastKnownScreens = snapshot.val() || {}; });
 
         function updateNetworkUI() {
             const select = document.getElementById('target-screen');
@@ -658,11 +612,8 @@
                 const isOnline = ping < 10000;
                 const isUnstable = ping >= 3000 && ping < 10000;
                 
-                if (isOnline) {
-                    if (!screenStartTimes[id]) screenStartTimes[id] = now;
-                } else {
-                    delete screenStartTimes[id]; 
-                }
+                if (isOnline) { if (!screenStartTimes[id]) screenStartTimes[id] = now; } 
+                else { delete screenStartTimes[id]; }
 
                 let uptimeStr = "00:00:00";
                 if (isOnline && screenStartTimes[id]) {
@@ -679,18 +630,12 @@
                     opt.value = id; opt.innerText = id; select.appendChild(opt);
                 }
 
-                let dotColor = '#E3000F'; 
-                let statusText = 'LOST CONNECTION';
-                let speedStr = '0.0 Mbps';
+                let dotColor = '#E3000F'; let statusText = 'LOST CONNECTION'; let speedStr = '0.0 Mbps';
 
                 if (isOnline && !isUnstable) {
-                    dotColor = '#2ecc71'; 
-                    statusText = 'STABLE CONNECTION';
-                    speedStr = (Math.random() * 50 + 150).toFixed(1) + ' Mbps'; 
+                    dotColor = '#2ecc71'; statusText = 'STABLE CONNECTION'; speedStr = (Math.random() * 50 + 150).toFixed(1) + ' Mbps'; 
                 } else if (isUnstable) {
-                    dotColor = '#FFD700'; 
-                    statusText = 'UNSTABLE CONNECTION';
-                    speedStr = (Math.random() * 10 + 5).toFixed(1) + ' Mbps'; 
+                    dotColor = '#FFD700'; statusText = 'UNSTABLE CONNECTION'; speedStr = (Math.random() * 10 + 5).toFixed(1) + ' Mbps'; 
                 }
 
                 const statusHtml = `<span class="status-dot" style="background-color: ${dotColor};"></span><span style="color: ${dotColor}; font-weight: 900;">${statusText}</span>`;
@@ -702,22 +647,16 @@
                     <td>${isOnline ? ping + ' ms' : 'N/A'}</td>
                     <td>${speedStr}</td>
                     <td style="font-family: monospace; font-weight: bold;">${uptimeStr}</td>
-                    <td>
-                        <button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button>
-                    </td>
+                    <td><button class="btn black" style="margin:0; width:auto; padding: 5px 15px;" onclick="sendCommand('kick', '', '${id}')">KICK</button></td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            if (!hasActiveScreens) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED</td></tr>';
-            }
-
+            if (!hasActiveScreens) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#999;">NO SCREENS DETECTED</td></tr>'; }
             if (Array.from(select.options).some(o => o.value === current)) { select.value = current; }
         }
 
         setInterval(updateNetworkUI, 1000);
-
     </script>
 </body>
 </html>
