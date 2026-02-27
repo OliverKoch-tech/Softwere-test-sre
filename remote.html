@@ -1116,30 +1116,6 @@
             const keys = mediaStates ? Object.keys(mediaStates) : [];
 
             if (target === 'ALL') {
-                if (keys.length > 1) {
-                    const volumes = keys.map(k =>
-                        mediaStates[k] && typeof mediaStates[k].volume === 'number'
-                            ? mediaStates[k].volume
-                            : 80
-                    );
-                    const allSameVol = volumes.every(v => v === volumes[0]);
-
-                    if (!allSameVol) {
-                        sendCommand('clear_media');
-                        sendCommand('sc_volume', 100);
-
-                        if (volSlider && volLabel) {
-                            volSlider.value = 100;
-                            volLabel.innerText = '100%';
-                        }
-                        if (totalEl) totalEl.innerText = '00:00';
-                        if (curEl) curEl.innerText = '00:00';
-                        if (!isSeeking && progressEl) progressEl.value = 0;
-                        if (dashMedia) dashMedia.innerText = 'IDLE';
-                        return;
-                    }
-                }
-
                 const firstKey = keys[0];
                 if (firstKey) state = mediaStates[firstKey];
             } else {
